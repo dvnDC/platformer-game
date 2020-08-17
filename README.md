@@ -1,1 +1,1 @@
-# platformer-game
+# platformer-game-pygame
