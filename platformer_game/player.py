@@ -1,29 +1,46 @@
 import pygame
 from pygame.math import Vector2
+import time
 
+
+time0 = time.time()
 
 class Player(object):
 
     def __init__(self, game):
         self.game = game
-        self.speed = 1.2
-        self.gravity = 0.9
+
+        self.speed = 0.55
+        self.gravity = 0.7
+
         self.isJump = False
-        self.got_weapon = False
+        self.got_weapon = True
 
         #self.pos = pygame.math.Vector2(0,0)
         self.pos = Vector2(0,0)
         self.vel = Vector2(0,0)
         self.acc = Vector2(0,0)
 
-        self.pos.x = 300
+        self.vel.x = 0.1
+        self.pos.x = 640
         self.pos.y = 170
         self.width = 20
         self.height = 60
 
+        self.scroll = Vector2(0,0)
+
+        self.time1 = 0
+        self.dt = 0
+
         self.position = (0,0,0,0) # x0 x1 y0 y1
 
-        self.pos_weapon = self.pos
+
+        self.isAttacking = False
+        self.isRunning = False
+        self.runCount = 0
+
+
+
 
 
 
@@ -31,32 +48,46 @@ class Player(object):
         self.acc += force
 
     def tick(self):
-
-
+        # Time for animations
+        global time0
+        self.time1 = time.time()
+        self.dt = self.time1 - time0
         # Input
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_a]:
             self.add_force(Vector2(-self.speed,0))
-        if pressed[pygame.K_d]:
+            self.isRunning = True
+        elif pressed[pygame.K_d]:
             self.add_force(Vector2(self.speed,0))
+            self.isRunning = True
+        else:
+            self.isRunning = False
+            self.runCount = 0
 
         if pressed[pygame.K_SPACE] and self.isJump == False and self.vel.y == 0:        #
             self.isJump = True
-            jump = -30.0
+            jump = -35.0
             while self.isJump == True:
                 self.add_force(Vector2(0, jump))
                 jump *= self.gravity
                 if self.vel.y == 0:
                     self.isJump = False
+
         if pressed[pygame.K_r] and self.got_weapon == True and self.game.weapon.fire == False:
             self.game.weapon.fire = True
-            self.game.fire.pos.x = self.pos_weapon.x
-            self.game.fire.pos.y = self.pos_weapon.y
+            self.game.fire.pos.x = self.pos.x
+            self.game.fire.pos.y = self.pos.y
 
-
+        if pressed[pygame.K_e] and self.isAttacking == False:
+            time0 = self.time1
+            self.isAttacking = True
+            self.game.collision.collision((self.game.weapon.position),(self.game.enemy.position))
+            if self.game.collision.isCollision == True:
+                self.game.enemy.live = False
             # elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:  ############# klik i cos sie dzieje raz
 
         # Physics
+
         self.vel *= 0.85
         self.vel -= Vector2(0,-self.gravity)  # grawitacja
 
@@ -73,25 +104,67 @@ class Player(object):
         # Collision with enemy
         self.game.collision.player_enemy_collision()
 
+        # Player animation
+        if self.runCount + 1 >= 21:
+            self.runCount = 0
+
+
+
 
 
     def draw(self):
         # base model
-        rect_player = pygame.Rect(self.pos.x, self.pos.y, self.width, self.height) ##szerokosc,wysokosc
-        #pygame.draw.rect(self.game.screen, (0, 150, 200), rect_player)
-        self.game.screen.blit(self.game.playerImage, (self.pos.x - 40, self.pos.y - 30))  ##################
-        # self.rect_weapon = pygame.Rect(self.pos.x+30, self.pos.y+10,10,10)
-        if self.vel.x > 0:
-            self.game.screen.blit(self.game.playerImage, (self.pos.x - 40, self.pos.y - 30))
-        #     self.rect_weapon.x = self.pos.x+30
-        if self.vel.x < 0:
-            hero_flip = pygame.transform.flip(self.game.playerImage, True, False)
-            self.game.screen.blit(hero_flip, (self.pos.x - 40, self.pos.y - 30))
-        #     self.rect_weapon.x = self.pos.x-20
+        rect_player = pygame.Rect(self.pos.x -self.scroll.x, self.pos.y, self.width, self.height)
+        pygame.draw.rect(self.game.screen, (0, 150, 200), rect_player)
+
+        self.rect_weapon = pygame.Rect(self.pos.x-self.scroll.x+30, self.pos.y-50, 100, 100)
+
+
+        if self.isRunning == False and self.isAttacking == False:
+            if self.vel.x == 0:
+                self.game.screen.blit(self.game.sprite.imagePlayerStand,(self.pos.x - self.scroll.x - 70, self.pos.y - 70))
+            if self.vel.x > 0:
+                self.game.screen.blit(self.game.sprite.imagePlayerStand, (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
+                # self.rect_weapon.x = self.pos.x - self.scroll.x +30
+            if self.vel.x < 0:
+                hero_flip = pygame.transform.flip(self.game.sprite.imagePlayerStand, True, False)
+                self.game.screen.blit(hero_flip, (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
+                # self.rect_weapon.x = self.pos.x - self.scroll.x -100
+
+        elif self.isRunning and self.isAttacking == False:
+            if self.vel.x > 0:
+                self.game.screen.blit(self.game.sprite.imagePlayerRun[self.runCount//3], (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
+                self.runCount += 1
+            elif self.vel.x < 0:
+                self.game.screen.blit(self.game.sprite.imagePlayerRunFlip[self.runCount//3], (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
+                self.runCount += 1
+
+        elif self.isAttacking:
+            if self.vel.x >= 0:
+                self.game.screen.blit(self.game.sprite.imagePlayerAttack[int(self.dt*20)],(self.pos.x - self.scroll.x - 70, self.pos.y - 70))
+                self.game.screen.blit(self.game.sprite.imageAttackEffect[int(self.dt * 25)],(self.game.weapon.pos.x - self.scroll.x, self.game.weapon.pos.y))
+            elif self.vel.x < 0:
+                self.game.screen.blit(self.game.sprite.imagePlayerAttackFlip[int(self.dt*20)],(self.pos.x - self.scroll.x - 70, self.pos.y - 70))
+                self.game.screen.blit(self.game.sprite.imageAttackEffect[int(self.dt * 25)],(self.game.weapon.pos.x - self.scroll.x, self.game.weapon.pos.y))
+            if self.dt >= 2 or int(self.dt*20) >= 9:
+                global time0
+                time0 = self.time1
+                self.isAttacking = False
+
+                # self.rect_weapon.x = self.pos.x - self.scroll.x - 100
         # if self.got_weapon == True:
         #     pygame.draw.rect(self.game.screen, (0, 150, 200), self.rect_weapon)
-        #angle = self.vel.angle_to(Vector2(1,0))
-        #self.pos.rotate(angle)
+
+        # angle = self.vel.angle_to(Vector2(1,0))
+        # self.pos.rotate(angle)
+
+
+
+
+
+
+
+
 
 
 

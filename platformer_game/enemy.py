@@ -6,7 +6,7 @@ class Enemy(object):
 
     def __init__(self, game):
         self.game = game
-        self.speed = 3
+        self.speed = 1
         self.gravity = 0.9
 
         self.pos = Vector2(0, 0)
@@ -16,6 +16,8 @@ class Enemy(object):
         self.pos.y = 670
         self.width = 20
         self.height = 80
+
+        self.scroll = Vector2(0,0)
 
         self.position = (0,0,0,0) # x0 x1 y0 y1
 
@@ -35,8 +37,8 @@ class Enemy(object):
             # else:
             #     self.gravity = 0.9
             if self.newSpawn == True and self.game.physics.isStanding == True:
-                self.speed = 3
-                self.newSpawn == False
+                self.speed = 30
+                self.newSpawn = False
             self.vel *= 0.85
             self.vel -= Vector2(0,-self.gravity)  # grawitacjaself.add_force(Vector2(0, self.gravity))
             self.add_force(Vector2(self.speed, 0))
@@ -49,6 +51,9 @@ class Enemy(object):
             self.game.collision.bullet_collision()
             self.game.collision.enemy_collision()
 
+            # Actual position
+            self.position = (self.pos.x, (self.pos.x + self.width), self.pos.y, (self.pos.y + self.height))
+
 
         else:
              self.live = True 
@@ -58,16 +63,16 @@ class Enemy(object):
              #self.speed = 0
              self.newSpawn = True
 
-        # Actual position
-        self.position = (self.pos.x, (self.pos.x + self.width), self.pos.y, (self.pos.y + self.height))
+
 
 
 
     def draw(self):
         if self.live == True:
-            rect = pygame.Rect(self.pos.x, self.pos.y, self.width, self.height) ##szerokosc,wysokosc
-            #pygame.draw.rect(self.game.screen, (150, 20, 20), rect)
-            self.game.screen.blit(self.game.enemyImage, (self.pos.x - 50, self.pos.y - 40))  ##################
+            rect = pygame.Rect(self.pos.x-self.scroll[0], self.pos.y, self.width, self.height) ##szerokosc,wysokosc
+            pygame.draw.rect(self.game.screen, (150, 20, 20), rect)
+            self.game.screen.blit(self.game.sprite.enemyImage, (self.pos.x - 50- self.scroll[0], self.pos.y - 40))  ##################
+
         else:
             self.pos.x = 10
             self.pos.y = 10

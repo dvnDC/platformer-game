@@ -10,6 +10,11 @@ from physics import Physics
 from platforms import Platforms
 from sprite import Sprite
 
+from pygame.math import Vector2
+
+
+WIDTH = 1280
+HEIGHT = 720
 
 class Game(object):
 
@@ -18,16 +23,18 @@ class Game(object):
 
 
         # Config
-        self.tps_max = 60.0
+        self.tps_max = 120.0
 
         # Initialization
         pygame.init()
-        self.resolution = (self.screen_width, self.screen_height) = (1280, 720)
+        self.resolution = (self.screen_width, self.screen_height) = (WIDTH, HEIGHT)
         self.screen = pygame.display.set_mode(self.resolution)
 
 
         self.tps_clock = pygame.time.Clock()
         self.tps_delta = 0.0
+        self.scroll = Vector2(0,0)
+
 
         self.map = Map(self)
         self.player = Player(self)  # przy inicjalizacji przekazuje playerowi wszystko Player(self)
@@ -39,16 +46,9 @@ class Game(object):
         self.collision = Collision(self)
         self.sprite = Sprite(self)
 
-        # images
-        self.backgroundImage = pygame.image.load("images/bg3.jpg")
-        self.playerImage = pygame.image.load("images/hero2.png")
-        self.enemyImage = pygame.image.load("images/enemy2.png")
-        self.platformImage = pygame.image.load("images/platform.png")
-
-
-
 
         while True:
+
             # Events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -64,28 +64,24 @@ class Game(object):
 
             # Rendering/Drawing
             self.screen.fill((0, 0, 0))
-            self.screen.blit(self.backgroundImage, (0, 0)) ##################
+
             self.draw()
             pygame.display.flip()
 
     def tick(self):
-        # Input
         self.player.tick()
-        self.collision.player_collision()
         self.weapon.tick()
         self.fire.tick()
         self.enemy.tick()
-        self.collision.enemy_collision()
-
-
-
+        self.physics.tick()
 
     def draw(self):
-        self.player.draw()
         self.map.draw()
+        self.player.draw()
         self.enemy.draw()
         self.weapon.draw()
         self.fire.draw()
+
 
 
 
