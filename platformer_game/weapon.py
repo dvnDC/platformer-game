@@ -23,8 +23,8 @@ class Weapon(object):
 
 
     def draw(self):
-        # melee range
 
+        # melee range
         self.rect_weapon = pygame.Rect(self.game.player.pos.x - self.scroll.x + 30, self.game.player.pos.y - 50, 100, 100)
 
         if self.game.player.vel.x >= 0:
@@ -33,7 +33,8 @@ class Weapon(object):
         if self.game.player.vel.x < 0:
             self.rect_weapon.x = self.game.player.pos.x - self.scroll.x - 100
             self.pos.x = self.game.player.pos.x - 100
-        # HIT HITBOX
+
+        # Show attack hitbox
         # pygame.draw.rect(self.game.screen, (0, 150, 200), self.rect_weapon)
 
 
