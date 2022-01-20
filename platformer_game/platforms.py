@@ -77,13 +77,6 @@ class Platforms(object):
     def draw(self):
         self.platformList()
 
-    # def platform_pos(self, letter):
-    #     self.x_min[letter] = self.pos.x
-    #     self.y_min[letter] = self.pos.y
-    #     self.x_max[letter] = self.pos.x + self.width
-    #     self.y_max[letter] = self.pos.y + self.height
-    #     self.platform_position[letter] = self.pos.x, self.pos.x + self.width, self.pos.y, self.pos.y + self.height
-
 
 
 

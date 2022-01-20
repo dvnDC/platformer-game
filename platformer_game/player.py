@@ -158,27 +158,3 @@ class Player(object):
                 global time0
                 time0 = self.time1
                 self.isAttacking = False
-
-
-
-
-
-        # if self.isRunning == False and self.isAttacking == False:
-        #     if self.vel.x == 0:
-        #         self.game.screen.blit(self.game.sprite.imagePlayerStand,(self.pos.x - self.scroll.x - 70, self.pos.y - 70))
-        #     if self.vel.x > 0:
-        #         self.game.screen.blit(self.game.sprite.imagePlayerStand, (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
-        #         # self.rect_weapon.x = self.pos.x - self.scroll.x +30
-        #     if self.vel.x < 0:
-        #         hero_flip = pygame.transform.flip(self.game.sprite.imagePlayerStand, True, False)
-        #         self.game.screen.blit(hero_flip, (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
-        #         # self.rect_weapon.x = self.pos.x - self.scroll.x -100
-
-                # self.rect_weapon.x = self.pos.x - self.scroll.x - 100
-        # if self.got_weapon == True:
-        #     pygame.draw.rect(self.game.screen, (0, 150, 200), self.rect_weapon)
-
-        # angle = self.vel.angle_to(Vector2(1,0))
-        # self.pos.rotate(angle)
-
-
