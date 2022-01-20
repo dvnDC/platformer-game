@@ -11,38 +11,38 @@ class Sprite(pygame.sprite.Sprite):
 
         # player
         ### standing
-        self.imagePlayerStand = pygame.image.load("/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Stand/0.png")
+        self.imagePlayerStand = pygame.image.load("images/hero/Knight/Stand/0.png")
         self.imagePlayerStand = pygame.transform.scale(self.imagePlayerStand, (160, 160))
 
         # self.playerImage = pygame.transform.scale(self.playerImage, (20, 60))
         ### running right
         self.imagePlayerRun = [
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/0.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/1.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/2.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/3.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/4.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/5.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/6.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/7.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/8.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/9.png')]
+            pygame.image.load('images/hero/Knight/Run/0.png'),
+            pygame.image.load('images/hero/Knight/Run/1.png'),
+            pygame.image.load('images/hero/Knight/Run/2.png'),
+            pygame.image.load('images/hero/Knight/Run/3.png'),
+            pygame.image.load('images/hero/Knight/Run/4.png'),
+            pygame.image.load('images/hero/Knight/Run/5.png'),
+            pygame.image.load('images/hero/Knight/Run/6.png'),
+            pygame.image.load('images/hero/Knight/Run/7.png'),
+            pygame.image.load('images/hero/Knight/Run/8.png'),
+            pygame.image.load('images/hero/Knight/Run/9.png')]
         n = 0
         while n < 10:
             self.imagePlayerRun[n] = pygame.transform.scale(self.imagePlayerRun[n], (160, 160))
             n += 1
         ### running left
         self.imagePlayerRunFlip = [
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/0.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/1.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/2.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/3.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/4.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/5.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/6.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/7.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/8.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Run/9.png')]
+            pygame.image.load('images/hero/Knight/Run/0.png'),
+            pygame.image.load('images/hero/Knight/Run/1.png'),
+            pygame.image.load('images/hero/Knight/Run/2.png'),
+            pygame.image.load('images/hero/Knight/Run/3.png'),
+            pygame.image.load('images/hero/Knight/Run/4.png'),
+            pygame.image.load('images/hero/Knight/Run/5.png'),
+            pygame.image.load('images/hero/Knight/Run/6.png'),
+            pygame.image.load('images/hero/Knight/Run/7.png'),
+            pygame.image.load('images/hero/Knight/Run/8.png'),
+            pygame.image.load('images/hero/Knight/Run/9.png')]
         n = 0
         while n < 10:
             self.imagePlayerRunFlip[n] = pygame.transform.scale(self.imagePlayerRunFlip[n], (160, 160))
@@ -50,32 +50,32 @@ class Sprite(pygame.sprite.Sprite):
             n += 1
         ### attack right
         self.imagePlayerAttack = [
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/0.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/1.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/2.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/3.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/4.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/5.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/6.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/7.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/8.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/9.png')]
+            pygame.image.load('images/hero/Knight/Attack1H/0.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/1.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/2.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/3.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/4.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/5.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/6.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/7.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/8.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/9.png')]
         n = 0
         while n < 10:
             self.imagePlayerAttack[n] = pygame.transform.scale(self.imagePlayerAttack[n], (160, 160))
             n += 1
         ### attack right
         self.imagePlayerAttackFlip = [
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/0.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/1.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/2.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/3.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/4.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/5.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/6.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/7.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/8.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/hero/Knight/Attack1H/9.png')]
+            pygame.image.load('images/hero/Knight/Attack1H/0.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/1.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/2.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/3.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/4.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/5.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/6.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/7.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/8.png'),
+            pygame.image.load('images/hero/Knight/Attack1H/9.png')]
         n = 0
         while n < 10:
             self.imagePlayerAttackFlip[n] = pygame.transform.scale(self.imagePlayerAttackFlip[n], (160, 160))
@@ -84,12 +84,12 @@ class Sprite(pygame.sprite.Sprite):
         # effects
         ### fireball
         self.imageFireball = [
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/effects/1.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/effects/2.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/effects/3.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/effects/4.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/effects/5.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/effects/6.png')]
+            pygame.image.load('images/effects/1.png'),
+            pygame.image.load('images/effects/2.png'),
+            pygame.image.load('images/effects/3.png'),
+            pygame.image.load('images/effects/4.png'),
+            pygame.image.load('images/effects/5.png'),
+            pygame.image.load('images/effects/6.png')]
         n = 0
         n = 0
         while n < 6:
@@ -98,12 +98,12 @@ class Sprite(pygame.sprite.Sprite):
             n += 1
         ### fireball left
         self.imageFireballLeft = [
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/effects/1.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/effects/2.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/effects/3.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/effects/4.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/effects/5.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/effects/6.png')]
+            pygame.image.load('images/effects/1.png'),
+            pygame.image.load('images/effects/2.png'),
+            pygame.image.load('images/effects/3.png'),
+            pygame.image.load('images/effects/4.png'),
+            pygame.image.load('images/effects/5.png'),
+            pygame.image.load('images/effects/6.png')]
         n = 0
         while n < 6:
             self.imageFireballLeft[n] = pygame.transform.scale(self.imageFireballLeft[n], (256, 100))
@@ -132,32 +132,32 @@ class Sprite(pygame.sprite.Sprite):
 
         # enemy running
         self.imageEnemyRunning = [
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_000.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_001.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_002.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_003.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_004.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_005.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_006.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_007.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_008.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_009.png')]
+            pygame.image.load('images/enemy/0/w_000.png'),
+            pygame.image.load('images/enemy/0/w_001.png'),
+            pygame.image.load('images/enemy/0/w_002.png'),
+            pygame.image.load('images/enemy/0/w_003.png'),
+            pygame.image.load('images/enemy/0/w_004.png'),
+            pygame.image.load('images/enemy/0/w_005.png'),
+            pygame.image.load('images/enemy/0/w_006.png'),
+            pygame.image.load('images/enemy/0/w_007.png'),
+            pygame.image.load('images/enemy/0/w_008.png'),
+            pygame.image.load('images/enemy/0/w_009.png')]
         n = 0
         while n < 10:
             self.imageEnemyRunning[n] = pygame.transform.scale(self.imageEnemyRunning[n], (60, 60))
             n += 1
         ###
         self.imageEnemyRunningFlip = [
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_000.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_001.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_002.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_003.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_004.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_005.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_006.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_007.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_008.png'),
-            pygame.image.load('/home/dvn/PycharmProjects/platformer_game/images/enemy/0/w_009.png')]
+            pygame.image.load('images/enemy/0/w_000.png'),
+            pygame.image.load('images/enemy/0/w_001.png'),
+            pygame.image.load('images/enemy/0/w_002.png'),
+            pygame.image.load('images/enemy/0/w_003.png'),
+            pygame.image.load('images/enemy/0/w_004.png'),
+            pygame.image.load('images/enemy/0/w_005.png'),
+            pygame.image.load('images/enemy/0/w_006.png'),
+            pygame.image.load('images/enemy/0/w_007.png'),
+            pygame.image.load('images/enemy/0/w_008.png'),
+            pygame.image.load('images/enemy/0/w_009.png')]
         n = 0
         while n < 10:
             self.imageEnemyRunningFlip[n] = pygame.transform.scale(self.imageEnemyRunningFlip[n], (60, 60))
