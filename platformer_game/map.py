@@ -5,9 +5,6 @@ import numpy as np
 position_multiplayer = 0
 imgPosX = 1280
 
-
-
-
 class Map(object):
     def __init__(self, game):
         self.game = game
@@ -40,11 +37,6 @@ class Map(object):
         self.GRID_boxes_coll_number = 0
         self.GRID_boxes_coll = []
         self.GRID_boxes_coll = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
-
-
-
-
 
     def bird(self):
         imageScaled = pygame.transform.scale(self.game.sprite.shipImage, (75, 40))
@@ -81,9 +73,6 @@ class Map(object):
         #     imgPosX3 += 1280
 
     def background(self):
-
-
-
         if self.game.player.pos.x > (1280 * (self.checkpoint_bgg + 4)):  ## 640 - player starting point
             self.checkpoint_bgg += 1
         elif self.game.player.pos.x < (1280 * (self.checkpoint_bgg+4)):
@@ -106,12 +95,6 @@ class Map(object):
             self.game.screen.blit(self.game.sprite.backgroundImage2, (pos - self.scroll.x / 6 + (1500 * (self.checkpoint_bg+1)),0))
             # self.game.screen.blit(self.game.sprite.backgroundImage2, (pos + 1500 - self.scroll.x / 6 + (1500 * (self.checkpoint_bg)),0))
 
-
-
-
-
-
-    #
     def grid(self):
         if self.game.player.pos.x > (3840 * (self.player_checkpoint+1) - 1280): ## 640 - player starting point
             self.player_checkpoint += 1
@@ -123,7 +106,6 @@ class Map(object):
         box_size = 80  # x 16      y 9
         self.GRID_boxes_coll_number = 0
         checkpoint = (3840 * (self.player_checkpoint)) - 2560
-
 
         for row in range(self.row):
             for column in range(self.colum):
@@ -152,19 +134,14 @@ class Map(object):
                     self.GRID_position.append(positionbox)
                 else:
                     self.GRID_position.append((posX * column, posX * column + box_size, posY * row, posY * row + box_size))
-
-
-
         # for gridNr in range(143):
         #     self.game.collision.player_collision_check(self.GRID_position[gridNr])
 
     def grid_static(self):
-
         posX = 80
         posY = 80
         box_size = 80  # x 16      y 9
         self.GRID_boxes_coll_number = 0
-
 
         for row in range(self.row):
             for column in range(self.colum):
@@ -177,10 +154,8 @@ class Map(object):
                     positionbox = (posX * column), (posX * column + box_size), posY * row, posY * row + box_size
                     # self.game.collision.player_collision_check(positionbox)
                     # self.game.collision.player_collision_check(self.GRID_position[gridNr])
-
                     self.GRID_position.append(positionbox)
                     # self.GRID_position[self.GRID_boxes_coll_number] = (positionbox)
-
                     self.GRID_boxes_coll[self.GRID_boxes_coll_number] = positionbox
                     self.GRID_boxes_coll_number += 1
                 if self.GRID[row][column] == 7:
@@ -189,15 +164,9 @@ class Map(object):
                     positionbox = (posX * column), (posX * column + box_size), posY * row, posY * row + box_size
                     # self.game.collision.player_collision_check(positionbox)
                     # self.game.collision.player_collision_check(self.GRID_position[gridNr])
-
                     self.GRID_position.append(positionbox)
                 else:
                     self.GRID_position.append((posX * column, posX * column + box_size, posY * row, posY * row + box_size))
-
-
-
-        # for gridNr in range(143):
-        #     self.game.collision.player_collision_check(self.GRID_position[gridNr])
 
     def draw(self):
         # self.background()
