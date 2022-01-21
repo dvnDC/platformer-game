@@ -18,6 +18,7 @@ class Sprite(pygame.sprite.Sprite):
         self.backgroundImage = 0
         self.backgroundImage2 = 0
         self.backgroundImage3 = 0
+        self.stone = 0
         self.imagePlayerRun = []            # running right
         self.imagePlayerRunFlip = []        # running left
 
@@ -151,8 +152,6 @@ class Sprite(pygame.sprite.Sprite):
         # self.backgroundImage2 = pygame.transform.scale(self.backgroundImage2, (300, 720))
         # self.backgroundImage3 = pygame.transform.scale(self.backgroundImage3, (1280, 720))
 
-        self.stone = pygame.image.load("images/objects/stone.png")
-        self.stone = pygame.transform.scale(self.stone, (234, 200))
 
 
         self.enemyImage = pygame.image.load("images/enemy2.png")
@@ -198,9 +197,12 @@ class Sprite(pygame.sprite.Sprite):
     def load_images(self):
         self.imagePlayerRun = self.transform_array(self.load_folder("images/hero/Knight/Run/", 10), (160, 160))
         self.imagePlayerRunFlip = self.flip_array(self.imagePlayerRun)
-        self.backgroundImage = self.transform(self.load_image("images/layers/country-platform-back.png"), (1280, 720))
-        self.backgroundImage2 = self.transform(self.load_image("images/layers/country-platform-forest.png"), (300, 720))
-        self.backgroundImage3 = self.transform(self.load_image("images/layers/country-platform-tiles-example.png"), (1280, 720))
+
+        self.backgroundImage = self.transform(self.load_image("images/layers/country-platform-back.png"), (640, 360))
+        self.backgroundImage2 = self.transform(self.load_image("images/layers/country-platform-forest.png"), (150, 360))
+        self.backgroundImage3 = self.transform(self.load_image("images/layers/country-platform-tiles-example.png"), (640, 360))
+
+        self.stone = self.transform(self.load_image("images/objects/stone.png"), (117, 100))
 
 
     def get_image(self, posx, posy, width, height, sprite_sheet):
