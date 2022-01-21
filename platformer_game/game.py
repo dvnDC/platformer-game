@@ -10,6 +10,7 @@ from physics import Physics
 from platforms import Platforms
 from sprite import Sprite
 from menu import Menu
+from file_loader import FileLoader
 
 
 from pygame.math import Vector2
@@ -40,11 +41,9 @@ class Game(object):
         self.resolution = (self.screen_width, self.screen_height) = (self.WIDTH, self.HEIGHT)
         self.screen = pygame.display.set_mode(self.resolution)
 
-
         self.tps_clock = pygame.time.Clock()
         self.tps_delta = 0.0
         self.scroll = Vector2(0,0)
-
 
         self.map = Map(self)
         self.player = Player(self)  # przy inicjalizacji przekazuje playerowi wszystko Player(self)
@@ -56,6 +55,9 @@ class Game(object):
         self.collision = Collision(self)
         self.sprite = Sprite(self)
         self.menu = Menu(self)
+        self.file_loader = FileLoader(self)
+
+        self.sprite.load_images()
 
         def create_fonts(font_sizes_list):
             "Creates different fonts with one list"
