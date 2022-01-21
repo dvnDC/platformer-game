@@ -34,12 +34,10 @@ class Player(object):
 
         self.position = (0,0,0,0) # x0 x1 y0 y1
 
-
         self.isAttacking = False
         self.isRunning = False
         self.runCount = 0
-
-
+        self.rect_weapon = pygame.Rect(self.pos.x-self.scroll.x+30, self.pos.y-50, 100, 100)
 
     def add_force(self, force):
         self.acc += force
@@ -89,7 +87,6 @@ class Player(object):
             # elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:  ############# klik i cos sie dzieje raz
 
         # Physics
-
         self.vel *= 0.85
         self.vel -= Vector2(0,-self.gravity)  # grawitacja
 
@@ -115,16 +112,10 @@ class Player(object):
             self.runCount = 0
 
 
-
-
-
     def draw(self):
         # base model
         # rect_player = pygame.Rect(self.pos.x -self.scroll.x, self.pos.y, self.width, self.height)
         # pygame.draw.rect(self.game.screen, (0, 150, 200), rect_player)
-
-        self.rect_weapon = pygame.Rect(self.pos.x-self.scroll.x+30, self.pos.y-50, 100, 100)
-
 
         if self.isRunning == False and self.isAttacking == False:
             if self.vel.x == 0:
