@@ -29,8 +29,8 @@ class Game(object):
         pygame.mixer.music.load('latenight.ogg')
         pygame.mixer.music.play(0)
 
-        self.WIDTH = 1280
-        self.HEIGHT = 720
+        self.WIDTH = 640
+        self.HEIGHT = 360
 
         # Config
         self.tps_max = 100
@@ -39,7 +39,7 @@ class Game(object):
         pygame.init()
         font = pygame.font.SysFont("Arial", 18)
         self.resolution = (self.screen_width, self.screen_height) = (self.WIDTH, self.HEIGHT)
-        self.screen = pygame.display.set_mode(self.resolution)
+        self.screen = pygame.display.set_mode(self.resolution, pygame.RESIZABLE)
 
         self.tps_clock = pygame.time.Clock()
         self.tps_delta = 0.0

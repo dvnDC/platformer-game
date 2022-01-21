@@ -46,31 +46,31 @@ class Map(object):
             self.pos.x = -1000
 
     def stone(self):
-        self.game.screen.blit(self.game.sprite.stone, (0 - self.scroll.x + (3840 * (self.player_checkpoint)),self.game.screen_height-220))
-        self.game.screen.blit(self.game.sprite.stone, (1280 - self.scroll.x + (3840 * (self.player_checkpoint)),self.game.screen_height-220))
+        self.game.screen.blit(self.game.sprite.stone, (0 - self.scroll.x + (3840 * (self.player_checkpoint)),self.game.screen_height/2+100))
+        self.game.screen.blit(self.game.sprite.stone, (1280 - self.scroll.x + (3840 * (self.player_checkpoint)),self.game.screen_height/2+100))
 
     def background_vanilla(self):
         # layer background
         n = 3
-        imgPosX2 = -1280
+        imgPosX2 = -640
         while n > 0:
             n -= 1
             self.game.screen.blit(self.game.sprite.backgroundImage, (imgPosX2 - self.scroll.x / 30, 0))
-            imgPosX2 += 1280
+            imgPosX2 += 640
         # layer back
         n = 28
-        imgPosX2 = -1280
+        imgPosX2 = -640
         while n > 0:
             n -= 1
             self.game.screen.blit(self.game.sprite.backgroundImage2, (imgPosX2 - self.scroll.x / 6, 0))
-            imgPosX2 += 300
+            imgPosX2 += 150
         # # layer front
         n = 9
-        imgPosX3 = -1280
+        imgPosX3 = -640
         while n > 0:
             n -= 1
             # self.game.screen.blit(self.game.sprite.backgroundImage3, (imgPosX3 - self.scroll.x, 0))
-            imgPosX3 += 1280
+            imgPosX3 += 640
 
     def background(self):
         if self.game.player.pos.x > (1280 * (self.checkpoint_bgg + 4)):  ## 640 - player starting point
@@ -113,7 +113,7 @@ class Map(object):
                 if self.GRID[row][column] == 1:
                 # pygame.draw.rect(self.game.screen, (0, 150, 200), box)
                 #     self.game.screen.blit(self.game.sprite.backgroundImage,((posX * column - self.scroll.x/30.0) + checkpoint, posY * row))
-                #     self.game.screen.blit(self.game.sprite.backgroundImage3,((posX * column - self.scroll.x) + checkpoint, posY * row))
+                    self.game.screen.blit(self.game.sprite.backgroundImage3,((posX/2 * column - self.scroll.x) + checkpoint, posY/2 * row))
 
                     self.game.screen.blit(self.game.sprite.imageGrid1, ((posX * column - self.scroll.x) + checkpoint, posY * row))
 
@@ -179,8 +179,8 @@ class Map(object):
         self.background_vanilla()
         self.stone()
         self.game.platforms.draw()
-        self.grid()
-        # self.grid_static()
+        # self.grid()
+        self.grid_static()
         # self.position()
         # self.bird()
 
