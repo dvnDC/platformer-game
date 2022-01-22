@@ -42,12 +42,12 @@ class Player(object):
     def add_force(self, force):
         self.acc += force
 
-    def tick(self):
-        # Time for animations
+    def animations_time(self):
         global time0
         self.time1 = time.time()
         self.dt = self.time1 - time0
-        # Input
+
+    def input(self):
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_a]:
             self.add_force(Vector2(-self.speed,0))
@@ -61,14 +61,9 @@ class Player(object):
 
         if pressed[pygame.K_SPACE] and self.is_jumping == False and self.vel.y == 0:        #
             self.is_jumping = True
-            # posy = self.pos.y
             jump = -20.0
-            # self.gravity *= -2
             while self.is_jumping == True:
                 self.add_force(Vector2(0, jump))
-                # if abs(self.pos.y-posy) > 100:
-                #     self.is_jumping = False
-                #     self.gravity = self.game.physics.gravity
                 if self.vel.y == 0:
                     self.is_jumping = False
                     self.gravity = self.game.physics.gravity
@@ -84,25 +79,30 @@ class Player(object):
             self.game.collision.collision((self.game.weapon.position),(self.game.enemy.position))
             if self.game.collision.isCollision == True:
                 self.game.enemy.live = False
-            # elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:  ############# klik i cos sie dzieje raz
 
-        # Physics
+    def physic_vel(self):
         self.vel *= 0.85
-        self.vel -= Vector2(0,-self.gravity)  # grawitacja
+        self.vel -= Vector2(0,-self.gravity)
 
         self.vel += self.acc
         self.pos += self.vel
         self.acc *= 0
 
-        # Actual position
+    def actual_postion(self):
         self.position = (self.pos.x, (self.pos.x + self.width), self.pos.y, (self.pos.y + self.height))
 
-        # Collision with playforms, borders
 
-        self.game.collision.player_collision()
+    def tick(self):
+        self.animations_time()
+        self.input()
+        self.physic_vel()
+        self.actual_postion()
+
+        self.game.collision.player_collision() # collision with playforms, borders
+
         # self.game.map.grid()
         for n in range(self.game.map.GRID_boxes_coll_number):
-                self.game.collision.player_collision_check(self.game.map.GRID_boxes_coll[n])
+            self.game.collision.player_collision_check(self.game.map.GRID_boxes_coll[n])
 
         # Collision with enemy
         self.game.collision.player_enemy_collision()
