@@ -46,7 +46,7 @@ class Map(object):
             self.pos.x = -1000
 
     def stone(self):
-        self.game.screen.blit(self.game.sprite.stone, (0 - self.scroll.x + (3840 * (self.player_checkpoint)),self.game.screen_height/2-100))
+        self.game.screen.blit(self.game.sprite.stone, (0 - self.scroll.x + (3840 * (self.player_checkpoint)),self.game.screen_height/2+50))
         self.game.screen.blit(self.game.sprite.stone, (1280 - self.scroll.x + (3840 * (self.player_checkpoint)),self.game.screen_height/2-100100))
 
     def background_vanilla(self):
