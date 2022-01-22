@@ -22,7 +22,7 @@ class Player(object):
         self.acc = Vector2(0,0)
 
         self.vel.x = 0.1
-        self.pos.x = 640
+        self.pos.x = 320
         self.pos.y = 170
         self.width = 20
         self.height = 60
