@@ -46,8 +46,8 @@ class Map(object):
             self.pos.x = -1000
 
     def stone(self):
-        self.game.screen.blit(self.game.sprite.stone, (0 - self.scroll.x + (3840 * (self.player_checkpoint)),self.game.screen_height/2+100))
-        self.game.screen.blit(self.game.sprite.stone, (1280 - self.scroll.x + (3840 * (self.player_checkpoint)),self.game.screen_height/2+100))
+        self.game.screen.blit(self.game.sprite.stone, (0 - self.scroll.x + (3840 * (self.player_checkpoint)),self.game.screen_height/2-100))
+        self.game.screen.blit(self.game.sprite.stone, (1280 - self.scroll.x + (3840 * (self.player_checkpoint)),self.game.screen_height/2-100100))
 
     def background_vanilla(self):
         # layer background
@@ -65,11 +65,11 @@ class Map(object):
             self.game.screen.blit(self.game.sprite.backgroundImage2, (imgPosX2 - self.scroll.x / 6, 0))
             imgPosX2 += 150
         # # layer front
-        n = 9
+        n = 28
         imgPosX3 = -640
         while n > 0:
             n -= 1
-            # self.game.screen.blit(self.game.sprite.backgroundImage3, (imgPosX3 - self.scroll.x, 0))
+            self.game.screen.blit(self.game.sprite.backgroundImage3, (imgPosX3 - self.scroll.x, 0))
             imgPosX3 += 640
 
     def background(self):
@@ -147,32 +147,30 @@ class Map(object):
 
         for row in range(self.row):
             for column in range(self.colum):
-                pass
-                # uncomment everything below to get vanilla *working* code
-                # box = pygame.Rect(posX*column, posY*row, posX*row+box_size, posY*row+box_size)
-                # if self.GRID[row][column] == 1:
-                # # pygame.draw.rect(self.game.screen, (0, 150, 200), box)
-                # #     self.game.screen.blit(self.game.sprite.backgroundImage,((posX * column - self.scroll.x/30.0) + checkpoint, posY * row))
-                # #     self.game.screen.blit(self.game.sprite.backgroundImage3,((posX * column - self.scroll.x) + checkpoint, posY * row))
-                #
-                #     self.game.screen.blit(self.game.sprite.imageGrid1, ((posX * column - self.scroll.x), posY * row))
-                #
-                #     positionbox = (posX * column), (posX * column + box_size), posY * row, posY * row + box_size
-                #     # self.game.collision.player_collision_check(positionbox)
-                #     # self.game.collision.player_collision_check(self.GRID_position[gridNr])
-                #     self.GRID_position.append(positionbox)
-                #     # self.GRID_position[self.GRID_boxes_coll_number] = (positionbox)
-                #     self.GRID_boxes_coll[self.GRID_boxes_coll_number] = positionbox
-                #     self.GRID_boxes_coll_number += 1
-                # if self.GRID[row][column] == 7:
-                # # pygame.draw.rect(self.game.screen, (0, 150, 200), box)
-                #     self.game.screen.blit(self.game.sprite.backgroundImage3, ((posX * column - self.scroll.x), posY * row))
-                #     positionbox = (posX * column), (posX * column + box_size), posY * row, posY * row + box_size
-                #     # self.game.collision.player_collision_check(positionbox)
-                #     # self.game.collision.player_collision_check(self.GRID_position[gridNr])
-                #     self.GRID_position.append(positionbox)
-                # else:
-                #     self.GRID_position.append((posX * column, posX * column + box_size, posY * row, posY * row + box_size))
+                box = pygame.Rect(posX*column, posY*row, posX*row+box_size, posY*row+box_size)
+                if self.GRID[row][column] == 1:
+                # pygame.draw.rect(self.game.screen, (0, 150, 200), box)
+                #     self.game.screen.blit(self.game.sprite.backgroundImage,((posX * column - self.scroll.x/30.0) + checkpoint, posY * row))
+                #     self.game.screen.blit(self.game.sprite.backgroundImage3,((posX * column - self.scroll.x) + checkpoint, posY * row))
+
+                    self.game.screen.blit(self.game.sprite.imageGrid1, ((posX * column - self.scroll.x), posY * row))
+
+                    positionbox = (posX * column), (posX * column + box_size), posY * row, posY * row + box_size
+                    # self.game.collision.player_collision_check(positionbox)
+                    # self.game.collision.player_collision_check(self.GRID_position[gridNr])
+                    self.GRID_position.append(positionbox)
+                    # self.GRID_position[self.GRID_boxes_coll_number] = (positionbox)
+                    self.GRID_boxes_coll[self.GRID_boxes_coll_number] = positionbox
+                    self.GRID_boxes_coll_number += 1
+                if self.GRID[row][column] == 7:
+                # pygame.draw.rect(self.game.screen, (0, 150, 200), box)
+                    self.game.screen.blit(self.game.sprite.backgroundImage3, ((posX * column - self.scroll.x), posY * row))
+                    positionbox = (posX * column), (posX * column + box_size), posY * row, posY * row + box_size
+                    # self.game.collision.player_collision_check(positionbox)
+                    # self.game.collision.player_collision_check(self.GRID_position[gridNr])
+                    self.GRID_position.append(positionbox)
+                else:
+                    self.GRID_position.append((posX * column, posX * column + box_size, posY * row, posY * row + box_size))
 
     def draw(self):
         # self.background()
@@ -180,7 +178,7 @@ class Map(object):
         self.stone()
         self.game.platforms.draw()
         # self.grid()
-        self.grid_static()
+        # self.grid_static()
         # self.position()
         # self.bird()
 

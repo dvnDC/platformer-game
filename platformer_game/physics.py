@@ -33,8 +33,9 @@ class Physics(object):
             self.isStanding = False
 
     def scroll(self):
+        pass
         #################33
-        self.true_scroll[0] += (self.game.player.pos.x - self.true_scroll[0] - 640)/40
+        self.true_scroll[0] += (self.game.player.pos.x - self.true_scroll[0] - 320)/40
         ###
         # self.true_scroll2[0] += (self.game.player.pos.x - self.true_scroll[0]-640)
         self.true_scroll[1] += (self.game.player.pos.y - self.true_scroll[1] - 170)
@@ -63,6 +64,5 @@ class Physics(object):
 
 
     def tick(self):
-
         self.scroll()
 

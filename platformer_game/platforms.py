@@ -54,12 +54,12 @@ class Platforms(object):
 
     def platformList(self):
         n = 3
-        x = 800
-        y = 550
-        width = 300
-        height = 30
+        x = 400
+        y = 275
+        width = 150
+        height = 15
         letter = 0
-        changer = 120
+        changer = 60
         while n > 0:
             self.platformPOS[letter][0] = x
             self.platformPOS[letter][1] = x + width
