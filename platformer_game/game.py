@@ -57,6 +57,9 @@ class Game(object):
         self.menu = Menu(self)
         self.file_loader = FileLoader(self)
 
+        self.sprite.load_images()
+        self.sprite.load_icon()
+
         def create_fonts(font_sizes_list):
             "Creates different fonts with one list"
             fonts = []
@@ -114,8 +117,6 @@ class Game(object):
         self.enemy.draw()
         self.weapon.draw()
         self.fire.draw()
-
-
 
 
 if __name__ == "__main__":
