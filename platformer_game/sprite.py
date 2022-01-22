@@ -6,15 +6,9 @@ class Sprite(pygame.sprite.Sprite):
 
         self.left = False
         self.right = False
-        self.walkCount = 0
 
-        # player
-        # standing
         self.imagePlayerStand = pygame.image.load("images/hero/Knight/Stand/0.png")
         self.imagePlayerStand = pygame.transform.scale(self.imagePlayerStand, (160, 160))
-
-
-        # self.playerImage = pygame.transform.scale(self.playerImage, (20, 60))
 
         self.backgroundImage = 0
         self.backgroundImage2 = 0
@@ -34,7 +28,7 @@ class Sprite(pygame.sprite.Sprite):
         self.weaponPickupImage = pygame.image.load("images/weapon.png") # NOT USED
 
 
-    def tmp_melee_attack(self):
+    def tmp_melee_attack(self): # TODO: Simple refactoring
         self.temp = pygame.image.load("images/effects/attack/2.png")
         self.temp = pygame.transform.scale(self.temp, (400, 400))
         n = 0
@@ -44,7 +38,7 @@ class Sprite(pygame.sprite.Sprite):
         k = 0
         l = 0
         number = 0
-        self.imageAttackEffect=[0,0,0,0,0,0,0,0,0,0,0,0]
+        self.imageAttackEffect=[0,0,0,0,0,1,0,0,0,0,0,0]
         while n < 3:
             while m < 4:
                 self.imageAttackEffect[number] = self.get_image(0+k, 0+l, width, height, self.temp)

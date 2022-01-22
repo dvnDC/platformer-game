@@ -15,7 +15,6 @@ class Map(object):
         self.checkpoint_bg = 0
         self.checkpoint_bgg = 0
 
-
         self.row = 10        # screen/displayed size 9
         self.colum = 80     #   16
         self.GRID = np.zeros((self.row, self.colum), int)
@@ -179,7 +178,3 @@ class Map(object):
         # self.grid_static()
         # self.position()
         # self.bird()
-
-
-
-

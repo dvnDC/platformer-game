@@ -104,7 +104,6 @@ class Player(object):
         for n in range(self.game.map.GRID_boxes_coll_number):
             self.game.collision.player_collision_check(self.game.map.GRID_boxes_coll[n])
 
-        # Collision with enemy
         self.game.collision.player_enemy_collision()
 
         # Player animation

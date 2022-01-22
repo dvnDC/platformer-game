@@ -25,12 +25,10 @@ class Fire(object):
 
         self.seconds = 0.0
 
-
     def add_force(self, force):
         self.acc += force
 
     def tick(self):
-
         # Time for animations
         global time0
         self.time1 = time.time()
@@ -41,8 +39,6 @@ class Fire(object):
         self.acc *= 0
         if pygame.key.get_pressed()[pygame.K_r] and self.game.player.has_weapon == True and self.game.weapon.fire == False:
             time0 = self.time1
-
-
 
         if self.game.weapon.fire == True:
             self.seconds = (pygame.time.get_ticks() - self.start_ticks) / 1000 ###############
@@ -55,8 +51,6 @@ class Fire(object):
             if self.game.player.vel.x < 0 and self.projectileLeft == False and self.projectileRight == False:
                 self.add_force(Vector2(-self.speed, 0))
                 self.projectileLeft = True
-
-
 
     def draw(self):
         if self.game.weapon.fire == True:
@@ -84,10 +78,6 @@ class Fire(object):
                     self.projectileLeft = False
                     self.vel.x = 0
                     time0 = self.time1
-
         else:
             self.pos.x = -1000
             self.pos.y = -1000
-
-                # self.pos.x = self.game.player.rect_weapon.x
-                # self.pos.y = self.game.player.rect_weapon.y

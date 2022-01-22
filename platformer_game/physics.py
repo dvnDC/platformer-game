@@ -21,8 +21,6 @@ class Physics(object):
         self.true_scroll = [0,0]
         self.true_scroll2 = [0,0]
 
-
-
         self.isStanding = False
 
     def standing(self):
@@ -32,12 +30,10 @@ class Physics(object):
         else:
             self.isStanding = False
 
-    def scroll(self):
-        pass
-        #################33
+    def scroll(self):   #TODO: create self.scroll[]
         self.true_scroll[0] += (self.game.player.pos.x - self.true_scroll[0] - 320)/40
         ###
-        # self.true_scroll2[0] += (self.game.player.pos.x - self.true_scroll[0]-640)
+        # self.true_scroll[1] += (self.game.player.pos.x - self.true_scroll[0]-320) # Starting setup for adding horizontal scroll
         self.true_scroll[1] += (self.game.player.pos.y - self.true_scroll[1] - 170)
         scroll = self.true_scroll.copy()
         scroll[0] = int(scroll[0])
@@ -60,9 +56,5 @@ class Physics(object):
         self.game.weapon.scroll.x = scroll[0]
         self.game.weapon.scroll.y = scroll[1]
 
-        self.game.platforms.true_scroll.x = self.true_scroll2[0] #DO WYRZUCENIA
-
-
     def tick(self):
         self.scroll()
-
