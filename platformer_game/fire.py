@@ -39,7 +39,7 @@ class Fire(object):
         self.vel += self.acc
         self.pos += self.vel
         self.acc *= 0
-        if pygame.key.get_pressed()[pygame.K_r] and self.game.player.got_weapon == True and self.game.weapon.fire == False:
+        if pygame.key.get_pressed()[pygame.K_r] and self.game.player.has_weapon == True and self.game.weapon.fire == False:
             time0 = self.time1
 
 
