@@ -26,7 +26,6 @@ class Collision(object):
         self.isCollisionEnemy = False
         self.isCollisionGrid = False
 
-
         self.isRightCollision = False
         self.isLeftCollision = False
         self.isTopCollision = False
@@ -41,6 +40,7 @@ class Collision(object):
                 self.isCollision = True
         else:
             self.isCollision = False
+
     def collision_enemy(self,xxyy,xxyy1):
         if xxyy[1] >= xxyy1[0] and xxyy[0] < xxyy1[1]:
             if xxyy[3] >= xxyy1[2] and xxyy[2] < xxyy1[3]:
@@ -52,7 +52,6 @@ class Collision(object):
                 self.isCollisionGrid = True
         else:
             self.isCollisionGrid = False
-
 
     def collision_side(self, xxyy, xxyy1):
         if abs(xxyy[3] - xxyy1[2]) <= self.collisionMargin:
@@ -70,14 +69,11 @@ class Collision(object):
         if self.isBottomCollision == True and self.isLeftCollision == True:
             self.isBottom_LeftCollision = True
 
-
-
     def player_collision_check(self, object_rect_position):
         self.vel = self.game.player.vel
         self.position = self.game.player.position
         self.pos.x = self.game.player.pos.x
         self.pos.y = self.game.player.pos.y
-
 
         # Collision check
         self.collision_grid((self.position),(object_rect_position))
@@ -105,24 +101,25 @@ class Collision(object):
                     self.pos.y -= self.vel.y
                     self.vel.y = 0
 
-        self.isBottomCollision = False
-        self.isTopCollision = False
-        self.isRightCollision = False
-        self.isLeftCollision = False
-        self.isBottom_RightCollision = False
-        self.isBottom_LeftCollision = False
-        self.isCollisionGrid = False
+        # TODO: Commeneted recenty, check logic
+        # self.isBottomCollision = False
+        # self.isTopCollision = False
+        # self.isRightCollision = False
+        # self.isLeftCollision = False
+        # self.isBottom_RightCollision = False
+        # self.isBottom_LeftCollision = False
+        # self.isCollisionGrid = False
 
         # Update data
         self.game.player.vel = self.vel
         self.game.player.pos.x = self.pos.x
         self.game.player.pos.y = self.pos.y
+
     def object_collision_check(self, posx, width, posy, height, vel, object_rect_position):
         self.vel = vel
         self.position = posx, width, posy, height,
         self.pos.x = posx
         self.pos.y = posy
-
 
         # Collision check
         self.collision_grid((self.position),(object_rect_position))

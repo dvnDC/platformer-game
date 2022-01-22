@@ -30,11 +30,9 @@ class Enemy(object):
 
         self.counter = 1
 
-
     def add_force(self, force):
         #self.acc += force
         self.pos += force
-
 
     def tick(self):
         # Time for animations
@@ -67,23 +65,18 @@ class Enemy(object):
         if self.game.player.pos.x - self.pos.x > 1000:
             self.live = False
 
-
              # self.speed = 1
              # self.newSpawn = True
 
-
-
-
-
     def draw(self):
         if self.live == True:
+            # Draw hitbox
             # rect = pygame.Rect(self.pos.x-self.scroll[0], self.pos.y, self.width, self.height) ##szerokosc,wysokosc
             # pygame.draw.rect(self.game.screen, (150, 20, 20), rect)
+
             self.game.screen.blit(self.game.sprite.imageEnemyRunning[0], (self.pos.x - 8 - self.scroll[0], self.pos.y - 10))
-        # else:
-        #     self.pos.x = 1280 * self.counter
-
-
+        else:
+            self.pos.x = 1280 * self.counter
 
 # class Enemy(object):
 #
