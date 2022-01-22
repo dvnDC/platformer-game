@@ -210,15 +210,15 @@ class Collision(object):
         self.isCollision == False
 
         # # Interaction with borders
-        # if self.pos.y >= self.game.screen_height:  ##
-        #     self.pos.y = self.game.screen_height
-        #     self.vel.y = 0
+        if self.pos.y >= self.game.screen_height - 100:  ##
+            self.pos.y = self.game.screen_height - 100
+            self.vel.y = 0
         # if self.pos.y <= 0:  ##
         #     self.pos.y = 0
         #     self.vel.y = 0
-                            # if self.pos.x >= self.game.screen_width - 20:  ##
-                            #     self.pos.x = self.game.screen_width - 20
-                            #     self.vel.x = 0
+        #                     if self.pos.x >= self.game.screen_width - 20:  ##
+        #                         self.pos.x = self.game.screen_width - 20
+        #                         self.vel.x = 0
         # if self.pos.x <= 0:  ##
         #     self.pos.x += self.vel.x + 4
         #     self.vel.x *= 0.1
@@ -332,7 +332,7 @@ class Collision(object):
         #     self.vel.y = 0
         # if self.pos.y <= 0:  ##
         #     self.pos.y = 0
-            # self.vel.y = 0
+        #     self.vel.y = 0
         # if self.pos.x >= self.game.screen_width-20:  ##
         #     self.pos.x = self.game.screen_width-20
         #     #self.vel.x *= -1
