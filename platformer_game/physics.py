@@ -5,7 +5,7 @@ class Physics(object):
 
     def __init__(self, game):
         self.game = game
-        self.gravity = 0.9
+        self.gravity = 0.7
 
         self.pos = Vector2(0, 0)
         self.vel = Vector2(0, 0)

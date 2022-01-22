@@ -13,8 +13,8 @@ class Player(object):
         self.speed = 0.55
         self.gravity = 0.7
 
-        self.isJump = False
-        self.got_weapon = False
+        self.is_jumping = False
+        self.has_weapon = False
 
         #self.pos = pygame.math.Vector2(0,0)
         self.pos = Vector2(0,0)
@@ -59,21 +59,21 @@ class Player(object):
             self.isRunning = False
             self.runCount = 0
 
-        if pressed[pygame.K_SPACE] and self.isJump == False and self.vel.y == 0:        #
-            self.isJump = True
+        if pressed[pygame.K_SPACE] and self.is_jumping == False and self.vel.y == 0:        #
+            self.is_jumping = True
             # posy = self.pos.y
-            jump = -35.0
+            jump = -20.0
             # self.gravity *= -2
-            while self.isJump == True:
+            while self.is_jumping == True:
                 self.add_force(Vector2(0, jump))
                 # if abs(self.pos.y-posy) > 100:
-                #     self.isJump = False
+                #     self.is_jumping = False
                 #     self.gravity = self.game.physics.gravity
                 if self.vel.y == 0:
-                    self.isJump = False
+                    self.is_jumping = False
                     self.gravity = self.game.physics.gravity
 
-        if pressed[pygame.K_r] and self.got_weapon == True and self.game.weapon.fire == False:
+        if pressed[pygame.K_r] and self.has_weapon == True and self.game.weapon.fire == False:
             self.game.weapon.fire = True
             self.game.fire.pos.x = self.pos.x
             self.game.fire.pos.y = self.pos.y

@@ -107,7 +107,7 @@ class Sprite(pygame.sprite.Sprite):
         self.imageFireballFlip = self.flip_array(self.imagePlayerRun)
 
         self.imagePlayerAttack = self.transform_array(self.load_folder("images/hero/Knight/Attack1H/", 10), (160, 160))
-        self.imagePlayerAttackFlip = self.flip_array(self.imagePlayerRun)
+        self.imagePlayerAttackFlip = self.flip_array(self.imagePlayerAttack)
 
         self.tmp_melee_attack()
 
