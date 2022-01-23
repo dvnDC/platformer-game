@@ -1,54 +1,53 @@
 import pygame
 
 class Sprite(pygame.sprite.Sprite):
+
     def __init__(self, game):
         self.game = game
 
-        self.left = False
-        self.right = False
+        "Scale"
+        # (width, height)
+        self.display_scale = (640, 360)
+        self.background2_scale = (150, 360)
+        self.platform_scale = (30, 30)
+        self.stone_scale = (117, 100)
+        self.grid_scale = (40, 40)
 
-        self.imagePlayerStand = pygame.image.load("images/hero/Knight/Stand/0.png")
-        self.imagePlayerStand = pygame.transform.scale(self.imagePlayerStand, (160, 160))
+        self.player_scale = (160, 160)
+        self.player_effect_scale = (400, 400)
 
-        self.backgroundImage = 0
-        self.backgroundImage2 = 0
-        self.backgroundImage3 = 0
-        self.stone = 0
-        self.imagePlayerRun = []            # player knight running right
-        self.imagePlayerRunFlip = []        # player knight running left
-        self.imageEnemyRunning = []         # enemy blob running right
-        self.imageEnemyRunningFlip = []     # enemy blob running left
-        self.imageFireball = []
-        self.imageFireballFlip = []
-        self.imagePlayerAttack = []
-        self.imagePlayerAttackFlip = []
-        self.imageAttackEffect=[]
+        self.fireball_scale = (128, 50)
+        self.enemy_scale = (60, 60)
 
-        self.enemyImage = pygame.image.load("images/enemy2.png") # NOT USED
-        self.weaponPickupImage = pygame.image.load("images/weapon.png") # NOT USED
+        "Images"
+        # Map
+        self.img_background = 0
+        self.img_background2 = 0
+        self.img_background3 = 0
+        self.img_stone = 0
+        self.img_platform = 0
+        self.imageGrid0 = 0
+        self.imageGrid1 = 0
 
+        # Player
+        self.img_player_idle = 0
+        self.img_player_running = []
+        self.img_player_running_flip = []
+        self.img_player_attacking = []
+        self.img_player_attacking_flip = []
+        self.img_attack_effect=[]
 
-    def tmp_melee_attack(self): # TODO: Simple refactoring
-        self.temp = pygame.image.load("images/effects/attack/2.png")
-        self.temp = pygame.transform.scale(self.temp, (400, 400))
-        n = 0
-        m = 0
-        width = 100
-        height = 100
-        k = 0
-        l = 0
-        number = 0
-        self.imageAttackEffect=[0,0,0,0,0,1,0,0,0,0,0,0]
-        while n < 3:
-            while m < 4:
-                self.imageAttackEffect[number] = self.get_image(0+k, 0+l, width, height, self.temp)
-                m += 1
-                k += 100
-                number += 1
-            k = 0
-            m = 0
-            l += 100
-            n += 1
+        # Effects
+        self.img_fireball = []
+        self.img_fireball_flip = []
+
+        # Enemies
+        self.img_enemy_running = []
+        self.img_enemy_running_flip = []
+
+        # Not used
+        self.enemyImage = pygame.image.load("images/enemy2.png")
+        self.weaponPickupImage = pygame.image.load("images/weapon.png")
 
     def load_image(self, image_path):
         return self.game.file_loader.get_image(image_path)
@@ -78,36 +77,58 @@ class Sprite(pygame.sprite.Sprite):
     def load_icon(self):
         icon = self.load_image("images/icon.png") # 32x32 file
         pygame.display.set_icon(icon)
+        
+    def img_tmp_melee_attack(self): # TODO: Simple refactoring
+        def get_image(posx, posy, width, height, sprite_sheet):
+            image = pygame.Surface([width, height])
+            image.blit(sprite_sheet, (0, 0), (posx, posy, width, height))
+            image.set_colorkey((0, 0, 0))
+            return image
+
+        temp = self.transform(self.load_image("images/effects/attack/2.png"), self.player_effect_scale)
+        n = 0
+        m = 0
+        width = 100
+        height = 100
+        k = 0
+        l = 0
+        number = 0
+        self.img_attack_effect=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        while n < 3:
+            while m < 4:
+                self.img_attack_effect[number] = get_image(0 + k, 0 + l, width, height, temp)
+                m += 1
+                k += 100
+                number += 1
+            k = 0
+            m = 0
+            l += 100
+            n += 1
+
 
     def load_images(self):
-        self.imagePlayerRun = self.transform_array(self.load_folder("images/hero/Knight/Run/", 10), (160, 160))
-        self.imagePlayerRunFlip = self.flip_array(self.imagePlayerRun)
+        # Map
+        self.img_background = self.transform(self.load_image("images/layers/country-platform-back.png"), self.display_scale)
+        self.img_background2 = self.transform(self.load_image("images/layers/country-platform-forest.png"), self.background2_scale)
+        self.img_background3 = self.transform(self.load_image("images/layers/country-platform-tiles-example.png"), self.display_scale)
+        self.img_platform = self.transform(self.load_image("images/platform.png"), self.platform_scale)
+        self.img_stone = self.transform(self.load_image("images/objects/stone.png"), self.stone_scale)
+        self.imageGrid0 = self.transform(self.load_image("images/grid/0.png"), self.grid_scale)
+        self.imageGrid1 = self.transform(self.load_image("images/grid/1.png"), self.grid_scale)
 
-        self.backgroundImage = self.transform(self.load_image("images/layers/country-platform-back.png"), (640, 360))
-        self.backgroundImage2 = self.transform(self.load_image("images/layers/country-platform-forest.png"), (150, 360))
-        self.backgroundImage3 = self.transform(self.load_image("images/layers/country-platform-tiles-example.png"), (640, 360))
+        # Player
+        self.img_player_running = self.transform_array(self.load_folder("images/hero/Knight/Run/", 10), self.player_scale)
+        self.img_player_running_flip = self.flip_array(self.img_player_running)
+        self.img_player_attacking = self.transform_array(self.load_folder("images/hero/Knight/Attack1H/", 10), self.player_scale)
+        self.img_player_attacking_flip = self.flip_array(self.img_player_attacking)
+        self.img_player_idle = self.transform(self.load_image("images/hero/Knight/Stand/0.png"), self.player_scale)
+        self.img_tmp_melee_attack()
 
+        # Effects
+        self.img_fireball = self.transform_array(self.load_folder("images/effects/fireball/", 6), self.fireball_scale)
+        self.img_fireball_flip = self.flip_array(self.img_fireball)
 
-        self.platformImage = self.transform(self.load_image("images/platform.png"), (30, 30))
-        self.stone = self.transform(self.load_image("images/objects/stone.png"), (117, 100))
+        # Enemies
+        self.img_enemy_running = self.transform_array(self.load_folder("images/enemy/blob/", 10), self.enemy_scale)
+        self.img_enemy_running_flip = self.flip_array(self.img_enemy_running)
 
-        self.imageGrid0 = self.transform(self.load_image("images/grid/0.png"), (40, 40))
-        self.imageGrid1 = self.transform(self.load_image("images/grid/1.png"), (40, 40))
-
-        self.imageEnemyRunning = self.transform_array(self.load_folder("images/enemy/blob/", 10), (60, 60))
-        self.imageEnemyRunningFlip = self.flip_array(self.imageEnemyRunning)
-
-        self.imageFireball = self.transform_array(self.load_folder("images/effects/fireball/", 6), (128, 50))
-        self.imageFireballFlip = self.flip_array(self.imagePlayerRun)
-
-        self.imagePlayerAttack = self.transform_array(self.load_folder("images/hero/Knight/Attack1H/", 10), (160, 160))
-        self.imagePlayerAttackFlip = self.flip_array(self.imagePlayerAttack)
-
-        self.tmp_melee_attack()
-
-    def get_image(self, posx, posy, width, height, sprite_sheet):
-        image = pygame.Surface([width, height])
-        image.blit(sprite_sheet, (0, 0), (posx, posy, width, height))
-        image.set_colorkey((0,0,0))
-
-        return image
