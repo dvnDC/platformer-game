@@ -51,7 +51,7 @@ class Menu(object):
                 action()
 
     def background(self):
-        self.game.screen.blit(self.game.sprite.backgroundImage,(0,0))
+        self.game.screen.blit(self.game.sprite.img_background, (0, 0))
 
     def text_objects(text, font):
         textSurface = font.render(text, True, randomcolor)
@@ -87,7 +87,7 @@ class Menu(object):
 
                 if self.GRID[row][column] == 7:
                     pygame.draw.rect(self.game.screen, (0, 150, 200), box)
-                    self.game.screen.blit(self.game.sprite.backgroundImage3, ((posX * column), posY * row))
+                    self.game.screen.blit(self.game.sprite.img_background3, ((posX * column), posY * row))
                     positionbox = (posX * column), (posX * column + box_size), posY * row, posY * row + box_size
                     # self.game.collision.player_collision_check(positionbox)
                     # self.game.collision.player_collision_check(self.GRID_position[gridNr])

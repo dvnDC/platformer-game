@@ -74,7 +74,7 @@ class Enemy(object):
             # rect = pygame.Rect(self.pos.x-self.scroll[0], self.pos.y, self.width, self.height) ##szerokosc,wysokosc
             # pygame.draw.rect(self.game.screen, (150, 20, 20), rect)
 
-            self.game.screen.blit(self.game.sprite.imageEnemyRunning[0], (self.pos.x - 8 - self.scroll[0], self.pos.y - 10))
+            self.game.screen.blit(self.game.sprite.img_enemy_running[0], (self.pos.x - 8 - self.scroll[0], self.pos.y - 10))
         else:
             self.pos.x = 1280 * self.counter
 
