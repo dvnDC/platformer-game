@@ -59,7 +59,7 @@ class Fire(object):
                 cooldown = int(self.dt*3)
                 if cooldown > 5:
                     cooldown = int(self.dt)-4
-                self.game.screen.blit(self.game.sprite.imageFireball[cooldown],(self.pos.x - self.scroll[0] - 40, self.pos.y - 60))
+                self.game.screen.blit(self.game.sprite.img_fireball[cooldown], (self.pos.x - self.scroll[0] - 40, self.pos.y - 60))
                 if self.dt >= 5:
                     self.game.weapon.fire = False
                     self.projectileRight = False
@@ -71,7 +71,7 @@ class Fire(object):
                 cooldown = int(self.dt*3)
                 if cooldown > 5:
                     cooldown = int(self.dt)-4
-                self.game.screen.blit(self.game.sprite.imageFireballFlip[cooldown], (self.pos.x - self.scroll[0] - 120, self.pos.y - 60))
+                self.game.screen.blit(self.game.sprite.img_fireball_flip[cooldown], (self.pos.x - self.scroll[0] - 120, self.pos.y - 60))
                 if self.dt > 5:
                     self.game.weapon.fire = False
                     self.projectileRight = False

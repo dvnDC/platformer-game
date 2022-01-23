@@ -16,7 +16,7 @@ class Player(object):
         self.is_jumping = False
         self.has_weapon = False
 
-        #self.pos = pygame.math.Vector2(0,0)
+        # self.pos = pygame.math.Vector2(0,0)
         self.pos = Vector2(0,0)
         self.vel = Vector2(0,0)
         self.acc = Vector2(0,0)
@@ -24,8 +24,8 @@ class Player(object):
         self.vel.x = 0.1
         self.pos.x = 320
         self.pos.y = 170
-        self.width = 20
-        self.height = 60
+        self.width = 10
+        self.height = 30
 
         self.scroll = Vector2(0,0)
 
@@ -112,38 +112,39 @@ class Player(object):
 
 
     def draw(self):
-        # base model
-        # rect_player = pygame.Rect(self.pos.x -self.scroll.x, self.pos.y, self.width, self.height)
-        # pygame.draw.rect(self.game.screen, (0, 150, 200), rect_player)
+        # base rect hitbox
+        rect_player = pygame.Rect(self.pos.x - self.scroll.x, self.pos.y, self.width, self.height)
+        pygame.draw.rect(self.game.screen, (0, 150, 200), rect_player)
+        #
 
         if self.isRunning == False and self.isAttacking == False:
             if self.vel.x == 0:
-                self.game.screen.blit(self.game.sprite.imagePlayerStand,(self.pos.x - self.scroll.x - 70, self.pos.y - 70))
+                self.game.screen.blit(self.game.sprite.img_player_idle, (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
             if self.vel.x > 0:
-                self.game.screen.blit(self.game.sprite.imagePlayerStand, (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
+                self.game.screen.blit(self.game.sprite.img_player_idle, (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
                 # self.rect_weapon.x = self.pos.x - self.scroll.x +30
             if self.vel.x < 0:
-                hero_flip = pygame.transform.flip(self.game.sprite.imagePlayerStand, True, False)
+                hero_flip = pygame.transform.flip(self.game.sprite.img_player_idle, True, False)
                 self.game.screen.blit(hero_flip, (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
                 # self.rect_weapon.x = self.pos.x - self.scroll.x -100
 
-        elif self.isRunning == True and self.isAttacking == False:
+        if self.isRunning == True and self.isAttacking == False:
             if self.vel.x > 0:
-                self.game.screen.blit(self.game.sprite.imagePlayerRun[self.runCount//3], (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
+                self.game.screen.blit(self.game.sprite.img_player_running[self.runCount // 3], (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
                 self.runCount += 1
             elif self.vel.x < 0:
-                self.game.screen.blit(self.game.sprite.imagePlayerRunFlip[self.runCount//3], (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
+                self.game.screen.blit(self.game.sprite.img_player_running_flip[self.runCount // 3], (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
                 self.runCount += 1
 
-        elif self.isAttacking:
+        if self.isAttacking:
             animate_speed = self.dt * 20
             if not int(animate_speed) >= 9:
                 if self.vel.x >= 0:
-                    self.game.screen.blit(self.game.sprite.imagePlayerAttack[int(animate_speed)],(self.pos.x - self.scroll.x - 70, self.pos.y - 70))
-                    self.game.screen.blit(self.game.sprite.imageAttackEffect[int(animate_speed)],(self.game.weapon.pos.x - self.scroll.x, self.game.weapon.pos.y))
+                    self.game.screen.blit(self.game.sprite.img_player_attacking[int(animate_speed)], (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
+                    self.game.screen.blit(self.game.sprite.img_attack_effect[int(animate_speed)], (self.game.weapon.pos.x - self.scroll.x, self.game.weapon.pos.y))
                 elif self.vel.x < 0:
-                    self.game.screen.blit(self.game.sprite.imagePlayerAttackFlip[int(animate_speed)],(self.pos.x - self.scroll.x - 70, self.pos.y - 70))
-                    self.game.screen.blit(self.game.sprite.imageAttackEffect[int(animate_speed)],(self.game.weapon.pos.x - self.scroll.x, self.game.weapon.pos.y))
+                    self.game.screen.blit(self.game.sprite.img_player_attacking_flip[int(animate_speed)], (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
+                    self.game.screen.blit(self.game.sprite.img_attack_effect[int(animate_speed)], (self.game.weapon.pos.x - self.scroll.x, self.game.weapon.pos.y))
             if self.dt >= 2 or int(animate_speed) >= 9:
                 global time0
                 time0 = self.time1
