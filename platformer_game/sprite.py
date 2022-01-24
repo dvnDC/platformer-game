@@ -7,17 +7,20 @@ class Sprite(pygame.sprite.Sprite):
 
         "Scale"
         # (width, height)
-        self.display_scale = (640, 360)
-        self.background2_scale = (150, 360)
-        self.platform_scale = (30, 30)
-        self.stone_scale = (117, 100)
-        self.grid_scale = (40, 40)
+        self.display_scale = self.scale_image(320, 180) # background, background3
 
-        self.player_scale = (160, 160)
-        self.player_effect_scale = (400, 400)
+        self.background_scale = self.display_scale # background, background3
+        self.background3_scale = self.display_scale # background, background3
+        self.background2_scale = self.scale_image(75, 180)
+        self.platform_scale = self.scale_image(15, 15)
+        self.stone_scale = self.scale_image(57, 50)
+        self.grid_scale = self.scale_image(40, 40)
 
-        self.fireball_scale = (128, 50)
-        self.enemy_scale = (60, 60)
+        self.player_scale = self.scale_image(40, 40)
+        self.player_effect_scale = self.scale_image(400, 400) # vanilla 400, 400
+
+        self.fireball_scale = self.scale_image(64, 25)
+        self.enemy_scale = self.scale_image(30, 30)
 
         "Images"
         # Map
@@ -48,6 +51,9 @@ class Sprite(pygame.sprite.Sprite):
         # Not used
         self.enemyImage = pygame.image.load("images/enemy2.png")
         self.weaponPickupImage = pygame.image.load("images/weapon.png")
+
+    def scale_image(self, width, height):
+        return width * self.game.SCALE, height * self.game.SCALE
 
     def load_image(self, image_path):
         return self.game.file_loader.get_image(image_path)
@@ -105,12 +111,12 @@ class Sprite(pygame.sprite.Sprite):
             l += 100
             n += 1
 
-
+    "After adding new sprite add it also to images.py"
     def load_images(self):
         # Map
-        self.img_background = self.transform(self.load_image("images/layers/country-platform-back.png"), self.display_scale)
+        self.img_background = self.transform(self.load_image("images/layers/country-platform-back.png"), self.background_scale)
         self.img_background2 = self.transform(self.load_image("images/layers/country-platform-forest.png"), self.background2_scale)
-        self.img_background3 = self.transform(self.load_image("images/layers/country-platform-tiles-example.png"), self.display_scale)
+        self.img_background3 = self.transform(self.load_image("images/layers/country-platform-tiles-example.png"), self.background3_scale)
         self.img_platform = self.transform(self.load_image("images/platform.png"), self.platform_scale)
         self.img_stone = self.transform(self.load_image("images/objects/stone.png"), self.stone_scale)
         self.imageGrid0 = self.transform(self.load_image("images/grid/0.png"), self.grid_scale)
