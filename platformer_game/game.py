@@ -12,6 +12,7 @@ from sprite import Sprite
 from menu import Menu
 from file_loader import FileLoader
 from font import Font
+from images import Images
 
 
 from pygame.math import Vector2
@@ -23,8 +24,9 @@ class Game(object):
 
     def __init__(self):
         # Settings
-        self.WIDTH = 640
-        self.HEIGHT = 360
+        self.WIDTH = 320
+        self.HEIGHT = 180
+        self.SCALE = 3
 
         # Sound settings
         pygame.mixer.init()
@@ -37,7 +39,7 @@ class Game(object):
         # Initialization
         pygame.init()
         self.resolution = (self.screen_width, self.screen_height) = (self.WIDTH, self.HEIGHT)
-        self.screen = pygame.display.set_mode(self.resolution, pygame.RESIZABLE)
+        self.screen = pygame.display.set_mode((self.screen_width * self.SCALE, self.screen_height * self.SCALE), pygame.RESIZABLE)
 
         self.tps_clock = pygame.time.Clock()
         self.tps_delta = 0.0
@@ -55,17 +57,22 @@ class Game(object):
         self.menu = Menu(self)
         self.file_loader = FileLoader(self)
         self.font = Font(self)
+        self.images = Images(self)
 
         self.sprite.load_images()
         self.sprite.load_icon()
-
         while True:
             # Events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit(0)
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:  ############# klik i cos sie dzieje raz
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     sys.exit(0)
+                elif event.type == pygame.VIDEORESIZE:
+                    pass
+                elif event.type == pygame.VIDEOEXPOSE:
+                    pass
+
 
             # Ticking
             self.tps_delta += self.tps_clock.tick() / 1000.0  # convert milliseconds to seconds; 1000 ms = 1 s
@@ -86,12 +93,11 @@ class Game(object):
         self.physics.tick()
 
     def draw(self):
+        pass
         # self.menu.draw()
         self.map.draw()
         self.player.draw()
-        self.enemy.draw()
-        self.weapon.draw()
-        self.fire.draw()
+        # self.enemy.draw()
         self.font.draw()
 
 
