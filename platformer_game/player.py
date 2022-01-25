@@ -91,6 +91,10 @@ class Player(object):
     def actual_postion(self):
         self.position = (self.pos.x, (self.pos.x + self.width), self.pos.y, (self.pos.y + self.height))
 
+    def draw_player_hitbox(self):
+        rect_player = pygame.Rect(self.pos.x - self.scroll.x, self.pos.y, self.width, self.height)
+        pygame.draw.rect(self.game.screen, (0, 150, 200), rect_player)
+
 
     def tick(self):
         self.animations_time()
@@ -112,10 +116,7 @@ class Player(object):
 
 
     def draw(self):
-        # base rect hitbox
-        rect_player = pygame.Rect(self.pos.x - self.scroll.x, self.pos.y, self.width, self.height)
-        pygame.draw.rect(self.game.screen, (0, 150, 200), rect_player)
-        #
+        self.draw_player_hitbox()
 
         if self.isRunning == False and self.isAttacking == False:
             if self.vel.x == 0:
