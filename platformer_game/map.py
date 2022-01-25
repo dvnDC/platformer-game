@@ -108,10 +108,15 @@ class Map(object):
                 else:
                     self.GRID_position.append((posX * column, posX * column + box_size, posY * row, posY * row + box_size))
 
+    def draw_map_hitbox(self):
+        rect_map = pygame.Rect(0 - self.scroll.x, 0, 320, 180)
+        pygame.draw.rect(self.game.screen, (0, 0, 0), rect_map)
+
     def draw(self):
         # self.background()
         self.background_vanilla()
         self.stone()
         # self.game.aplatforms.draw()
         # self.grid()
-        # self.grid_static()
+        self.grid_static()
+        self.draw_map_hitbox()
