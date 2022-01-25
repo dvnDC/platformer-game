@@ -12,7 +12,6 @@ from sprite import Sprite
 from menu import Menu
 from file_loader import FileLoader
 from font import Font
-from images import Images
 
 
 from pygame.math import Vector2
@@ -57,7 +56,6 @@ class Game(object):
         self.menu = Menu(self)
         self.file_loader = FileLoader(self)
         self.font = Font(self)
-        self.images = Images(self)
 
         self.sprite.load_images()
         self.sprite.load_icon()
