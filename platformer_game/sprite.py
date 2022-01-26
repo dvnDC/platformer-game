@@ -111,7 +111,7 @@ class Sprite(pygame.sprite.Sprite):
             l += 100
             n += 1
 
-    "After adding new sprite add it also to images.py"
+    "After adding new sprite - ADD it also to images.py"
     def load_images(self):
         # Map
         self.img_background = self.transform(self.load_image("images/layers/country-platform-back.png"), self.background_scale)
