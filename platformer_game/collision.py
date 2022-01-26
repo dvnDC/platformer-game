@@ -102,13 +102,13 @@ class Collision(object):
                     self.vel.y = 0
 
         # TODO: Commeneted recenty, check logic
-        # self.isBottomCollision = False
-        # self.isTopCollision = False
-        # self.isRightCollision = False
-        # self.isLeftCollision = False
-        # self.isBottom_RightCollision = False
-        # self.isBottom_LeftCollision = False
-        # self.isCollisionGrid = False
+        self.isBottomCollision = False
+        self.isTopCollision = False
+        self.isRightCollision = False
+        self.isLeftCollision = False
+        self.isBottom_RightCollision = False
+        self.isBottom_LeftCollision = False
+        self.isCollisionGrid = False
 
         # Update data
         self.game.player.vel = self.vel

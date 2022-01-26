@@ -48,7 +48,7 @@ class Map(object):
             self.game.screen.blit(self.game.sprite.img_background, (starting_pos - self.scroll.x / 30, 0))
             starting_pos += 320 * self.game.SCALE
         # layer back
-        imgPosX2 = -900
+        imgPosX2 = -320
         for n in range(12): # number of images
             self.game.screen.blit(self.game.sprite.img_background2, (imgPosX2 - self.scroll.x / 6, 0))
             imgPosX2 += 225
@@ -118,5 +118,5 @@ class Map(object):
         self.stone()
         # self.game.aplatforms.draw()
         # self.grid()
-        self.grid_static()
+        # self.grid_static()
         self.draw_map_hitbox()
