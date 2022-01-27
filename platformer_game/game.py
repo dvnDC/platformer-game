@@ -1,5 +1,4 @@
 import pygame, sys
-import os
 from player import Player
 from map import Map
 from enemy import Enemy
