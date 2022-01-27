@@ -25,7 +25,7 @@ class Game(object):
         # Settings
         self.WIDTH = 320
         self.HEIGHT = 180
-        self.SCALE = 3
+        self.SCALE = 5
 
         # Sound settings
         pygame.mixer.init()

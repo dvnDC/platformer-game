@@ -116,7 +116,7 @@ class Player(object):
 
 
     def draw(self):
-        self.draw_player_hitbox()
+        # self.draw_player_hitbox()
 
         if self.isRunning == False and self.isAttacking == False:
             if self.vel.x == 0:

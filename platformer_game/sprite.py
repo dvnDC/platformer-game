@@ -7,16 +7,16 @@ class Sprite(pygame.sprite.Sprite):
 
         "Scale"
         # (width, height)
-        self.display_scale = self.scale_image(320, 180) # background, background3
+        self.display_scale = self.scale_image(320, 180)  # background, background3
 
-        self.background_scale = self.display_scale # background, background3
-        self.background3_scale = self.display_scale # background, background3
+        self.background_scale = self.scale_image(320, 180)  # background, background3
+        self.background3_scale = self.scale_image(320, 180)  # background, background3
         self.background2_scale = self.scale_image(75, 180)
         self.platform_scale = self.scale_image(15, 15)
         self.stone_scale = self.scale_image(57, 50)
         self.grid_scale = self.scale_image(40, 40)
 
-        self.player_scale = self.scale_image(40, 40)
+        self.player_scale = self.scale_image(50, 50)
         self.player_effect_scale = self.scale_image(400, 400) # vanilla 400, 400
 
         self.fireball_scale = self.scale_image(64, 25)
@@ -62,19 +62,23 @@ class Sprite(pygame.sprite.Sprite):
     def load_folder(self, folder_path, number):
         return self.game.file_loader.get_image_folder(folder_path, number)
 
-    def transform(self, image, scale=(0,0)):
+    @staticmethod
+    def transform(image, scale=(0,0)):
         return pygame.transform.scale(image, scale)
 
-    def transform_array(self, images, scale=(0, 0)):
+    @staticmethod
+    def transform_array(images, scale=(0, 0)):
         array = []
         for i in range(len(images)):
             array.append(pygame.transform.scale(images[i], scale))
         return array
 
-    def flip_image(self, image):
+    @staticmethod
+    def flip_image(image):
         return pygame.transform.flip(image, True, False)
 
-    def flip_array(self, images):
+    @staticmethod
+    def flip_array(images):
         array = []
         for i in range(len(images)):
             array.append(pygame.transform.flip(images[i], True, False))
@@ -83,7 +87,7 @@ class Sprite(pygame.sprite.Sprite):
     def load_icon(self):
         icon = self.load_image("images/icon.png") # 32x32 file
         pygame.display.set_icon(icon)
-        
+
     def img_tmp_melee_attack(self): # TODO: Simple refactoring
         def get_image(posx, posy, width, height, sprite_sheet):
             image = pygame.Surface([width, height])
