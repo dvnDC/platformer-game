@@ -25,7 +25,7 @@ class Physics(object):
 
     def standing(self):
         self.game.collision.enemy_collision()
-        if self.game.collision.isBottomCollision == True:
+        if self.game.collision.isBottomCollision is True:
             self.isStanding = True
         else:
             self.isStanding = False

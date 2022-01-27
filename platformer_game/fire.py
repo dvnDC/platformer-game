@@ -37,25 +37,25 @@ class Fire(object):
         self.vel += self.acc
         self.pos += self.vel
         self.acc *= 0
-        if pygame.key.get_pressed()[pygame.K_r] and self.game.player.has_weapon == True and self.game.weapon.fire == False:
+        if pygame.key.get_pressed()[pygame.K_r] and self.game.player.has_weapon is True and self.game.weapon.fire is False:
             time0 = self.time1
 
-        if self.game.weapon.fire == True:
+        if self.game.weapon.fire is True:
             self.seconds = (pygame.time.get_ticks() - self.start_ticks) / 1000 ###############
             self.draw()
 
-            if self.game.player.vel.x >= 0 and self.projectileRight == False and self.projectileLeft == False:
+            if self.game.player.vel.x >= 0 and self.projectileRight is False and self.projectileLeft is False:
                 # self.add_force(Vector2(self.speed, 0))
                 self.vel.x += self.speed
                 self.projectileRight = True
-            if self.game.player.vel.x < 0 and self.projectileLeft == False and self.projectileRight == False:
+            if self.game.player.vel.x < 0 and self.projectileLeft is False and self.projectileRight is False:
                 self.add_force(Vector2(-self.speed, 0))
                 self.projectileLeft = True
 
     def draw(self):
-        if self.game.weapon.fire == True:
+        if self.game.weapon.fire is True:
 
-            if self.projectileRight == True and self.projectileLeft == False:
+            if self.projectileRight is True and self.projectileLeft is False:
                 cooldown = int(self.dt*3)
                 if cooldown > 5:
                     cooldown = int(self.dt)-4
@@ -67,7 +67,7 @@ class Fire(object):
                     self.vel.x = 0
                     global time0
                     time0 = self.time1
-            if self.projectileLeft == True and self.projectileRight == False:
+            if self.projectileLeft is True and self.projectileRight is False:
                 cooldown = int(self.dt*3)
                 if cooldown > 5:
                     cooldown = int(self.dt)-4

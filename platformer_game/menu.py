@@ -47,7 +47,7 @@ class Menu(object):
     def button(self, x, y, w, h, action=None):
         if x + w > self.mouse[0] > x and y + h > self.mouse[1] > y:
             pygame.draw.rect(gameDisplay, (210, 210, 210), (x, y, w, h))
-            if self.click[0] == 1 and action != None:
+            if self.click[0] == 1 and action is not None:
                 action()
 
     def background(self):

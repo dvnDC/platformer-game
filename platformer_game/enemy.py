@@ -40,7 +40,7 @@ class Enemy(object):
         self.time1 = time.time()
         self.dt = self.time1 - time0
         #
-        if self.live == True:
+        if self.live is True:
             self.game.physics.standing()
             self.vel *= 0.85
             self.vel -= Vector2(0,-self.gravity)  # grawitacjaself.add_force(Vector2(0, self.gravity))
@@ -69,7 +69,7 @@ class Enemy(object):
              # self.newSpawn = True
 
     def draw(self):
-        if self.live == True:
+        if self.live is True:
             # Draw hitbox
             # rect = pygame.Rect(self.pos.x-self.scroll[0], self.pos.y, self.width, self.height) ##szerokosc,wysokosc
             # pygame.draw.rect(self.game.screen, (150, 20, 20), rect)
