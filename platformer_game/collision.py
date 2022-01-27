@@ -42,9 +42,13 @@ class Collision(object):
             self.isCollision = False
 
     def collision_enemy(self,xxyy,xxyy1):
-        if xxyy[1] >= xxyy1[0] and xxyy[0] < xxyy1[1]:
-            if xxyy[3] >= xxyy1[2] and xxyy[2] < xxyy1[3]:
-                self.isCollisionEnemy = True
+        if (
+            xxyy[1] >= xxyy1[0]
+            and xxyy[0] < xxyy1[1]
+            and xxyy[3] >= xxyy1[2]
+            and xxyy[2] < xxyy1[3]
+        ):
+            self.isCollisionEnemy = True
 
     def collision_grid(self, xxyy, xxyy1):
         if xxyy[1] >= xxyy1[0] and xxyy[0] < xxyy1[1]:
@@ -277,9 +281,11 @@ class Collision(object):
 
     def bullet_collision(self):
         #enemy
-        if self.game.enemy.pos.x-50 <= self.game.fire.pos.x <= self.game.enemy.pos.x+50:
-            if self.game.enemy.pos.y - 20 <= self.game.fire.pos.y <= self.game.enemy.pos.y + 60:
-                self.game.enemy.live = False
+        if (
+            self.game.enemy.pos.x-50 <= self.game.fire.pos.x <= self.game.enemy.pos.x+50
+            and self.game.enemy.pos.y - 20 <= self.game.fire.pos.y <= self.game.enemy.pos.y + 60
+        ):
+            self.game.enemy.live = False
 
     def enemy_collision(self):
         self.vel = self.game.enemy.vel
