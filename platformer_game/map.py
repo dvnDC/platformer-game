@@ -119,4 +119,4 @@ class Map(object):
         # self.game.aplatforms.draw()
         # self.grid()
         # self.grid_static()
-        self.draw_map_hitbox()
+        # self.draw_map_hitbox()
