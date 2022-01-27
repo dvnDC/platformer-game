@@ -64,9 +64,9 @@ class Collision(object):
         elif abs(xxyy[0] - xxyy1[1]) <= self.collisionMargin:
             self.isLeftCollision = True
 
-        if self.isBottomCollision == True and self.isRightCollision == True:
+        if self.isBottomCollision is True and self.isRightCollision is True:
             self.isBottom_RightCollision = True
-        if self.isBottomCollision == True and self.isLeftCollision == True:
+        if self.isBottomCollision is True and self.isLeftCollision is True:
             self.isBottom_LeftCollision = True
 
     def player_collision_check(self, object_rect_position):
@@ -77,24 +77,24 @@ class Collision(object):
 
         # Collision check
         self.collision_grid((self.position),(object_rect_position))
-        if self.isCollisionGrid == True:
+        if self.isCollisionGrid is True:
             self.collision_side((self.position),(object_rect_position))
 
-            if self.isBottomCollision == True:
+            if self.isBottomCollision is True:
                 self.pos.y -= self.vel.y
                 self.vel.y = 0
-            if self.isTopCollision == True:
+            if self.isTopCollision is True:
                 self.pos.y += self.vel.y + 5
                 self.vel.y = 0.1
-            if self.isRightCollision == True:
-                if  self.isBottom_RightCollision == False:
+            if self.isRightCollision is True:
+                if  self.isBottom_RightCollision is False:
                     self.pos.x -= self.vel.x + 4
                     self.vel.x *= 0.1
                 else:
                     self.pos.y -= self.vel.y
                     self.vel.y = 0
-            if self.isLeftCollision == True:
-                if  self.isBottom_LeftCollision == False:
+            if self.isLeftCollision is True:
+                if  self.isBottom_LeftCollision is False:
                     self.pos.x += self.vel.x + 4
                     self.vel.x *= 0.1
                 else:
@@ -123,24 +123,24 @@ class Collision(object):
 
         # Collision check
         self.collision_grid((self.position),(object_rect_position))
-        if self.isCollisionGrid == True:
+        if self.isCollisionGrid is True:
             self.collision_side((self.position),(object_rect_position))
 
-            if self.isBottomCollision == True:
+            if self.isBottomCollision is True:
                 self.pos.y -= self.vel.y
                 self.vel.y = 0
-            if self.isTopCollision == True:
+            if self.isTopCollision is True:
                 self.pos.y += self.vel.y + 5
                 self.vel.y = 0.1
-            if self.isRightCollision == True:
-                if  self.isBottom_RightCollision == False:
+            if self.isRightCollision is True:
+                if  self.isBottom_RightCollision is False:
                     self.pos.x -= self.vel.x + 4
                     self.vel.x *= 0.1
                 else:
                     self.pos.y -= self.vel.y
                     self.vel.y = 0
-            if self.isLeftCollision == True:
-                if  self.isBottom_LeftCollision == False:
+            if self.isLeftCollision is True:
+                if  self.isBottom_LeftCollision is False:
                     self.pos.x += self.vel.x + 4
                     self.vel.x *= 0.1
                 else:
@@ -174,24 +174,24 @@ class Collision(object):
         while n > 0:
             n -= 1
             self.collision((self.position),(self.game.platforms.platformPOS[k]))
-            if self.isCollision == True:
+            if self.isCollision is True:
                 self.collision_side((self.position),(self.game.platforms.platformPOS[k]))
 
-                if self.isBottomCollision == True:
+                if self.isBottomCollision is True:
                     self.pos.y -= self.vel.y
                     self.vel.y = 0
-                if self.isTopCollision == True:
+                if self.isTopCollision is True:
                     self.pos.y += self.vel.y + 5
                     self.vel.y = 0.1
-                if self.isRightCollision == True:
-                    if self.isBottom_RightCollision == False:
+                if self.isRightCollision is True:
+                    if self.isBottom_RightCollision is False:
                         self.pos.x -= self.vel.x + 4
                         self.vel.x *= 0.1
                     else:
                         self.pos.y -= self.vel.y
                         self.vel.y = 0
-                if self.isLeftCollision == True:
-                    if self.isBottom_LeftCollision == False:
+                if self.isLeftCollision is True:
+                    if self.isBottom_LeftCollision is False:
                         self.pos.x += self.vel.x + 4
                         self.vel.x *= 0.1
                     else:
@@ -204,7 +204,7 @@ class Collision(object):
         self.isTopCollision = False
         self.isRightCollision = False
         self.isLeftCollision = False
-        self.isCollision == False
+        self.isCollision is False
 
         # # Interaction with borders
         correction = 0.85
@@ -233,20 +233,20 @@ class Collision(object):
 
         # Collision with enemy
         self.collision((self.position),(self.game.enemy.position))
-        if self.isCollision == True:
+        if self.isCollision is True:
             # self.pos.x = self.pos.x + self.vel.x - 10
             # self.pos.y -= 10
             self.collision_side((self.position), (self.game.enemy.position))
 
 
-        if  self.isBottomCollision == True:
+        if  self.isBottomCollision is True:
             self.pos.y -= self.vel.y
             self.vel.y = 0
-        if self.isTopCollision == True:
+        if self.isTopCollision is True:
             self.pos.y += self.vel.y + 5
             self.vel.y = 0.1
-        if self.isRightCollision == True:
-            if self.isBottom_RightCollision == False:
+        if self.isRightCollision is True:
+            if self.isBottom_RightCollision is False:
                 # self.pos.x -= self.vel.x + 4
                 # self.vel.x *= 0.1
                 self.pos.x = self.pos.x + self.vel.x - 10
@@ -254,8 +254,8 @@ class Collision(object):
             else:
                 self.pos.y -= self.vel.y + 2
                 # self.vel.y = 0
-        if self.isLeftCollision == True:
-            if self.isBottom_LeftCollision == False:
+        if self.isLeftCollision is True:
+            if self.isBottom_LeftCollision is False:
                 self.pos.x = self.pos.x + self.vel.x + 10
                 self.pos.y -= 8
             else:

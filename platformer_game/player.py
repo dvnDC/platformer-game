@@ -59,25 +59,25 @@ class Player(object):
             self.isRunning = False
             self.runCount = 0
 
-        if pressed[pygame.K_SPACE] and self.is_jumping == False and self.vel.y == 0:        #
+        if pressed[pygame.K_SPACE] and self.is_jumping is False and self.vel.y == 0:        #
             self.is_jumping = True
             jump = -20.0
-            while self.is_jumping == True:
+            while self.is_jumping is True:
                 self.add_force(Vector2(0, jump))
                 if self.vel.y == 0:
                     self.is_jumping = False
                     self.gravity = self.game.physics.gravity
 
-        if pressed[pygame.K_r] and self.has_weapon == True and self.game.weapon.fire == False:
+        if pressed[pygame.K_r] and self.has_weapon is True and self.game.weapon.fire is False:
             self.game.weapon.fire = True
             self.game.fire.pos.x = self.pos.x
             self.game.fire.pos.y = self.pos.y
 
-        if pressed[pygame.K_e] and self.isAttacking == False:
+        if pressed[pygame.K_e] and self.isAttacking is False:
             time0 = self.time1
             self.isAttacking = True
             self.game.collision.collision((self.game.weapon.position),(self.game.enemy.position))
-            if self.game.collision.isCollision == True:
+            if self.game.collision.isCollision is True:
                 self.game.enemy.live = False
 
     def physic_vel(self):
@@ -118,7 +118,7 @@ class Player(object):
     def draw(self):
         # self.draw_player_hitbox()
 
-        if self.isRunning == False and self.isAttacking == False:
+        if self.isRunning is False and self.isAttacking is False:
             if self.vel.x == 0:
                 self.game.screen.blit(self.game.sprite.img_player_idle, self.game.sprite.scale_imagee(self.pos.x - self.scroll.x, self.pos.y))
             if self.vel.x > 0:
@@ -129,7 +129,7 @@ class Player(object):
                 self.game.screen.blit(hero_flip, self.game.sprite.scale_image(self.pos.x - self.scroll.x, self.pos.y))
                 # self.rect_weapon.x = self.pos.x - self.scroll.x -100
 
-        if self.isRunning == True and self.isAttacking == False:
+        if self.isRunning is True and self.isAttacking is False:
             if self.vel.x > 0:
                 self.game.screen.blit(self.game.sprite.img_player_running[self.runCount // 3], self.game.sprite.scale_image(self.pos.x - self.scroll.x, self.pos.y))
                 self.runCount += 1
