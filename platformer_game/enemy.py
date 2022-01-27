@@ -3,7 +3,7 @@ import time
 
 time0 = time.time()
 
-class Enemy(object):
+class Enemy:
 
     def __init__(self, game):
         self.game = game

@@ -18,7 +18,7 @@ from pygame.math import Vector2
 pygame.display.set_caption("dvn's game")
 
 
-class Game(object):
+class Game:
 
     def __init__(self):
         # Settings

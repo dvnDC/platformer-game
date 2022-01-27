@@ -5,7 +5,7 @@ import time
 
 time0 = time.time()
 
-class Player(object):
+class Player:
 
     def __init__(self, game):
         self.game = game

@@ -2,7 +2,7 @@ import pygame
 from pygame.math import Vector2
 
 
-class Weapon(object):
+class Weapon:
 
     def __init__(self, game):
         self.game = game

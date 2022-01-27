@@ -5,7 +5,7 @@ import numpy as np
 position_multiplayer = 0
 imgPosX = 1280
 
-class Map(object):
+class Map:
     def __init__(self, game):
         self.game = game
         self.pos = Vector2(0,0)

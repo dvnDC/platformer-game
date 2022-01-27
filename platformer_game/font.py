@@ -1,6 +1,6 @@
 import pygame
 
-class Font(object):
+class Font:
 
     def __init__(self, game):
         self.game = game

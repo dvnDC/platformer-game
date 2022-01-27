@@ -8,7 +8,7 @@ imgPosX = 1280
 
 
 
-class Menu(object):
+class Menu:
     def __init__(self, game):
         self.game = game
         self.pos = Vector2(0,0)
