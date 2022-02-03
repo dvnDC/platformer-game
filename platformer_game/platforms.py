@@ -1,10 +1,10 @@
 import pygame
 from pygame.math import Vector2
-from numpy import *
+import numpy as np
 
 letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 
-class Platforms(object):
+class Platforms:
     def __init__(self, game):
         self.game = game
         self.pos = Vector2(0, 0)
@@ -23,7 +23,7 @@ class Platforms(object):
         self.true_scroll = Vector2(0, 0)
 
 
-        self.platformPOS = zeros((10,4), float_)
+        self.platformPOS = np.zeros((10,4), float)
 
 
         self.scroll = Vector2(0, 0)

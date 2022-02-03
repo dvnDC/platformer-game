@@ -1,5 +1,6 @@
 import pygame
 
+
 class Sprite(pygame.sprite.Sprite):
 
     def __init__(self, game):
@@ -106,7 +107,7 @@ class Sprite(pygame.sprite.Sprite):
         self.img_attack_effect=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         while n < 3:
             while m < 4:
-                self.img_attack_effect[number] = get_image(0 + k, 0 + l, width, height, temp)
+                self.img_attack_effect[number] = get_image((0 + k) * self.game.SCALE, (0 + l) * self.game.SCALE, width * self.game.SCALE, height * self.game.SCALE, temp)
                 m += 1
                 k += 100
                 number += 1
