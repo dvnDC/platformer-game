@@ -22,8 +22,8 @@ class Player:
         self.acc = Vector2(0,0)
 
         self.vel.x = 0.1
-        self.pos.x = 320
-        self.pos.y = 170
+        self.pos.x = self.game.screen_width / 2
+        self.pos.y = self.game.screen_height / 3
         self.width = 10
         self.height = 30
 
@@ -116,7 +116,7 @@ class Player:
 
 
     def draw(self):
-        # self.draw_player_hitbox()
+        self.draw_player_hitbox()
 
         if self.isRunning is False and self.isAttacking is False:
             if self.vel.x == 0:

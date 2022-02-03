@@ -116,7 +116,7 @@ class Map(object):
         # self.background()
         self.background_vanilla()
         self.stone()
-        # self.game.platforms.draw()
+        # self.game.aplatforms.draw()
         # self.grid()
         # self.grid_static()
         # self.draw_map_hitbox()

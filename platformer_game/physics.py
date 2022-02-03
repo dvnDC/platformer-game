@@ -11,10 +11,11 @@ class Physics(object):
         self.vel = Vector2(0, 0)
         self.acc = Vector2(0, 0)
 
-        self.pos.x = 300
-        self.pos.y = 170
-        self.width = 20
-        self.height = 60
+        self.width = self.game.player.width
+        self.height = self.game.player.height
+
+        self.pos.x = self.game.player.pos.x - self.width
+        self.pos.y = self.game.player.pos.y - self.height
 
         self.position = (0, 0, 0, 0)  # x0 x1 y0 y1
 
@@ -31,10 +32,12 @@ class Physics(object):
             self.isStanding = False
 
     def scroll(self):   #TODO: create self.scroll[]
-        self.true_scroll[0] += (self.game.player.pos.x - self.true_scroll[0] - 320)/40
+        self.true_scroll[0] += (self.game.player.pos.x - self.true_scroll[0]-((self.pos.x)))/40
+        # self.true_scroll[0] += (self.game.player.pos.x - self.true_scroll[0] - 320)/40
+
         ###
         # self.true_scroll[1] += (self.game.player.pos.x - self.true_scroll[0]-320) # Starting setup for adding horizontal scroll
-        self.true_scroll[1] += (self.game.player.pos.y - self.true_scroll[1] - 170)
+        self.true_scroll[1] += (self.game.player.pos.y - self.true_scroll[1])
         scroll = self.true_scroll.copy()
         scroll[0] = int(scroll[0])
         scroll[1] = int(scroll[1])
