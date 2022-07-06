@@ -57,8 +57,6 @@ class Game(object):
         self.menu = Menu(self)
         self.file_loader = FileLoader(self)
 
-        self.sprite.load_images()
-
         def create_fonts(font_sizes_list):
             "Creates different fonts with one list"
             fonts = []
