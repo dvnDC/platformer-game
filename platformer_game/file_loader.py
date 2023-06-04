@@ -2,7 +2,6 @@ import pygame
 
 
 class FileLoader(object):
-
     def __init__(self, game):
         self.game = game
 

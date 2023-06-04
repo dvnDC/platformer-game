@@ -5,7 +5,6 @@ import time
 time0 = time.time()
 
 class Enemy(object):
-
     def __init__(self, game):
         self.game = game
         self.speed = -1
@@ -30,11 +29,9 @@ class Enemy(object):
 
         self.counter = 1
 
-
     def add_force(self, force):
         #self.acc += force
         self.pos += force
-
 
     def tick(self):
         # Time for animations
@@ -71,10 +68,6 @@ class Enemy(object):
              # self.speed = 1
              # self.newSpawn = True
 
-
-
-
-
     def draw(self):
         if self.live == True:
             # rect = pygame.Rect(self.pos.x-self.scroll[0], self.pos.y, self.width, self.height) ##szerokosc,wysokosc
@@ -82,8 +75,6 @@ class Enemy(object):
             self.game.screen.blit(self.game.sprite.imageEnemyRunning[0], (self.pos.x - 8 - self.scroll[0], self.pos.y - 10))
         # else:
         #     self.pos.x = 1280 * self.counter
-
-
 
 # class Enemy(object):
 #

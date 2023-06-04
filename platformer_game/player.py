@@ -2,11 +2,9 @@ import pygame
 from pygame.math import Vector2
 import time
 
-
 time0 = time.time()
 
 class Player(object):
-
     def __init__(self, game):
         self.game = game
 

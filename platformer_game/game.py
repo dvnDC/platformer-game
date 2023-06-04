@@ -19,13 +19,8 @@ pygame.display.set_caption("dvn's game")
 
 
 class Game(object):
-
     def __init__(self):
-
-        # Settings
-
         pygame.mixer.init()
-
         pygame.mixer.music.load('latenight.ogg')
         pygame.mixer.music.play(0)
 
@@ -46,7 +41,7 @@ class Game(object):
         self.scroll = Vector2(0,0)
 
         self.map = Map(self)
-        self.player = Player(self)  # przy inicjalizacji przekazuje playerowi wszystko Player(self)
+        self.player = Player(self)
         self.enemy = Enemy(self)
         self.weapon = Weapon(self)
         self.fire = Fire(self)

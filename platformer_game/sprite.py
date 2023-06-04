@@ -8,7 +8,6 @@ class Sprite(pygame.sprite.Sprite):
         self.right = False
         self.walkCount = 0
 
-
         # player
         ### standing
         self.imagePlayerStand = pygame.image.load("images/hero/Knight/Stand/0.png")
@@ -169,14 +168,12 @@ class Sprite(pygame.sprite.Sprite):
         self.backgroundImage2 = pygame.image.load("images/layers/country-platform-forest.png")
         self.backgroundImage3 = pygame.image.load("images/layers/country-platform-tiles-example.png")
 
-
         self.backgroundImage = pygame.transform.scale(self.backgroundImage, (1280, 720))
         self.backgroundImage2 = pygame.transform.scale(self.backgroundImage2, (300, 720))
         self.backgroundImage3 = pygame.transform.scale(self.backgroundImage3, (1280, 720))
 
         self.stone = pygame.image.load("images/objects/stone.png")
         self.stone = pygame.transform.scale(self.stone, (234, 200))
-
 
         self.enemyImage = pygame.image.load("images/enemy2.png")
         self.platformImage = pygame.image.load("images/platform.png")
@@ -194,18 +191,12 @@ class Sprite(pygame.sprite.Sprite):
         # self.imageMenuGrid1 = pygame.image.load("images/menu/grid1.png")
         # self.imageMenuGrid1 = pygame.transform.scale(self.imageMenuGrid1, (80, 80))
 
-
-
-
-
     def get_image(self, posx, posy, width, height, sprite_sheet):
         image = pygame.Surface([width, height])
         image.blit(sprite_sheet, (0, 0), (posx, posy, width, height))
         image.set_colorkey((0,0,0))
 
         return image
-
-
 
     # def spirtesheet(self, filename, cols, rows):
     #     self.sheet = pygame.image.load(filename)

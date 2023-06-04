@@ -2,7 +2,6 @@ from pygame.math import Vector2
 
 
 class Collision(object):
-
     def __init__(self, game):
         self.game = game
         self.speed = 1
@@ -14,7 +13,6 @@ class Collision(object):
         self.pos.y = 0
         self.wide = 0
         self.height = 0
-
         self.scroll = Vector2(0,0)
 
         self.position = self.game.player.position
@@ -25,7 +23,6 @@ class Collision(object):
         self.isCollision = False
         self.isCollisionEnemy = False
         self.isCollisionGrid = False
-
 
         self.isRightCollision = False
         self.isLeftCollision = False
@@ -53,7 +50,6 @@ class Collision(object):
         else:
             self.isCollisionGrid = False
 
-
     def collision_side(self, xxyy, xxyy1):
         if abs(xxyy[3] - xxyy1[2]) <= self.collisionMargin:
             self.isBottomCollision = True
@@ -70,14 +66,11 @@ class Collision(object):
         if self.isBottomCollision == True and self.isLeftCollision == True:
             self.isBottom_LeftCollision = True
 
-
-
     def player_collision_check(self, object_rect_position):
         self.vel = self.game.player.vel
         self.position = self.game.player.position
         self.pos.x = self.game.player.pos.x
         self.pos.y = self.game.player.pos.y
-
 
         # Collision check
         self.collision_grid((self.position),(object_rect_position))
@@ -117,12 +110,12 @@ class Collision(object):
         self.game.player.vel = self.vel
         self.game.player.pos.x = self.pos.x
         self.game.player.pos.y = self.pos.y
+
     def object_collision_check(self, posx, width, posy, height, vel, object_rect_position):
         self.vel = vel
         self.position = posx, width, posy, height,
         self.pos.x = posx
         self.pos.y = posy
-
 
         # Collision check
         self.collision_grid((self.position),(object_rect_position))
@@ -172,7 +165,6 @@ class Collision(object):
 
         n = 3
         k = 0
-
         # Collision with platforms
         while n > 0:
             n -= 1
@@ -200,7 +192,6 @@ class Collision(object):
                     else:
                         self.pos.y -= self.vel.y
                         self.vel.y = 0
-
             k += 1
 
         self.isBottomCollision = False
@@ -264,18 +255,10 @@ class Collision(object):
                 self.pos.y -= self.vel.y + 2
                 # self.vel.y = 0
 
-
-
-
         # Update data
         self.game.player.vel = self.vel
         self.game.player.pos.x = self.pos.x
         self.game.player.pos.y = self.pos.y
-
-
-
-
-
 
     def bullet_collision(self):
         #enemy
@@ -341,8 +324,6 @@ class Collision(object):
         #     self.pos.x = 5
         #     #self.vel.x *= -1
         #     self.game.enemy.speed = 3
-
-
 
         # Update data
         self.game.enemy.vel = self.vel

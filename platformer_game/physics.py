@@ -2,7 +2,6 @@ from pygame.math import Vector2
 
 
 class Physics(object):
-
     def __init__(self, game):
         self.game = game
         self.gravity = 0.9
@@ -15,14 +14,9 @@ class Physics(object):
         self.pos.y = 170
         self.width = 20
         self.height = 60
-
         self.position = (0, 0, 0, 0)  # x0 x1 y0 y1
-
         self.true_scroll = [0,0]
         self.true_scroll2 = [0,0]
-
-
-
         self.isStanding = False
 
     def standing(self):
@@ -33,7 +27,6 @@ class Physics(object):
             self.isStanding = False
 
     def scroll(self):
-        #################33
         self.true_scroll[0] += (self.game.player.pos.x - self.true_scroll[0] - 640)/40
         ###
         # self.true_scroll2[0] += (self.game.player.pos.x - self.true_scroll[0]-640)
@@ -61,8 +54,6 @@ class Physics(object):
 
         self.game.platforms.true_scroll.x = self.true_scroll2[0] #DO WYRZUCENIA
 
-
     def tick(self):
-
         self.scroll()
 

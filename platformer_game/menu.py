@@ -6,8 +6,6 @@ position_multiplayer = 0
 imgPosX = 1280
 
 
-
-
 class Menu(object):
     def __init__(self, game):
         self.game = game
@@ -58,12 +56,10 @@ class Menu(object):
         return textSurface, textSurface.get_rect()
 
     def grid_static(self):
-
         posX = 80
         posY = 80
         box_size = 80  # x 16      y 9
         self.GRID_boxes_coll_number = 0
-
 
         for row in range(self.row):
             for column in range(self.colum):
@@ -76,13 +72,10 @@ class Menu(object):
                     positionbox = (posX * column), (posX * column + box_size), posY * row, posY * row + box_size
                     # self.game.collision.player_collision_check(positionbox)
                     # self.game.collision.player_collision_check(self.GRID_position[gridNr])
-
                     self.GRID_position.append(positionbox)
                     # self.GRID_position[self.GRID_boxes_coll_number] = (positionbox)
                     self.GRID_boxes_coll[self.GRID_boxes_coll_number] = positionbox
                     self.GRID_boxes_coll_number += 1
-
-
                     self.button(posX*column, posY*row, posX*column+box_size, posY*row+box_size)
 
                 if self.GRID[row][column] == 7:
@@ -91,13 +84,9 @@ class Menu(object):
                     positionbox = (posX * column), (posX * column + box_size), posY * row, posY * row + box_size
                     # self.game.collision.player_collision_check(positionbox)
                     # self.game.collision.player_collision_check(self.GRID_position[gridNr])
-
                     self.GRID_position.append(positionbox)
                 else:
                     self.GRID_position.append((posX * column, posX * column + box_size, posY * row, posY * row + box_size))
-
-
-
         # for gridNr in range(143):
         #     self.game.collision.player_collision_check(self.GRID_position[gridNr])
 
