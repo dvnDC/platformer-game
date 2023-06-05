@@ -2,7 +2,6 @@ from pygame.math import Vector2
 
 
 class Collision(object):
-
     def __init__(self, game):
         self.game = game
         self.speed = 1
@@ -14,7 +13,6 @@ class Collision(object):
         self.pos.y = 0
         self.wide = 0
         self.height = 0
-
         self.scroll = Vector2(0,0)
 
         self.position = self.game.player.position
@@ -169,7 +167,6 @@ class Collision(object):
 
         n = 3
         k = 0
-
         # Collision with platforms
         while n > 0:
             n -= 1
@@ -197,7 +194,6 @@ class Collision(object):
                     else:
                         self.pos.y -= self.vel.y
                         self.vel.y = 0
-
             k += 1
 
         self.isBottomCollision = False
@@ -262,18 +258,10 @@ class Collision(object):
                 self.pos.y -= self.vel.y + 2
                 # self.vel.y = 0
 
-
-
-
         # Update data
         self.game.player.vel = self.vel
         self.game.player.pos.x = self.pos.x
         self.game.player.pos.y = self.pos.y
-
-
-
-
-
 
     def bullet_collision(self):
         #enemy
@@ -339,8 +327,6 @@ class Collision(object):
         #     self.pos.x = 5
         #     #self.vel.x *= -1
         #     self.game.enemy.speed = 3
-
-
 
         # Update data
         self.game.enemy.vel = self.vel

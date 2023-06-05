@@ -22,20 +22,12 @@ class Platforms:
         self.platform_position = {}
         self.true_scroll = Vector2(0, 0)
 
-
-        self.platformPOS = np.zeros((10,4), float)
-
-
+        self.platformPOS = zeros((10,4), float_)
         self.scroll = Vector2(0, 0)
 
         # Colors
         self.WHITE = (255,250,250)
         self.GREEN = (0, 150, 50)
-
-
-
-
-
 
     def draw_platform(self, x, y, width, height, letter):
         self.pos.x = x - self.scroll[0]
@@ -43,14 +35,11 @@ class Platforms:
         self.width = width
         self.height = height
 
-
         rect = pygame.Rect(self.pos.x, self.pos.y, self.width, self.height)  ##szerokosc,wysokosc
         pygame.draw.rect(self.game.screen, (self.WHITE), rect)
         platformImageScaled = pygame.transform.scale(self.game.sprite.img_platform, (width, height))
         self.game.screen.blit(platformImageScaled, (self.pos.x, self.pos.y))
        # self.platform_pos(letter) ### przechowuje wartosci x1,x2,y1,y2 platform w tabeli z kluczami
-
-
 
     def platformList(self):
         n = 3

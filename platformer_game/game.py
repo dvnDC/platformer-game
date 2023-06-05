@@ -20,14 +20,7 @@ pygame.display.set_caption("dvn's game")
 
 
 class Game(object):
-
     def __init__(self):
-        # Settings
-        self.WIDTH = 320
-        self.HEIGHT = 180
-        self.SCALE = 3
-
-        # Sound settings
         pygame.mixer.init()
         pygame.mixer.music.load('latenight.ogg')
         pygame.mixer.music.play(0)

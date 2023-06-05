@@ -2,7 +2,6 @@ from pygame.math import Vector2
 
 
 class Physics(object):
-
     def __init__(self, game):
         self.game = game
         self.gravity = 0.7
@@ -11,14 +10,13 @@ class Physics(object):
         self.vel = Vector2(0, 0)
         self.acc = Vector2(0, 0)
 
-        self.width = self.game.player.width
-        self.height = self.game.player.height
 
-        self.pos.x = self.game.player.pos.x - self.width
-        self.pos.y = self.game.player.pos.y - self.height
+        self.pos.x = 300
+        self.pos.y = 170
+        self.width = 20
+        self.height = 60
 
         self.position = (0, 0, 0, 0)  # x0 x1 y0 y1
-
         self.true_scroll = [0,0]
         self.true_scroll2 = [0,0]
 
@@ -31,10 +29,8 @@ class Physics(object):
         else:
             self.isStanding = False
 
-    def scroll(self):   #TODO: create self.scroll[]
-        self.true_scroll[0] += (self.game.player.pos.x - self.true_scroll[0]-((self.pos.x)))/40
-        # self.true_scroll[0] += (self.game.player.pos.x - self.true_scroll[0] - 320)/40
-
+    def scroll(self):
+        self.true_scroll[0] += (self.game.player.pos.x - self.true_scroll[0] - 640)/40
         ###
         # self.true_scroll[1] += (self.game.player.pos.x - self.true_scroll[0]-320) # Starting setup for adding horizontal scroll
         self.true_scroll[1] += (self.game.player.pos.y - self.true_scroll[1])
@@ -58,6 +54,10 @@ class Physics(object):
         self.game.collision.scroll.y = scroll[1]
         self.game.weapon.scroll.x = scroll[0]
         self.game.weapon.scroll.y = scroll[1]
+
+
+        self.game.platforms.true_scroll.x = self.true_scroll2[0] #DO WYRZUCENIA
+
 
     def tick(self):
         self.scroll()
