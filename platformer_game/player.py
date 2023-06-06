@@ -1,5 +1,6 @@
 import pygame
 from pygame.math import Vector2
+from player_state import PlayerState
 import time
 
 time0 = time.time()
@@ -7,6 +8,7 @@ time0 = time.time()
 class Player(object):
     def __init__(self, game):
         self.game = game
+        self.state = PlayerState()
 
         self.speed = 0.55
         self.gravity = 0.7
@@ -14,7 +16,7 @@ class Player(object):
         self.isJump = False
         self.got_weapon = False
 
-        #self.pos = pygame.math.Vector2(0,0)
+        # self.pos = pygame.math.Vector2(0,0)
         self.pos = Vector2(0,0)
         self.vel = Vector2(0,0)
         self.acc = Vector2(0,0)
@@ -39,37 +41,29 @@ class Player(object):
 
     def add_force(self, force):
         self.acc += force
+    def handle_jump(self):
+        self.isJump = True
+        jump = -35.0
+        while self.isJump == True:
+            self.add_force(Vector2(0, jump))
+            if self.vel.y == 0:
+                self.isJump = False
+                self.gravity = self.game.physics.gravity
 
-    def tick(self):
-        # Time for animations
-        global time0
-        self.time1 = time.time()
-        self.dt = self.time1 - time0
-        # Input
+    def handle_input(self):
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_a]:
-            self.add_force(Vector2(-self.speed,0))
+            self.add_force(Vector2(-self.speed, 0))
             self.isRunning = True
         elif pressed[pygame.K_d]:
-            self.add_force(Vector2(self.speed,0))
+            self.add_force(Vector2(self.speed, 0))
             self.isRunning = True
         else:
             self.isRunning = False
             self.runCount = 0
 
-        if pressed[pygame.K_SPACE] and self.isJump == False and self.vel.y == 0:        #
-            self.isJump = True
-            # posy = self.pos.y
-            jump = -35.0
-            # self.gravity *= -2
-            while self.isJump == True:
-                self.add_force(Vector2(0, jump))
-                # if abs(self.pos.y-posy) > 100:
-                #     self.isJump = False
-                #     self.gravity = self.game.physics.gravity
-                if self.vel.y == 0:
-                    self.isJump = False
-                    self.gravity = self.game.physics.gravity
+        if pressed[pygame.K_SPACE] and self.isJump == False and self.vel.y == 0:
+            self.handle_jump()
 
         if pressed[pygame.K_r] and self.got_weapon == True and self.game.weapon.fire == False:
             self.game.weapon.fire = True
@@ -77,12 +71,20 @@ class Player(object):
             self.game.fire.pos.y = self.pos.y
 
         if pressed[pygame.K_e] and self.isAttacking == False:
-            time0 = self.time1
-            self.isAttacking = True
-            self.game.collision.collision((self.game.weapon.position),(self.game.enemy.position))
-            if self.game.collision.isCollision == True:
-                self.game.enemy.live = False
-            # elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:  ############# klik i cos sie dzieje raz
+            self.handle_attack()
+    def handle_attack(self):
+        self.isAttacking = True
+        self.game.collision.collision(self.game.weapon.position, self.game.enemy.position)
+        if self.game.collision.isCollision:
+            self.game.enemy.live = False
+
+    def tick(self):
+        # Time for animations
+        global time0
+        self.time1 = time.time()
+        self.dt = self.time1 - time0
+
+        self.handle_input()
 
         # Physics
         self.vel *= 0.85
