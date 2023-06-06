@@ -1,5 +1,4 @@
 import pygame, sys
-import os
 from player import Player
 from map import Map
 from enemy import Enemy
@@ -11,11 +10,14 @@ from platforms import Platforms
 from sprite import Sprite
 from menu import Menu
 from file_loader import FileLoader
+from engine import Engine
 
 
 from pygame.math import Vector2
 
 pygame.display.set_caption("dvn's game")
+
+
 
 
 class Game(object):
@@ -32,7 +34,6 @@ class Game(object):
 
         # Initialization
         pygame.init()
-        font = pygame.font.SysFont("Arial", 18)
         self.resolution = (self.screen_width, self.screen_height) = (self.WIDTH, self.HEIGHT)
         self.screen = pygame.display.set_mode(self.resolution)
 
@@ -51,29 +52,11 @@ class Game(object):
         self.sprite = Sprite(self)
         self.menu = Menu(self)
         self.file_loader = FileLoader(self)
+        self.engine = Engine(self)
 
-        def create_fonts(font_sizes_list):
-            "Creates different fonts with one list"
-            fonts = []
-            for size in font_sizes_list:
-                fonts.append(
-                    pygame.font.SysFont("Arial", size))
-            return fonts
+        self.run()
 
-        def render(fnt, what, color, where):
-            "Renders the fonts as passed from display_fps"
-            text_to_show = fnt.render(what, 0, pygame.Color(color))
-            self.screen.blit(text_to_show, where)
-
-        def display_fps():
-            "Data that will be rendered and blitted in _display"
-            render(
-                fonts[0],
-                what=str(int(self.tps_clock.get_fps())),
-                color="white",
-                where=(0, 0))
-
-        fonts = create_fonts([32, 16, 14, 8])
+    def run(self):
         while True:
 
             # Events
@@ -92,7 +75,7 @@ class Game(object):
             # Rendering/Drawing
             self.screen.fill((0, 0, 0))
             self.draw()
-            display_fps()
+            self.engine.display_fps()
             pygame.display.flip()
 
     def tick(self):
@@ -109,8 +92,6 @@ class Game(object):
         self.enemy.draw()
         self.weapon.draw()
         self.fire.draw()
-
-
 
 
 if __name__ == "__main__":
