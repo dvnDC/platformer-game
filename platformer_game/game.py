@@ -1,42 +1,37 @@
-import pygame, sys
-from player import Player
-from map import Map
-from enemy import Enemy
-from weapon import Weapon
-from fire import Fire
+import sys
+import pygame
+from pygame.math import Vector2
+
 from collision import Collision
+from enemy import Enemy
+from engine import Engine
+from file_loader import FileLoader
+from fire import Fire
+from map import Map
+from menu import Menu
 from physics import Physics
 from platforms import Platforms
+from player import Player
 from sprite import Sprite
-from menu import Menu
-from file_loader import FileLoader
-from engine import Engine
-
-
-from pygame.math import Vector2
+from weapon import Weapon
 
 pygame.display.set_caption("dvn's game")
 
+WIDTH = 1280
+HEIGHT = 720
 
 
-
-class Game(object):
+class Game:
     def __init__(self):
         pygame.mixer.init()
         pygame.mixer.music.load('latenight.ogg')
         pygame.mixer.music.play(0)
 
-        self.WIDTH = 1280
-        self.HEIGHT = 720
-
-        # Config
         self.tps_max = 100
 
-        # Initialization
         pygame.init()
-        self.resolution = (self.screen_width, self.screen_height) = (self.WIDTH, self.HEIGHT)
+        self.resolution = (self.screen_width, self.screen_height) = (WIDTH, HEIGHT)
         self.screen = pygame.display.set_mode(self.resolution)
-
         self.tps_clock = pygame.time.Clock()
         self.tps_delta = 0.0
         self.scroll = Vector2(0,0)
@@ -54,11 +49,8 @@ class Game(object):
         self.file_loader = FileLoader(self)
         self.engine = Engine(self)
 
-        self.run()
-
     def run(self):
         while True:
-
             # Events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -93,6 +85,3 @@ class Game(object):
         self.weapon.draw()
         self.fire.draw()
 
-
-if __name__ == "__main__":
-    Game()
