@@ -168,9 +168,9 @@ class Collision(object):
         # Collision with platforms
         while n > 0:
             n -= 1
-            self.collision((self.position),(self.game.platforms.platformPOS[k]))
+            self.collision((self.position),(self.game.platforms.platform_positions[k]))
             if self.isCollision == True:
-                self.collision_side((self.position),(self.game.platforms.platformPOS[k]))
+                self.collision_side((self.position),(self.game.platforms.platform_positions[k]))
 
                 if self.isBottomCollision == True:
                     self.pos.y -= self.vel.y

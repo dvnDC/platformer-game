@@ -36,8 +36,6 @@ class Physics(object):
 
         self.set_scroll(scroll)
 
-        self.game.platforms.true_scroll.x = self.true_scroll2[0]  # To be removed
-
     def tick(self):
         self.scroll()
         # self.standing()
