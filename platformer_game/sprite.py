@@ -15,6 +15,7 @@ class Sprite(pygame.sprite.Sprite):
         self.load_effect_images()
         self.load_enemy_images()
         self.load_background_and_object_images()
+        self.load_attack_effect_images()
 
     def load_player_images(self):
         """Load player images."""
@@ -39,6 +40,7 @@ class Sprite(pygame.sprite.Sprite):
 
         self.imageFireballLeft = [pygame.transform.scale(img, (256, 100)) for img in self.imageFireball]
 
+    def load_attack_effect_images(self):
         self.temp = pygame.image.load("images/effects/attack/2.png")
         self.temp = pygame.transform.scale(self.temp, (400, 400))
         n = 0
