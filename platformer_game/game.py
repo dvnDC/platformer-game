@@ -34,7 +34,7 @@ class Game:
         self.screen = pygame.display.set_mode(self.resolution)
         self.tps_clock = pygame.time.Clock()
         self.tps_delta = 0.0
-        self.scroll = Vector2(0,0)
+        self.scroll = Vector2(0, 0)
 
         self.map = Map(self)
         self.player = Player(self)
@@ -84,4 +84,3 @@ class Game:
         self.enemy.draw()
         self.weapon.draw()
         self.fire.draw()
-

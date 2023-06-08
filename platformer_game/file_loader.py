@@ -18,4 +18,3 @@ class FileLoader(object):
             path = folder_path + str(i) + '.png'
             images.append(self.get_image(path))
         return images
-

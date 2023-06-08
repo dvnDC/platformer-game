@@ -133,6 +133,8 @@ class Map(object):
                 if self.GRID[row][column] == 7:
                     self.game.screen.blit(self.game.sprite.backgroundImage3, ((posX * column - self.scroll.x), posY * row))
                     positionbox = (posX * column), (posX * column + box_size), posY * row, posY * row + box_size
+                    # self.game.collision.player_collision_check(positionbox)
+                    # self.game.collision.player_collision_check(self.GRID_position[gridNr])
                     self.GRID_position.append(positionbox)
                 else:
                     self.GRID_position.append((posX * column, posX * column + box_size, posY * row, posY * row + box_size))
