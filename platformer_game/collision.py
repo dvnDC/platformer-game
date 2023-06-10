@@ -13,10 +13,10 @@ class Collision(object):
         self.pos.y = 0
         self.wide = 0
         self.height = 0
-        self.scroll = Vector2(0,0)
+        self.scroll = Vector2(0, 0)
 
         self.position = self.game.player.position
-        self.window_position = (0,self.game.screen_width,0,self.game.screen_height)
+        self.window_position = (0, self.game.screen_width, 0, self.game.screen_height)
 
         self.collisionMargin = 12
 
@@ -38,7 +38,8 @@ class Collision(object):
                 self.isCollision = True
         else:
             self.isCollision = False
-    def collision_enemy(self,xxyy,xxyy1):
+
+    def collision_enemy(self, xxyy, xxyy1):
         if xxyy[1] >= xxyy1[0] and xxyy[0] < xxyy1[1]:
             if xxyy[3] >= xxyy1[2] and xxyy[2] < xxyy1[3]:
                 self.isCollisionEnemy = True
@@ -73,9 +74,9 @@ class Collision(object):
         self.pos.y = self.game.player.pos.y
 
         # Collision check
-        self.collision_grid((self.position),(object_rect_position))
+        self.collision_grid((self.position), (object_rect_position))
         if self.isCollisionGrid == True:
-            self.collision_side((self.position),(object_rect_position))
+            self.collision_side((self.position), (object_rect_position))
 
             if self.isBottomCollision == True:
                 self.pos.y -= self.vel.y
@@ -84,14 +85,14 @@ class Collision(object):
                 self.pos.y += self.vel.y + 5
                 self.vel.y = 0.1
             if self.isRightCollision == True:
-                if  self.isBottom_RightCollision == False:
+                if self.isBottom_RightCollision == False:
                     self.pos.x -= self.vel.x + 4
                     self.vel.x *= 0.1
                 else:
                     self.pos.y -= self.vel.y
                     self.vel.y = 0
             if self.isLeftCollision == True:
-                if  self.isBottom_LeftCollision == False:
+                if self.isBottom_LeftCollision == False:
                     self.pos.x += self.vel.x + 4
                     self.vel.x *= 0.1
                 else:
@@ -118,9 +119,9 @@ class Collision(object):
         self.pos.y = posy
 
         # Collision check
-        self.collision_grid((self.position),(object_rect_position))
+        self.collision_grid((self.position), (object_rect_position))
         if self.isCollisionGrid == True:
-            self.collision_side((self.position),(object_rect_position))
+            self.collision_side((self.position), (object_rect_position))
 
             if self.isBottomCollision == True:
                 self.pos.y -= self.vel.y
@@ -129,14 +130,14 @@ class Collision(object):
                 self.pos.y += self.vel.y + 5
                 self.vel.y = 0.1
             if self.isRightCollision == True:
-                if  self.isBottom_RightCollision == False:
+                if self.isBottom_RightCollision == False:
                     self.pos.x -= self.vel.x + 4
                     self.vel.x *= 0.1
                 else:
                     self.pos.y -= self.vel.y
                     self.vel.y = 0
             if self.isLeftCollision == True:
-                if  self.isBottom_LeftCollision == False:
+                if self.isBottom_LeftCollision == False:
                     self.pos.x += self.vel.x + 4
                     self.vel.x *= 0.1
                 else:
@@ -157,7 +158,7 @@ class Collision(object):
         # self.game.enemy.pos.y = self.pos.y
         return self.pos.x, self.pos.y, self.vel
 
-    def player_collision(self):             #platforms, borders
+    def player_collision(self):  # platforms, borders
         self.vel = self.game.player.vel
         self.position = self.game.player.position
         self.pos.x = self.game.player.pos.x
@@ -168,9 +169,9 @@ class Collision(object):
         # Collision with platforms
         while n > 0:
             n -= 1
-            self.collision((self.position),(self.game.platforms.platformPOS[k]))
+            self.collision((self.position), (self.game.platforms.platform_positions[k]))
             if self.isCollision == True:
-                self.collision_side((self.position),(self.game.platforms.platformPOS[k]))
+                self.collision_side((self.position), (self.game.platforms.platform_positions[k]))
 
                 if self.isBottomCollision == True:
                     self.pos.y -= self.vel.y
@@ -207,9 +208,9 @@ class Collision(object):
         # if self.pos.y <= 0:  ##
         #     self.pos.y = 0
         #     self.vel.y = 0
-                            # if self.pos.x >= self.game.screen_width - 20:  ##
-                            #     self.pos.x = self.game.screen_width - 20
-                            #     self.vel.x = 0
+        # if self.pos.x >= self.game.screen_width - 20:  ##
+        #     self.pos.x = self.game.screen_width - 20
+        #     self.vel.x = 0
         # if self.pos.x <= 0:  ##
         #     self.pos.x += self.vel.x + 4
         #     self.vel.x *= 0.1
@@ -225,14 +226,13 @@ class Collision(object):
         self.pos.y = self.game.player.pos.y
 
         # Collision with enemy
-        self.collision((self.position),(self.game.enemy.position))
+        self.collision((self.position), (self.game.enemy.position))
         if self.isCollision == True:
             # self.pos.x = self.pos.x + self.vel.x - 10
             # self.pos.y -= 10
             self.collision_side((self.position), (self.game.enemy.position))
 
-
-        if  self.isBottomCollision == True:
+        if self.isBottomCollision == True:
             self.pos.y -= self.vel.y
             self.vel.y = 0
         if self.isTopCollision == True:
@@ -261,8 +261,8 @@ class Collision(object):
         self.game.player.pos.y = self.pos.y
 
     def bullet_collision(self):
-        #enemy
-        if self.game.enemy.pos.x-50 <= self.game.fire.pos.x <= self.game.enemy.pos.x+50:
+        # enemy
+        if self.game.enemy.pos.x - 50 <= self.game.fire.pos.x <= self.game.enemy.pos.x + 50:
             if self.game.enemy.pos.y - 20 <= self.game.fire.pos.y <= self.game.enemy.pos.y + 60:
                 self.game.enemy.live = False
 
@@ -306,16 +306,13 @@ class Collision(object):
         #             self.isCollisionEnemy = False
         #         self.isCollision == False
 
-
-
-
         # Interaction with borders
         # if self.pos.y >= self.game.screen_height - 190:#
         #     self.pos.y = self.game.screen_height - 190
         #     self.vel.y = 0
         # if self.pos.y <= 0:  ##
         #     self.pos.y = 0
-            # self.vel.y = 0
+        # self.vel.y = 0
         # if self.pos.x >= self.game.screen_width-20:  ##
         #     self.pos.x = self.game.screen_width-20
         #     #self.vel.x *= -1
@@ -330,4 +327,3 @@ class Collision(object):
         self.game.enemy.position = self.position
         self.game.enemy.pos.x = self.pos.x
         self.game.enemy.pos.y = self.pos.y
-
