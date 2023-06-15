@@ -25,7 +25,8 @@ class Game:
     def __init__(self):
         pygame.mixer.init()
         pygame.mixer.music.load('latenight.ogg')
-        pygame.mixer.music.play(0)
+        pygame.mixer.music.play(0, 0.0, 5000)
+        pygame.mixer.music.set_volume(0.10)
 
         self.tps_max = 100
 
