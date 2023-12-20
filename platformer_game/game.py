@@ -68,6 +68,7 @@ class Game:
         """
         Creates and initializes all major game components like map, player, enemies, etc.
         """
+        self.sprite = Sprite(self)
         self.map = Map(self)
         self.player = Player(self)
         self.enemy = Enemy(self)
@@ -76,7 +77,6 @@ class Game:
         self.physics = Physics(self)
         self.platforms = Platforms(self)
         self.collision = Collision(self)
-        self.sprite = Sprite(self)
         self.menu = Menu(self)
         self.file_loader = FileLoader(self)
         self.engine = Engine(self)
