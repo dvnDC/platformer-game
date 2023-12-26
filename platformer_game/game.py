@@ -83,11 +83,11 @@ class Game:
 
     def run(self):
         """
-            The main game loop.
+        The main game loop.
 
-            Handles event processing, updates the game state, and renders the game.
-            Continuously runs until an exit event is triggered.
-            """
+        Handles event processing, updates the game state, and renders the game.
+        Continuously runs until an exit event is triggered.
+        """
         try:
             while True:
                 # Events
