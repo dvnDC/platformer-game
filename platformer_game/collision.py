@@ -75,24 +75,24 @@ class Collision(object):
 
         # Collision check
         self.collision_grid((self.position), (object_rect_position))
-        if self.isCollisionGrid == True:
+        if self.isCollisionGrid:
             self.collision_side((self.position), (object_rect_position))
 
-            if self.isBottomCollision == True:
+            if self.isBottomCollision:
                 self.pos.y -= self.vel.y
                 self.vel.y = 0
-            if self.isTopCollision == True:
+            if self.isTopCollision:
                 self.pos.y += self.vel.y + 5
                 self.vel.y = 0.1
-            if self.isRightCollision == True:
-                if self.isBottom_RightCollision == False:
+            if self.isRightCollision:
+                if not self.isBottom_RightCollision:
                     self.pos.x -= self.vel.x + 4
                     self.vel.x *= 0.1
                 else:
                     self.pos.y -= self.vel.y
                     self.vel.y = 0
-            if self.isLeftCollision == True:
-                if self.isBottom_LeftCollision == False:
+            if self.isLeftCollision:
+                if not self.isBottom_LeftCollision:
                     self.pos.x += self.vel.x + 4
                     self.vel.x *= 0.1
                 else:
@@ -120,24 +120,24 @@ class Collision(object):
 
         # Collision check
         self.collision_grid((self.position), (object_rect_position))
-        if self.isCollisionGrid == True:
+        if self.isCollisionGrid:
             self.collision_side((self.position), (object_rect_position))
 
-            if self.isBottomCollision == True:
+            if self.isBottomCollision:
                 self.pos.y -= self.vel.y
                 self.vel.y = 0
-            if self.isTopCollision == True:
+            if self.isTopCollision:
                 self.pos.y += self.vel.y + 5
                 self.vel.y = 0.1
-            if self.isRightCollision == True:
-                if self.isBottom_RightCollision == False:
+            if self.isRightCollision:
+                if not self.isBottom_RightCollision:
                     self.pos.x -= self.vel.x + 4
                     self.vel.x *= 0.1
                 else:
                     self.pos.y -= self.vel.y
                     self.vel.y = 0
-            if self.isLeftCollision == True:
-                if self.isBottom_LeftCollision == False:
+            if self.isLeftCollision:
+                if not self.isBottom_LeftCollision:
                     self.pos.x += self.vel.x + 4
                     self.vel.x *= 0.1
                 else:
@@ -152,10 +152,6 @@ class Collision(object):
         self.isBottom_LeftCollision = False
         self.isCollisionGrid = False
 
-        # Update data
-        # self.game.enemy.vel = self.vel
-        # self.game.enemy.pos.x = self.pos.x
-        # self.game.enemy.pos.y = self.pos.y
         return self.pos.x, self.pos.y, self.vel
 
     def player_collision(self):  # platforms, borders
@@ -170,24 +166,24 @@ class Collision(object):
         while n > 0:
             n -= 1
             self.collision((self.position), (self.game.platforms.platform_positions[k]))
-            if self.isCollision == True:
+            if self.isCollision:
                 self.collision_side((self.position), (self.game.platforms.platform_positions[k]))
 
-                if self.isBottomCollision == True:
+                if self.isBottomCollision:
                     self.pos.y -= self.vel.y
                     self.vel.y = 0
-                if self.isTopCollision == True:
+                if self.isTopCollision:
                     self.pos.y += self.vel.y + 5
                     self.vel.y = 0.1
-                if self.isRightCollision == True:
-                    if self.isBottom_RightCollision == False:
+                if self.isRightCollision:
+                    if not self.isBottom_RightCollision:
                         self.pos.x -= self.vel.x + 4
                         self.vel.x *= 0.1
                     else:
                         self.pos.y -= self.vel.y
                         self.vel.y = 0
-                if self.isLeftCollision == True:
-                    if self.isBottom_LeftCollision == False:
+                if self.isLeftCollision:
+                    if not self.isBottom_LeftCollision:
                         self.pos.x += self.vel.x + 4
                         self.vel.x *= 0.1
                     else:
@@ -199,22 +195,7 @@ class Collision(object):
         self.isTopCollision = False
         self.isRightCollision = False
         self.isLeftCollision = False
-        self.isCollision == False
 
-        # # Interaction with borders
-        # if self.pos.y >= self.game.screen_height:  ##
-        #     self.pos.y = self.game.screen_height
-        #     self.vel.y = 0
-        # if self.pos.y <= 0:  ##
-        #     self.pos.y = 0
-        #     self.vel.y = 0
-        # if self.pos.x >= self.game.screen_width - 20:  ##
-        #     self.pos.x = self.game.screen_width - 20
-        #     self.vel.x = 0
-        # if self.pos.x <= 0:  ##
-        #     self.pos.x += self.vel.x + 4
-        #     self.vel.x *= 0.1
-        # Update data
         self.game.player.vel = self.vel
         self.game.player.pos.x = self.pos.x
         self.game.player.pos.y = self.pos.y
@@ -227,19 +208,19 @@ class Collision(object):
 
         # Collision with enemy
         self.collision((self.position), (self.game.enemy.position))
-        if self.isCollision == True:
+        if self.isCollision:
             # self.pos.x = self.pos.x + self.vel.x - 10
             # self.pos.y -= 10
             self.collision_side((self.position), (self.game.enemy.position))
 
-        if self.isBottomCollision == True:
+        if self.isBottomCollision:
             self.pos.y -= self.vel.y
             self.vel.y = 0
-        if self.isTopCollision == True:
+        if self.isTopCollision:
             self.pos.y += self.vel.y + 5
             self.vel.y = 0.1
-        if self.isRightCollision == True:
-            if self.isBottom_RightCollision == False:
+        if self.isRightCollision:
+            if not self.isBottom_RightCollision:
                 # self.pos.x -= self.vel.x + 4
                 # self.vel.x *= 0.1
                 self.pos.x = self.pos.x + self.vel.x - 10
@@ -247,8 +228,8 @@ class Collision(object):
             else:
                 self.pos.y -= self.vel.y + 2
                 # self.vel.y = 0
-        if self.isLeftCollision == True:
-            if self.isBottom_LeftCollision == False:
+        if self.isLeftCollision:
+            if not self.isBottom_LeftCollision:
                 self.pos.x = self.pos.x + self.vel.x + 10
                 self.pos.y -= 8
             else:
@@ -271,56 +252,6 @@ class Collision(object):
         self.pos.x = self.game.enemy.pos.x
         self.pos.y = self.game.enemy.pos.y
         self.position = self.game.enemy.position
-
-        # Collision with platforms
-        # for letter, cords in self.game.map.platform_pos.items():
-        #     self.collision_enemy((self.position), (cords))
-        #     if self.isCollisionEnemy == True:
-        #         self.collision_side((self.position), (cords))
-        #         if self.isBottomCollision == True:
-        #             self.vel.y = 0
-        #             self.vel.x = 0
-        #             self.pos.y = self.pos.y - 1
-        #             #self.game.enemy.gravity = 0
-        #             #self.game.enemy.speed = 3
-        #             self.isTopCollision = False
-        #             self.isBottomCollision = False
-        #             self.isCollisionEnemy = False
-        #         if self.isTopCollision == True:
-        #             self.vel.y = 0
-        #             self.pos.y = self.pos.y - 2
-        #             self.isTopCollision = False
-        #             self.isCollisionEnemy = False
-        #             self.isBottomCollision = False
-        #         if self.isRightCollision == True:
-        #             self.vel.x = 0
-        #             self.game.enemy.speed = -3
-        #             self.isRightCollision = False
-        #             self.isLeftCollision = False
-        #             self.isCollisionEnemy = False
-        #         if self.isLeftCollision == True:
-        #             self.vel.x = 0
-        #             self.game.enemy.speed = 3
-        #             self.isLeftCollision = False
-        #             self.isRightCollision = False
-        #             self.isCollisionEnemy = False
-        #         self.isCollision == False
-
-        # Interaction with borders
-        # if self.pos.y >= self.game.screen_height - 190:#
-        #     self.pos.y = self.game.screen_height - 190
-        #     self.vel.y = 0
-        # if self.pos.y <= 0:  ##
-        #     self.pos.y = 0
-        # self.vel.y = 0
-        # if self.pos.x >= self.game.screen_width-20:  ##
-        #     self.pos.x = self.game.screen_width-20
-        #     #self.vel.x *= -1
-        #     self.game.enemy.speed = -3
-        # if self.pos.x <= 5:  ##
-        #     self.pos.x = 5
-        #     #self.vel.x *= -1
-        #     self.game.enemy.speed = 3
 
         # Update data
         self.game.enemy.vel = self.vel
