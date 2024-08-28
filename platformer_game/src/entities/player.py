@@ -1,13 +1,21 @@
 import pygame
 from pygame.math import Vector2
-from player_state import PlayerState
+from src.entities.player_state import PlayerState
 import time
 
 time0 = time.time()
 
 
 class Player(object):
+    """
+    Represents the player character in the game, handling movement, actions, and state.
+    Attributes like position, velocity, and state are managed to control the player's
+    interactions in the game world.
+    """
     def __init__(self, game):
+        """
+        Initializes the player with default settings and state.
+        """
         self.game = game
         self.state = PlayerState()
 
@@ -42,9 +50,15 @@ class Player(object):
         self.rect_weapon = pygame.Rect(self.pos.x - self.scroll.x + 30, self.pos.y - 50, 100, 100)
 
     def add_force(self, force):
+        """
+        Applies a force to the player, affecting its acceleration.
+        """
         self.acc += force
 
     def handle_jump(self):
+        """
+        Handles the player's jump action.
+        """
         self.isJump = True
         jump = -35.0
         while self.isJump == True:
@@ -54,6 +68,9 @@ class Player(object):
                 self.gravity = self.game.physics.gravity
 
     def handle_input(self):
+        """
+        Processes player input to control movement and actions.
+        """
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_a]:
             self.add_force(Vector2(-self.speed, 0))

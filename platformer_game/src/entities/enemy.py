@@ -1,6 +1,8 @@
 import pygame
 from pygame.math import Vector2
 import time
+from src.core.asset_loader import AssetLoader
+
 
 time0 = time.time()
 

@@ -3,7 +3,7 @@ from pygame.math import Vector2
 from numpy import zeros
 
 
-class Platforms(object):
+class PlatformManager(object):
     def __init__(self, game):
         self.game = game
         self.pos = Vector2(0, 0)

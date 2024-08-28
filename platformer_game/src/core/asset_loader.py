@@ -1,7 +1,7 @@
 import pygame
 
 
-class FileLoader(object):
+class AssetLoader(object):
     def __init__(self, game):
         self.game = game
 

@@ -5,7 +5,7 @@ import time
 time0 = time.time()
 
 
-class Fire(object):
+class Projectile(object):
     def __init__(self, game):
         self.game = game
         self.speed = 8
