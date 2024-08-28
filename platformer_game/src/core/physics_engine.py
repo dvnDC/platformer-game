@@ -1,7 +1,7 @@
 from pygame.math import Vector2
 
 
-class Physics(object):
+class PhysicsEngine(object):
     def __init__(self, game):
         self.game = game
         self.gravity = 0.9

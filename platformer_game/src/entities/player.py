@@ -1,6 +1,6 @@
 import pygame
 from pygame.math import Vector2
-from player_state import PlayerState
+from src.entities.player_state import PlayerState
 import time
 
 time0 = time.time()

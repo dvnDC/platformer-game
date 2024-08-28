@@ -1,11 +1,10 @@
 import pygame
-from file_loader import FileLoader
+from src.core.asset_loader import AssetLoader
 
-
-class Sprite(pygame.sprite.Sprite):
+class SpriteManager(pygame.sprite.Sprite):
     def __init__(self, game):
         self.game = game
-        self.file_loader = FileLoader(game)
+        self.file_loader = AssetLoader(game)
         self.left = False
         self.right = False
         self.walkCount = 0
@@ -21,36 +20,36 @@ class Sprite(pygame.sprite.Sprite):
 
     def load_player_images(self):
         """Load player images."""
-        self.imagePlayerStand = self.scale_image("images/hero/Knight/Stand/0.png", (160, 160))
-        self.imagePlayerRun = self.scale_images_folder('images/hero/Knight/Run/', (160, 160), 10)
+        self.imagePlayerStand = self.scale_image("assets/images/hero/Knight/Stand/0.png", (160, 160))
+        self.imagePlayerRun = self.scale_images_folder('assets/images/hero/Knight/Run/', (160, 160), 10)
         self.imagePlayerRunFlip = self.flip_images(self.imagePlayerRun)
-        self.imagePlayerAttack = self.scale_images_folder('images/hero/Knight/Attack1H/', (160, 160), 10)
+        self.imagePlayerAttack = self.scale_images_folder('assets/images/hero/Knight/Attack1H/', (160, 160), 10)
         self.imagePlayerAttackFlip = self.flip_images(self.imagePlayerAttack)
 
     def load_enemy_images(self):
         """Load enemy images."""
-        self.imageEnemyRunning = self.scale_images_folder('images/enemy/0/w_', (60, 60), 10)
+        self.imageEnemyRunning = self.scale_images_folder('assets/images/enemy/0/w_', (60, 60), 10)
         self.imageEnemyRunningFlip = self.flip_images(self.imageEnemyRunning)
 
     def load_background_and_object_images(self):
         """Load background and object images."""
-        self.backgroundImage = self.scale_image("images/layers/country-platform-back.png", (1280, 720))
-        self.backgroundImage2 = self.scale_image("images/layers/country-platform-forest.png", (300, 720))
-        self.backgroundImage3 = self.scale_image("images/layers/country-platform-tiles-example.png", (1280, 720))
-        self.imageGrid0 = pygame.image.load("images/grid0.png")
-        self.imageGrid1 = pygame.image.load("images/grid1.png")
-        self.stone = self.scale_image("images/objects/stone.png", (234, 200))
-        self.enemyImage = pygame.image.load("images/enemy2.png")
-        self.platformImage = self.scale_image("images/platform.png", (300, 30))
-        self.weaponPickupImage = self.scale_image("images/weapon.png", (50, 50))
+        self.backgroundImage = self.scale_image("assets/images/layers/country-platform-back.png", (1280, 720))
+        self.backgroundImage2 = self.scale_image("assets/images/layers/country-platform-forest.png", (300, 720))
+        self.backgroundImage3 = self.scale_image("assets/images/layers/country-platform-tiles-example.png", (1280, 720))
+        self.imageGrid0 = pygame.image.load("assets/images/grid0.png")
+        self.imageGrid1 = pygame.image.load("assets/images/grid1.png")
+        self.stone = self.scale_image("assets/images/objects/stone.png", (234, 200))
+        self.enemyImage = pygame.image.load("assets/images/enemy2.png")
+        self.platformImage = self.scale_image("assets/images/platform.png", (300, 30))
+        self.weaponPickupImage = self.scale_image("assets/images/weapon.png", (50, 50))
 
     def load_effect_images(self):
         """Load effect images."""
-        self.imageFireball = self.scale_images_folder('images/effects/', (256, 100), 6)
+        self.imageFireball = self.scale_images_folder('assets/images/effects/', (256, 100), 6)
         self.imageFireballLeft = self.imageFireball.copy()
 
     def load_attack_effect_images(self):
-        sprite_sheet = self.scale_image("images/effects/attack/2.png", (400, 400))
+        sprite_sheet = self.scale_image("assets/images/effects/attack/2.png", (400, 400))
         self.imageAttackEffect = self.slice_sprite_sheet(sprite_sheet, 3, 4, (100, 100))
 
     def scale_image(self, path, size):

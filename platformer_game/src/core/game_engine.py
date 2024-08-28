@@ -1,7 +1,7 @@
 import pygame
 
 
-class Engine(object):
+class GameEngine(object):
     def __init__(self, game):
         self.game = game
         self.font = pygame.font.SysFont("Arial", 18)
