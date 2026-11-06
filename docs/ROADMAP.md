@@ -1,6 +1,6 @@
 # Plan rozwoju
 
-> Oparte na ustaleniach z [TECHNICAL_AUDIT.md](TECHNICAL_AUDIT.md) (identyfikatory `BUG-xx`, `ARCH-xx`, `ENV-xx`). Złożoność i ryzyko to oceny szacunkowe, nie pomiary. Priorytet określa kolejność prac i może różnić się od wagi błędu w audycie, co pokazuje [TECHNICAL_AUDIT.md §10](TECHNICAL_AUDIT.md#10-powiązanie-z-planem-rozwoju). Wykonane zadania: R-01, R-03. Pozostałe są otwarte. Ścieżki są względem `platformer_game/`, o ile nie zaznaczono inaczej.
+> Oparte na ustaleniach z [TECHNICAL_AUDIT.md](TECHNICAL_AUDIT.md) (identyfikatory `BUG-xx`, `ARCH-xx`, `ENV-xx`). Złożoność i ryzyko to oceny szacunkowe, nie pomiary. Priorytet określa kolejność prac i może różnić się od wagi błędu w audycie, co pokazuje [TECHNICAL_AUDIT.md §10](TECHNICAL_AUDIT.md#10-powiązanie-z-planem-rozwoju). Wykonane zadania: R-01, R-02, R-03. Pozostałe są otwarte. Ścieżki są względem `platformer_game/`, o ile nie zaznaczono inaczej.
 
 ## Główna decyzja
 
@@ -52,7 +52,7 @@ R-06 ──┼──────────────────────
 
 ### R-01 — Usunąć wyciek pamięci w `GameMap.grid()`
 
-- **Status:** ✅ Wykonane i zweryfikowane bez okna. Pole `GRID_position` i wszystkie dopisywania zniknęły z `src/world/game_map.py`, także z martwej pierwszej definicji `grid()` i z `grid_static()`. Osobnej listy `Menu.GRID_position` to zadanie nie zmieniało. RSS przez 5 minut działania gry bez okna (18 011 klatek, gracz stoi) utrzymało się na ok. 93,4 MB, a ze sterowaniem skryptowym sprawdzono 60 s. W porównaniu skryptowym 1690 kroków zgadzały się sumy kontrolne każdej klatki (bez licznika FPS), pola kolizji oraz stan gracza i przeciwnika. Przechodzi 26 testów (`tests/test_game_map.py`, `tests/test_shutdown.py`), a wyniki pomiarów są przy [BUG-01](TECHNICAL_AUDIT.md#bug-01--nieograniczony-wyciek-pamięci-w-grid_position). Nie sprawdzono tego w prawdziwym oknie ani ręcznie `[NIEZWERYFIKOWANE]`. Nieużywany `box = pygame.Rect(...)` zostaje do R-33.
+- **Status:** ✅ Wykonane i zweryfikowane bez okna. Pole `GRID_position` i wszystkie dopisywania zniknęły z `src/world/game_map.py`, także z martwej pierwszej definicji `grid()` i z `grid_static()`. Osobnej listy `Menu.GRID_position` to zadanie nie zmieniało. RSS przez 5 minut działania gry bez okna (18 011 klatek, gracz stoi) utrzymało się na ok. 93,4 MB, a ze sterowaniem skryptowym sprawdzono 60 s. W porównaniu skryptowym 1690 kroków zgadzały się sumy kontrolne każdej klatki (bez licznika FPS), pola kolizji oraz stan gracza i przeciwnika. W chwili naprawy przechodziło 26 testów (`tests/test_game_map.py`, `tests/test_shutdown.py`), a wyniki pomiarów są przy [BUG-01](TECHNICAL_AUDIT.md#bug-01--nieograniczony-wyciek-pamięci-w-grid_position). Nie sprawdzono tego w prawdziwym oknie ani ręcznie `[NIEZWERYFIKOWANE]`. Nieużywany `box = pygame.Rect(...)` zostaje do R-33.
 - **Problem:** `GRID_position` rośnie o 880 elementów na klatkę, ok. 10 MB/s w pomiarze bez okna (BUG-01).
 - **Dlaczego ważne:** Każda dłuższa sesja wyczerpuje pamięć, a każdy zysk FPS przyspiesza wyciek.
 - **Rozwiązanie:** Usunąć pole i wszystkie dopisywania. Nieużywany `box = pygame.Rect(...)` należy do R-33.
@@ -62,10 +62,11 @@ R-06 ──┼──────────────────────
 
 ### R-02 — Dodać wyjście z dziury
 
+- **Status:** ✅ Wykonane i zweryfikowane bez okna. Po przekroczeniu `y > 800` gracz traci jedno życie i wraca na start `(640, 170)` z wyzerowanym stanem, kamerą i `player_checkpoint` (`tests/test_player_respawn.py`). Odrodzenie odbywa się na pozycji początkowej, a nie w ostatnim bezpiecznym punkcie z pierwotnego planu poniżej. Tak postanowił autor, bo gra nie ma prawdziwych checkpointów. Licznik `Player.lives` (3) to minimum z tego zadania: nie jest wyświetlany, a przy 0 odrodzenie nadal działa, bo ekran końca należy do R-20. Nie sprawdzono tego w prawdziwym oknie ani ręcznie `[NIEZWERYFIKOWANE]`.
 - **Problem:** Gracz spada bez końca (BUG-02). Dzieje się to już po 0,84 s od rozpoczęcia biegu w prawo.
 - **Dlaczego ważne:** To najszybszy sposób na zakończenie rozgrywki bez możliwości kontynuacji.
 - **Rozwiązanie:** Po przekroczeniu `y > 800` przenieść gracza do ostatniego bezpiecznego miejsca na podłożu, wyzerować prędkość, ustawić kamerę. Punkt bezpieczny zapisywać, gdy gracz stoi na podłożu, nie blisko krawędzi. Sam warunek `vel.y == 0` nie wystarczy, bo pod P1 potrafi wystąpić w powietrzu, także nad dziurą (`x = 802`, `y = 520,8`) `[TEST]`, a odrodzenie tam kończyłoby się ponownym spadkiem. Po dodaniu R-20 dołożyć utratę życia.
-- **Pliki:** `src/entities/player.py`, `src/core/physics_engine.py`, `config/settings.py`
+- **Pliki:** `src/entities/player.py`, `src/core/physics_engine.py`, `src/core/collision_manager.py`, `src/game.py`, `config/settings.py`
 - **Złożoność:** Niska · **Ryzyko regresji:** Niskie · **Priorytet:** Krytyczny
 - **Zależności:** Brak, ale zachowanie zależy od decyzji autora nr 2 poniżej. Później zintegrować z R-20.
 
@@ -239,7 +240,7 @@ R-06 ──┼──────────────────────
 
 - **Problem:** Brak konsekwencji i przegranej (BUG-10).
 - **Dlaczego ważne:** Bez ryzyka nie ma gry.
-- **Rozwiązanie:** Licznik życia, chwilowa nietykalność, odrzut przez prędkość, ekran końca i restart.
+- **Rozwiązanie:** Licznik życia (spadek już korzysta z `Player.lives`, R-02), chwilowa nietykalność, odrzut przez prędkość, ekran końca i restart.
 - **Pliki:** `src/entities/player.py`, `src/core/collision_manager.py`, sceny, HUD
 - **Złożoność:** Średnia · **Ryzyko regresji:** Niskie · **Priorytet:** Wysoki
 - **Zależności:** R-02, R-13, R-16.
@@ -405,7 +406,7 @@ Jeśli czas jest ograniczony, ten krótki zestaw daje największy zysk: **R-03, 
 ## Decyzje do podjęcia przez autora
 
 1. **Rodzaj gry:** skończone poziomy (rekomendacja) czy nieskończony bieg? Wpływa na R-14 i R-28.
-2. **Dziura:** utrata życia z odrodzeniem (rekomendacja) czy natychmiastowy koniec gry? Wpływa na R-02 i R-20.
+2. **Dziura:** wybrano utratę życia z odrodzeniem na starcie (R-02). Otwarte pozostaje, co ma się stać przy 0 żyć, ile żyć ma mieć gracz i czy odradzać go na starcie, czy w ostatnim bezpiecznym miejscu. Wpływa na R-20.
 3. **Grawitacja:** 0,7 czy 0,9? Obecny skok działa przy 0,9, ale ostateczny wybór trzeba ocenić, grając ręcznie. Wpływa na R-11.
 4. **Publikacja:** czy gra ma być docelowo publicznie dostępna? To decyduje o pilności R-36.
 5. **Kula ognia:** zachować ją w grze czy porzucić? Wpływa na R-25.

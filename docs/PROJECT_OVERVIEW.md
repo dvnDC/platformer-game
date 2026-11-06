@@ -1,6 +1,6 @@
 # Przegląd projektu
 
-> Stan na: 2026-11-06, gałąź `dev`, HEAD `9fb1337` („Fix R-01”, ale zawiera R-03). Kod i zasoby przeanalizowano w commicie `2d51b48` („Changing the structure of the application”, 2024-08-28), a `ec06314` dodał tylko `CLAUDE.md` i `docs/`. R-01 jest na razie tylko w katalogu roboczym.
+> Stan na: 2026-11-06, gałąź `dev`, HEAD `6bb0e6c` („Fix R-01 and update docs”). Kod i zasoby przeanalizowano w commicie `2d51b48` („Changing the structure of the application”, 2024-08-28), a `ec06314` dodał tylko `CLAUDE.md` i `docs/`. R-03 jest w commicie `9fb1337`, a R-01 wraz z dokumentacją w `6bb0e6c`. R-02 powstało po tym commicie.
 > Dokument opisuje to, co faktycznie jest w kodzie. Szczegóły: [ARCHITECTURE.md](ARCHITECTURE.md), [GAMEPLAY.md](GAMEPLAY.md), [TECHNICAL_AUDIT.md](TECHNICAL_AUDIT.md), [ROADMAP.md](ROADMAP.md).
 
 ## Oznaczenia wiarygodności
@@ -21,7 +21,7 @@ We wszystkich dokumentach stosowane są te same znaczniki:
 
 Dwuwymiarowa platformówka z przewijaniem w poziomie, napisana w Pythonie i pygame. Gracz steruje rycerzem, który biega po powtarzającym się w nieskończoność terenie, skacze na platformy i uderza mieczem nadchodzącego przeciwnika. Tytuł okna to „dvn's game” (`src/game.py:19`).
 
-Grywalny jest na razie tylko **prototyp ruchu i walki**. Gra nie ma celu, punktacji, życia, przegranej, wygranej ani menu `[KOD]`. Jedyny stan porażki to wpadnięcie w dziurę, po którym postać spada bez końca, a gry w praktyce nie da się kontynuować bez ponownego uruchomienia `[TEST]`. Rzadki, przypadkowy wyjątek opisuje [GAMEPLAY.md](GAMEPLAY.md#dziury).
+Grywalny jest na razie tylko **prototyp ruchu i walki**. Gra nie ma celu, punktacji, przegranej, wygranej ani menu `[KOD]`. Wpadnięcie w dziurę kosztuje jedno z 3 żyć i cofa postać na start, ale licznik nie jest wyświetlany, a przy 0 żyć gra toczy się dalej `[TEST]`. Szczegóły opisuje [GAMEPLAY.md](GAMEPLAY.md#dziury).
 
 W stanie początkowym ekran wygląda tak: rycerz stoi na trawie, nad nim są czerwonawe platformy, w tle parallaksa z gór i lasu, a w lewym górnym rogu licznik FPS.
 
@@ -33,7 +33,7 @@ W stanie początkowym ekran wygląda tak: rycerz stoi na trawie, nad nim są cze
 | pygame | 2.5.2 | `*` (`Pipfile`), 2.1.2 (`Pipfile.lock`) | Rozbieżność |
 | numpy | 1.26.2 | `*` (`Pipfile`), 1.22.1 (`Pipfile.lock`) | Realnie potrzebne tylko do jednego `zeros(...)` |
 | `requirements.txt` | — | pusty plik | Nieprzydatny |
-| Testy | `unittest` (biblioteka standardowa) | brak | Kody wyjścia procesu (`tests/test_shutdown.py`) oraz `GameMap`, kolizje podłoża i lądowanie (`tests/test_game_map.py`). Większość rozgrywki nie ma testów |
+| Testy | `unittest` (biblioteka standardowa) | brak | Kody wyjścia procesu (`tests/test_shutdown.py`) , `GameMap`, kolizje podłoża i lądowanie (`tests/test_game_map.py`) oraz spadek i odrodzenie (`tests/test_player_respawn.py`). Pozostała rozgrywka nie ma własnych testów |
 | Linter, CI | brak | brak | |
 | PyInstaller | niezainstalowany | `src/main.spec` nieaktualny | Patrz [TECHNICAL_AUDIT.md](TECHNICAL_AUDIT.md) |
 
@@ -83,7 +83,7 @@ Pętla działa do przerwania, więc proces trzeba zakończyć ręcznie.
 | Kula ognia | ❌ Nieosiągalna | Po włączeniu strzał wywraca grę, jeśli od startu lub poprzedniego strzału minęło co najmniej 10 s `[TEST]` |
 | Menu | ❌ Zepsute | Wywołanie kończy się `AttributeError` `[TEST]` |
 | Podnoszenie broni | ❌ Brak | Grafika jest ładowana, logiki nie ma `[KOD]` |
-| Życie, obrażenia, śmierć, wynik | ❌ Brak | `[KOD]` |
+| Życie, obrażenia, śmierć, wynik | 🟡 Częściowo | Tylko niewidoczny licznik żyć przy spadku do dziury. Brak śmierci, wyniku i obrażeń od przeciwnika `[TEST]` |
 | Prawdziwe checkpointy, poziomy, cel gry | ❌ Brak | `player_checkpoint` to tylko indeks przesunięcia mapy `[KOD]` |
 | Stany gry, pauza, ekran końca | ❌ Brak | `[KOD]` |
 
@@ -96,7 +96,7 @@ platformer-game/
 ├── preview.gif               Podgląd używany przez README na gałęzi main (3,9 MB)
 ├── CLAUDE.md                 Notatki techniczne dla asystenta
 ├── docs/                     Ta dokumentacja
-├── tests/                    Testy kodów wyjścia i mapy (test_shutdown.py, test_game_map.py)
+├── tests/                    Testy kodów wyjścia, mapy i odrodzenia (test_shutdown.py, test_game_map.py, test_player_respawn.py)
 ├── venv/                     Działające środowisko (ignorowane przez własny .gitignore)
 ├── .idea/                    Ustawienia PyCharm (śledzone mimo wpisu w .gitignore)
 └── platformer_game/          Katalog roboczy gry
@@ -139,16 +139,16 @@ Licencja: `assets/images/license.txt` mówi o CC0 i autorze Luisie Zuno (ansimuz
 
 ## Stan repozytorium
 
-- W commitach `dev` i `main` zawierają ten sam kod. `main` ma 4 commity, których nie ma `dev`, w tym merge'e, a `dev` ma 1 commit, którego nie ma `main` (`ec06314`, jeszcze niewypchnięty na `origin/dev`). Różnice w plikach to link do GIF-a w `README.md` oraz `CLAUDE.md` i `docs/`, obecne tylko na `dev`.
+- Stan na commicie `6bb0e6c`: `dev` i `main` nie zawierają już tego samego kodu. `main` ma 4 commity, których nie ma `dev`, w tym merge'e, a `dev` ma 3 commity, których nie ma `main`, jeszcze niewypchnięte na `origin/dev`: `ec06314` („Add Cloude docs”: `CLAUDE.md` i `docs/`), `9fb1337` („Fix R-01”, ale zawiera R-03: `src/game.py`, `tests/test_shutdown.py`) i `6bb0e6c` („Fix R-01 and update docs”, czyli R-01: `src/world/game_map.py`, `tests/test_game_map.py`). Różnice w plikach to link do GIF-a w `README.md`, ustawienia w `.idea/`, kod i testy R-03 oraz R-01, a także `CLAUDE.md` i `docs/`, obecne tylko na `dev`.
 - README na `dev` wskazuje plik `Screen Recording 2023-06-05...gif`, którego nie ma w repozytorium. Na `main` link prowadzi do `preview.gif`.
-- Gałąź `working` ma 2 commity, których nie ma w `dev`, i jest 18 commitów za `dev`.
-- Niezapisane w commitach: implementacja R-01 (`src/world/game_map.py`, `tests/test_game_map.py`), związane z nią zmiany w `CLAUDE.md` i `docs/` oraz katalogi `__pycache__`. R-03 jest już w commicie `9fb1337`, mimo że jego tytuł brzmi „Fix R-01”. Kodu R-01 ten commit nie zawiera.
-- Historia sięga 2020-08-17 i liczy 75 commitów na gałęzi `dev`. Ostatni commit kodu pochodzi z 2024-08-28.
+- Stan na commicie `6bb0e6c`: gałąź `working` ma 2 commity, których nie ma w `dev`, i jest 20 commitów za `dev`.
+- R-01 (`src/world/game_map.py`, `tests/test_game_map.py`) i związane z nim zmiany w `CLAUDE.md` i `docs/` są zapisane w commicie `6bb0e6c`. R-03 jest w commicie `9fb1337`, mimo że jego tytuł brzmi „Fix R-01”. Kodu R-01 ten commit nie zawiera. Katalogi `__pycache__` nie są śledzone.
+- Stan na commicie `6bb0e6c`: historia sięga 2020-08-17 i liczy 77 commitów na gałęzi `dev`. Ostatni commit kodu to `6bb0e6c` z 2026-11-06.
 
 ## Najważniejsze wnioski
 
 1. Podstawowa pętla gry działa i wygląda przyzwoicie, ale jest prototypem.
-2. Natychmiastowej naprawy wymaga **brak wyjścia z dziury**, do której można wpaść w niecałą sekundę od wylądowania. Wyciek pamięci rzędu 10 MB/s (pomiar bez okna) w `GameMap.grid()` usunięto w R-01: RSS utrzymało się na ok. 93,4 MB przez 5 minut bez okna, przy stojącym graczu. W prawdziwym oknie jeszcze tego nie sprawdzono.
+2. Dwa najpilniejsze problemy są usunięte, ale sprawdzono to tylko bez okna. Wyciek pamięci rzędu 10 MB/s w `GameMap.grid()` zniknął w R-01: RSS utrzymało się na ok. 93,4 MB przez 5 minut, przy stojącym graczu. Dziura, do której można wpaść w niecałą sekundę od wylądowania, po R-02 kosztuje życie i cofa na start, zamiast kończyć rozgrywkę.
 3. Logika jest splątana z rysowaniem, a kolizje mają ukryty stan. To największe przeszkody w rozbudowie, więc trzeba je usunąć przed dodawaniem funkcji.
 4. Projekt jest mały, dlatego naprawa etapami jest realna i nie wymaga przepisywania wszystkiego od zera. Kolejność prac jest w [ROADMAP.md](ROADMAP.md).
 
@@ -156,6 +156,6 @@ Licencja: `assets/images/license.txt` mówi o CC0 i autorze Luisie Zuno (ansimuz
 
 1. Przeczytaj tabelę stanu powyżej.
 2. Uruchom grę i przejdź po mapie, omijając dziurę na współrzędnej `x = 800`, czyli około 160 px w prawo od startu.
-3. Przeczytaj `src/game.py` (109 linii), bo pokazuje cały przepływ.
+3. Przeczytaj `src/game.py` (113 linii), bo pokazuje cały przepływ.
 4. W [ARCHITECTURE.md](ARCHITECTURE.md) zajrzyj do sekcji o ukrytych zależnościach, zanim cokolwiek zmienisz.
 5. Wybierz następne zadanie z [ROADMAP.md](ROADMAP.md).

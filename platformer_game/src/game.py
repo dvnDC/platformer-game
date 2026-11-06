@@ -69,6 +69,8 @@ class Game:
     """The main game loop."""
     def run(self):
         try:
+            # Drop the loading time, or the catch-up ticks run with no floor before the first render
+            self.tps_clock.tick()
             while True:
                 # Events
                 for event in pygame.event.get():

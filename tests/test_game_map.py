@@ -217,7 +217,7 @@ class CollisionBehaviourTests(GameMapTestCase):
         # Starts below the platform that spans the gap at x = 800.
         self.game.player.pos.update(830, 600)
         self.game.player.vel.update(0, 0)
-        self.advance(200)
+        self.advance(35)  # Below the floor, but not yet past the fall limit (R-02)
         self.assertGreater(self.game.player.pos.y, FLOOR_TOP + TILE)
 
     def test_player_rests_on_the_platform_above_a_floor_gap(self):

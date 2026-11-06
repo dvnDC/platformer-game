@@ -32,6 +32,19 @@ class CollisionManager(object):
         self.isBottom_RightCollision = False
         self.isBottom_LeftCollision = False
 
+    def reset_flags(self):
+        self.isCollision = False
+        self.isCollisionEnemy = False
+        self.isCollisionGrid = False
+
+        self.isRightCollision = False
+        self.isLeftCollision = False
+        self.isTopCollision = False
+        self.isBottomCollision = False
+
+        self.isBottom_RightCollision = False
+        self.isBottom_LeftCollision = False
+
     def collision(self, xxyy, xxyy1):
         if xxyy[1] >= xxyy1[0] and xxyy[0] < xxyy1[1]:
             if xxyy[3] >= xxyy1[2] and xxyy[2] < xxyy1[3]:

@@ -1,6 +1,6 @@
 # Mechaniki rozgrywki
 
-> Opis zachowania gry na podstawie kodu (commit `2d51b48`) i eksperymentów bez okna. Klawisze były podstawiane programowo, więc **odczucia z prawdziwego sterowania nie zostały ocenione** `[NIEZWERYFIKOWANE]`. Znaczniki objaśnia [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).
+> Opis zachowania gry na podstawie kodu (commit `2d51b48`, uzupełniony o R-02) i eksperymentów bez okna. Klawisze były podstawiane programowo, więc **odczucia z prawdziwego sterowania nie zostały ocenione** `[NIEZWERYFIKOWANE]`. Znaczniki objaśnia [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).
 >
 > Jednostki: logika działa w 100 tickach na sekundę. 1 tick = 10 ms. Prędkości podane są w px/tick (mnożąc przez 100, dostajemy px/s).
 
@@ -13,7 +13,7 @@
 | Grawitacja | 🟡 Częściowo | Zmienia wartość po pierwszym skoku |
 | Lądowanie na podłożu i platformach | ✅ Działa | Nieregularna odległość od podłoża, kilka pikseli |
 | Uderzenie głową i boki przeszkód | 🟡 Częściowo | Postać wchodzi w platformę, drży przy ścianie |
-| Dziury | 🟡 Częściowo | Działają jako fizyczne dziury, ale kończą rozgrywkę bez wyjścia |
+| Dziury | ✅ Działa | Spadek kosztuje życie i cofa na start. Nie sprawdzono w prawdziwym oknie |
 | Kamera pozioma | ✅ Działa | Tło kończy się po długim biegu |
 | Kamera pionowa | ❌ Brak efektu | Wartość liczona, nieużywana |
 | Atak mieczem: trafienie | ✅ Działa | Sprawdzane tylko w pierwszym ticku |
@@ -22,7 +22,7 @@
 | Odepchnięcie przez przeciwnika | 🟡 Częściowo | Brak obrażeń, na platformie P3 działa też bez dotyku |
 | Kula ognia | ❌ Nieosiągalna | Crash po włączeniu |
 | Podnoszenie broni | ❌ Brak | |
-| Życie, śmierć, wynik, cel gry | ❌ Brak | |
+| Życie, śmierć, wynik, cel gry | 🟡 Częściowo | Tylko niewidoczny licznik żyć przy spadku. Brak śmierci, wyniku i celu |
 | Menu, pauza, ekran końca | ❌ Brak lub zepsute | |
 
 ## Sterowanie
@@ -136,7 +136,7 @@ Przekrój dla `player_checkpoint = 0`, z zachowaniem współrzędnych światowyc
 
 ### `player_checkpoint` to nie checkpoint
 
-To tylko indeks przesunięcia siatki. Zmienia się przy przekraczaniu `x = 2560 + 3840·k`. Nie zapisuje postępu i nie jest punktem odrodzenia. Przejście przez granicę nie zmienia podłoża pod nogami ani obrazu mapy `[TEST]`, a kolejna dziura pojawia się na 3440.
+To tylko indeks przesunięcia siatki. Zmienia się przy przekraczaniu `x = 2560 + 3840·k`. Nie zapisuje postępu i nie jest punktem odrodzenia (odrodzenie tylko je zeruje). Przejście przez granicę nie zmienia podłoża pod nogami ani obrazu mapy `[TEST]`, a kolejna dziura pojawia się na 3440.
 
 ### Dziury
 
@@ -145,8 +145,8 @@ Dziury to najważniejsza mechanika wymagająca decyzji projektowej:
 - Pierwsza prawa dziura znajduje się 160 px od startu. **Bieg w prawo od startu kończy się spadkiem już po 0,84 s** `[TEST]`.
 - Nad nią wisi platforma P1. Wyskok z `x` około 700-780 w prawo prowadzi na platformę. Wcześniejszy wyskok (z 560-680) kończy się spadkiem do dziury, bo postać uderza w lewy bok P1 i opada `[TEST]`.
 - Dziury dalej w świecie nie mają platform nad sobą. Startując z bezruchu, da się je przeskoczyć, odbijając się w ostatnich 80 px przed krawędzią `[TEST]`.
-- **Po wpadnięciu nie ma wyjścia.** `y` rośnie bez końca, a tempo zależy od tego, czy gracz już skakał, bo pierwszy skok na stałe zmienia grawitację z 0,7 na 0,9. Przed pierwszym skokiem postać spada z prędkością ~4,67 px/tick: w ciągu 1000 ticków `y` wzrosło z ok. 804 do ok. 5470. Po pierwszym skoku jest to ~6 px/tick: w tym samym czasie `y` wzrosło z ok. 804 do ok. 6804. W obu przypadkach spacja nie działa, bo `vel.y != 0`. Nie ma odrodzenia ani komunikatu, a postać znika pod ekranem. W praktyce jedyna możliwość to wyjście z gry `[TEST]`.
-- **Rzadki, przypadkowy wyjątek.** Jeśli przeciwnik wpada do tej samej dziury razem z graczem, kontakt z nim może na chwilę wyzerować `vel.y`, a przytrzymana spacja pozwala wtedy wyskoczyć. Przy naturalnym dojściu do dziury wróciło tak 3 z 320 prób ze spacją, wszystkie po pierwszym skoku (grawitacja 0,9). Bez spacji powrotu nie było. Przy sztucznie ustawionym kontakcie od głębokości `y ≥ 760` skok nie wystarczał do powrotu. To skutek uboczny reakcji na kolizję, a nie mechanizm wyjścia. Przegląd czasów nie był wyczerpujący `[TEST]`.
+- **Spadek kończy się odrodzeniem (R-02).** Gdy `y` przekroczy 800 (`FALL_LIMIT_Y`), czyli gdy hitbox jest już poniżej wszystkich kafelków, gracz traci jedno życie i wraca na start `(640, 170)`, a kamera od razu wraca do niego. Zerują się prędkość, bieg i atak, a grawitacja zostaje taka, jaka była `[TEST]`. Gracz ma 3 życia (`PLAYER_LIVES`), których nie widać na ekranie. Przy 0 żyć nadal się odradza, bo gra nie ma przegranej `[TEST]`. Spacja przytrzymana w chwili odrodzenia daje skok w powietrzu, tak jak na starcie gry `[TEST]`. Przeciwnik nie jest przenoszony, więc po spadku daleko od startu wraca dopiero po pewnym czasie (54 s przy `x = 4670`) `[TEST]`. Nie sprawdzono tego w prawdziwym oknie `[NIEZWERYFIKOWANE]`.
+- **Rzadki, przypadkowy wyjątek (pomiar sprzed R-02).** Jeśli przeciwnik wpada do tej samej dziury razem z graczem, kontakt z nim może na chwilę wyzerować `vel.y`, a przytrzymana spacja pozwala wtedy wyskoczyć. Przy naturalnym dojściu do dziury wróciło tak 3 z 320 prób ze spacją, wszystkie po pierwszym skoku (grawitacja 0,9). Bez spacji powrotu nie było. Przy sztucznie ustawionym kontakcie od głębokości `y ≥ 760` skok nie wystarczał do powrotu. To skutek uboczny reakcji na kolizję, a nie mechanizm wyjścia. Przegląd czasów nie był wyczerpujący `[TEST]`.
 - Dziura nie wygląda jak dziura. W tym miejscu widać dolną część obrazu terenu, czyli wzór przypominający roślinność `[TEST]` (zrzut ekranu).
 
 Sprawdzono, że dalszy marsz po mapie jest możliwy: P1 → P2 → zejście na P3 → podłoże, aż do `x ≈ 2640` i dalej `[TEST]`.
@@ -251,8 +251,8 @@ Przyczyna crasha: `time0` powinno zerować się przy strzale, ale warunek w `Pro
 | Element | Stan |
 |---|---|
 | Punkty | Brak. `Enemy.counter` rośnie przy odrodzeniu, ale nikt go nie czyta |
-| Życie gracza i obrażenia | Brak |
-| Śmierć i restart | Brak |
+| Życie gracza i obrażenia | Tylko `Player.lives`, zmniejszane przy spadku. Przeciwnik nie zadaje obrażeń |
+| Śmierć i restart | Brak. Spadek daje odrodzenie na starcie także przy 0 żyć |
 | Prawdziwe checkpointy | Brak |
 | Koniec poziomu i wygrana | Brak |
 | Menu główne | Klasa istnieje, `draw()` wyłączone. Po włączeniu: `AttributeError: imageMenuGrid1` `[TEST]` |
@@ -266,7 +266,7 @@ Jeden utwór, `assets/sounds/latenight.ogg`, zapętlony przy głośności 0,20. 
 ## Co dziś jest rzeczywistą pętlą rozgrywki
 
 1. Gracz pojawia się w powietrzu i spada na podłoże.
-2. Omija dziurę, wskakując na platformy, albo w nią wpada, co kończy zabawę.
+2. Omija dziurę, wskakując na platformy, albo w nią wpada, co kosztuje życie i cofa go na start.
 3. Biegnie w prawo, przeskakując dziury co 1200 i 2640 px na zmianę.
 4. Spotyka przeciwnika, który go odpycha, i może go zabić jednym ciosem, a przeciwnik zaraz pojawia się znowu z prawej strony.
 5. Gra nigdy się nie kończy sama, nie zapisuje wyniku i nie daje nagrody.

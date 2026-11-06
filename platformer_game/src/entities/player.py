@@ -1,6 +1,7 @@
 import pygame
 from pygame.math import Vector2
 from src.entities.player_state import PlayerState
+from config.settings import FALL_LIMIT_Y, PLAYER_LIVES
 import time
 
 time0 = time.time()
@@ -33,6 +34,8 @@ class Player(object):
         self.vel.x = 0.1
         self.pos.x = 640
         self.pos.y = 170
+        self.spawn_pos = Vector2(self.pos)
+        self.lives = PLAYER_LIVES
         self.width = 20
         self.height = 60
 
@@ -99,6 +102,29 @@ class Player(object):
         if self.game.collision.isCollision:
             self.game.enemy.live = False
 
+    def respawn_after_fall(self):
+        """
+        Takes one life, down to 0, and returns the player to the spawn point.
+        Gravity is left as it is. There is no game over yet, so 0 lives still respawns.
+        """
+        if self.lives > 0:
+            self.lives -= 1
+
+        self.pos.update(self.spawn_pos)
+        self.vel.update(0, 0)
+        self.acc.update(0, 0)
+        self.position = (self.pos.x, (self.pos.x + self.width), self.pos.y, (self.pos.y + self.height))
+
+        self.isJump = False
+        self.isRunning = False
+        self.isAttacking = False
+        self.runCount = 0
+        self.animation_timer = 0
+
+        self.game.map.player_checkpoint = 0  # grid() would only walk back one step per frame
+        self.game.collision.reset_flags()
+        self.game.physics.snap_scroll()
+
     def tick(self):
         # Time for animations
         self.animation_timer += 1 / self.game.tps_max
@@ -128,6 +154,10 @@ class Player(object):
 
         # Collision with enemy
         self.game.collision.player_enemy_collision()
+
+        # Fell out of the level
+        if self.pos.y > FALL_LIMIT_Y:
+            self.respawn_after_fall()
 
         # Player animation
         if self.runCount + 1 >= 21:

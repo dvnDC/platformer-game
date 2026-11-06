@@ -15,14 +15,14 @@ To smoke-test without a window or audio device, set `SDL_VIDEODRIVER=dummy SDL_A
 
 Dependencies are `pygame` and `numpy`. The working `venv/` (gitignored) is Python 3.12 with pygame 2.5.2, while the `Pipfile` still pins Python 3.8 and `platformer_game/requirements.txt` is empty. The venv has `include-system-site-packages = true`, so packages from the base asdf Python (such as `matplotlib` and `PIL`) are importable and a missing dependency can go unnoticed.
 
-Automated tests are in `tests/` and use standard library `unittest`, because `pytest` isn't installed. `test_shutdown.py` checks process exit codes in subprocesses. `test_game_map.py` runs headlessly in-process and covers the R-01 leak, the map layout, collision boxes, tile drawing, and landing on the floor, falling through a gap, and resting on a platform. Most gameplay (running, jumping, combat) has no tests. Run them from the repo root with `venv/bin/python -B -m unittest discover -s tests -v`; `-B` avoids creating `__pycache__`. There is no linter or build config. `src/main.spec` (PyInstaller) is stale: it has a hardcoded Linux path and bundles no assets.
+Automated tests are in `tests/` and use standard library `unittest`, because `pytest` isn't installed. `test_shutdown.py` checks process exit codes in subprocesses. `test_game_map.py` runs headlessly in-process and covers the R-01 leak, the map layout, collision boxes, tile drawing, and landing on the floor, falling through a gap, and resting on a platform. `test_player_respawn.py`, also in-process, covers falling out of the level, lives, and the state after a respawn (R-02). Most other gameplay (running, jumping, combat) has no tests of its own. Run them from the repo root with `venv/bin/python -B -m unittest discover -s tests -v`; `-B` avoids creating `__pycache__`. There is no linter or build config. `src/main.spec` (PyInstaller) is stale: it has a hardcoded Linux path and bundles no assets.
 
 ## Architecture
 
 `Game` (`src/game.py`) is a service locator. It constructs one instance of each component, and every component receives `game` and reaches its collaborators through it (`self.game.player`, `self.game.collision`, ...). There is only one player, one enemy, and one projectile; they are not sprite groups.
 
 - **Init order matters** (`Game.initialize_game_components`): `SpriteManager` loads all images first, and `CollisionManager.__init__` reads `game.player`, so it must come after `Player`.
-- **Loop:** a fixed-timestep `tick()` at `TPS_MAX` (100/s), with an uncapped `render()` once per outer iteration.
+- **Loop:** a fixed-timestep `tick()` at `TPS_MAX` (100/s), with an uncapped `render()` once per outer iteration. `Game.run` resets the clock just before the loop, because catch-up ticks for the loading time would run with no floor.
 
 ### Non-obvious coupling
 
@@ -52,7 +52,7 @@ Check these before building on them:
 
 - **The `GameMap.grid()` leak is fixed (R-01).** `GameMap` no longer has the unread `GRID_position` list, which grew by 880 tuples per rendered frame (about 160 KB). In a headless run with the player standing still, RSS stayed at about 93.4 MB for 5 minutes. This hasn't been checked in a real window. `grid()` still creates about 800 unused `pygame.Rect` objects per frame (R-33).
 - **Surfaces are never converted.** No image gets `convert()` or `convert_alpha()`, and blitting them dominates render time. In a headless test, converting them in memory cut `render()` from about 16 ms to 2.5 ms. Fix the FPS-dependent `runCount` animation first, because a higher frame rate makes it worse.
-- **Gaps in the level have no recovery.** The floor has gaps at `x = -400` and `x = 800`, repeating every 3840px. A player who falls in normally keeps falling with `pos.y` growing without limit: there is no respawn, death, or game over, jumping stops working because `vel.y` stays nonzero, and drawing ignores `scroll.y`, so the player is off-screen. In practice the only way out is to quit. The one known exception is accidental: contact with an enemy falling through the same gap can zero `vel.y` and allow a jump back (3 of 320 headless timing runs with Space held).
+- **Falling out of the level only costs a life (R-02).** The floor has gaps at `x = -400` and `x = 800`, repeating every 3840px. When `pos.y` passes `FALL_LIMIT_Y` (800), `Player.respawn_after_fall` takes one of `PLAYER_LIVES` (3) and returns the player to `spawn_pos`, the initial `(640, 170)`, with the camera and `player_checkpoint` reset. Gravity keeps its current value. `Player.lives` isn't displayed, and at 0 the player still respawns, because there is no game over yet (R-20). `player_checkpoint = 0` in that method only suits the current spawn. This has been tested headlessly, not in a real window.
 
 ## Repository notes
 

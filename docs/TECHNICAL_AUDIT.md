@@ -134,7 +134,7 @@ Waga: **Krytyczna** blokuje normalne używanie, **Wysoka** wyraźnie psuje grę 
 
 ### BUG-01 — Nieograniczony wyciek pamięci w `GRID_position`
 
-- **Status:** ✅ Naprawione w R-01 i zweryfikowane bez okna. Opis i skutki poniżej to historia z audytu, a nie obecny kod. Lista, jej wypełnianie i tworzone tylko dla niej krotki zostały usunięte. W porównaniu skryptowym 1690 kroków zgadzały się sumy kontrolne każdej klatki (bez licznika FPS), pola kolizji oraz stan gracza i przeciwnika `[TEST]`. Przechodzi 26 testów `[TEST]`. Pomiary i ograniczenia są pod opisem błędu.
+- **Status:** ✅ Naprawione w R-01 i zweryfikowane bez okna. Opis i skutki poniżej to historia z audytu, a nie obecny kod. Lista, jej wypełnianie i tworzone tylko dla niej krotki zostały usunięte. W porównaniu skryptowym 1690 kroków zgadzały się sumy kontrolne każdej klatki (bez licznika FPS), pola kolizji oraz stan gracza i przeciwnika `[TEST]`. W chwili naprawy przechodziło 26 testów `[TEST]`. Pomiary i ograniczenia są pod opisem błędu.
 - **Opis:** `GameMap.grid()` dopisuje krotki do `GRID_position` w każdej klatce i nigdy nie czyści listy. Nic jej nie czyta. Kafelki `1` są dopisywane podwójnie, więc wychodzi 880 elementów na klatkę.
 - **Waga:** Krytyczna `[TEST]`
 - **Pliki i metody:** `src/world/game_map.py:23,154,161,163`, `GameMap.grid`
@@ -167,11 +167,21 @@ Stałe RSS nie oznacza, że cała pamięć jest stała. Te trzy kategorie trzeba
 
 ### BUG-02 — Wpadnięcie w dziurę kończy grę bez wyjścia
 
+- **Status:** ✅ Naprawione w R-02 i zweryfikowane bez okna. Opis i skutki poniżej to historia z audytu. Teraz po przekroczeniu `y > 800` gracz traci życie i wraca na start, a w grze bez spadków nic się nie zmieniło: 1360 kroków porównania z commitem `6bb0e6c` dało identyczne sumy kontrolne klatek (bez licznika FPS), pola kolizji i stan `[TEST]`. Ograniczenia są pod opisem błędu.
 - **Opis:** Nie ma dolnej granicy świata, odrodzenia ani przegranej. Kamera pionowa nie działa.
 - **Waga:** Krytyczna `[TEST]`
 - **Pliki i metody:** `src/entities/player.py:102-134`, `src/core/physics_engine.py:32-37`
 - **Skutki:** Bieg w prawo od startu kończy się spadkiem po 0,84 s. `y` rośnie bez końca, a w praktyce jedyne wyjście to zamknięcie gry. Jedyny znany wyjątek jest przypadkowy: kontakt z przeciwnikiem spadającym przez tę samą dziurę (3 z 320 prób z przytrzymaną spacją, szczegóły w [GAMEPLAY.md](GAMEPLAY.md#dziury)). Nie zmienia to wagi, bo gra nie ma żadnego mechanizmu wyjścia.
 - **Rozwiązanie:** Linia śmierci, np. `y > 800`, z odrodzeniem w ostatnim bezpiecznym punkcie, a później obrażeniami i ekranem końca.
+
+**Ograniczenia po R-02:**
+
+- Nie sprawdzono prawdziwego okna ani ręcznej gry `[NIEZWERYFIKOWANE]`.
+- Odrodzenie jest zawsze na starcie `(640, 170)`, a nie w ostatnim bezpiecznym punkcie, więc spadek daleko od startu cofa cały postęp. `player_checkpoint = 0` pasuje tylko do tej pozycji `[KOD]`.
+- `Player.lives` nie jest wyświetlane. Przy 0 żyć gracz nadal się odradza, bo nie ma przegranej (R-20) `[TEST]`.
+- Pierwszy tick po odrodzeniu ma `vel.y == 0`, więc przytrzymana spacja daje skok w powietrzu (do `y ≈ 13`), tak samo jak na starcie gry. Jeśli był to pierwszy skok, zmienia też grawitację (BUG-14) `[TEST]`.
+- Przeciwnik nie jest przenoszony. Po spadku daleko od startu wraca sam dopiero wtedy, gdy znajdzie się ponad 1000 px za graczem: po 54 s przy spadku na `x = 4670`, po 206 s na `x = 19870` `[TEST]`.
+- Pola kolizji odświeża dopiero render. Gdyby po odrodzeniu z innego powtórzenia mapy gra stanęła na ponad ok. sekundę bez rysowania, gracz mógłby spaść drugi raz (BUG-16) `[WYLICZONE]`.
 
 ### BUG-03 — Wyjątki w pętli są połykane
 
@@ -288,6 +298,7 @@ Stałe RSS nie oznacza, że cała pamięć jest stała. Te trzy kategorie trzeba
 - **Pliki i metody:** `src/game.py:81-84`
 - **Skutki:** Po 60 s zatrzymania ok. 6000 ticków naraz, czyli ok. 0,5 s zamrożenia przy obecnym koszcie `[WYLICZONE]`. Świat „przeskakuje” o 60 s bez rysowania i odświeżania danych zależnych od renderu.
 - **Rozwiązanie:** Ograniczyć `tps_delta`, np. do 0,25 s.
+- **Uzupełnienie z R-02:** zegar startował przed wczytaniem zasobów, więc czas ładowania był nadrabiany przed pierwszym renderem, gdy nie ma jeszcze kolizji. Zwykle były to tylko 6 ticków, ale przy ładowaniu trwającym ok. 1 s lub dłużej gracz przelatywał przez podłoże `[TEST]`. Naprawiono to, wywołując `tps_clock.tick()` tuż przed pętlą: nawet przy 4 s opóźnienia przed pierwszym renderem nie ma już ticków `[TEST]`. Sam brak limitu nadrabiania w trakcie gry pozostaje otwarty.
 
 ### BUG-17 — Kierunek postaci wynika ze znaku prędkości
 
@@ -330,7 +341,7 @@ Stałe RSS nie oznacza, że cała pamięć jest stała. Te trzy kategorie trzeba
 | ENV-03 | numpy tylko do `zeros((10, 4))` w `platform_manager.py`, nadpisanego pola w `menu.py` i nieużywanego importu `[KOD]` | Niska | Większy plik wynikowy | Usunąć zależność |
 | ENV-04 | Spec PyInstallera nieaktualny (szczegóły w §6) | Średnia | Budowa nie zadziała | Nowy spec |
 | ENV-05 | `.gitignore` to szablon JavaScript, bez Pythona. 11 plików `.pyc` z 3.8 śledzonych w git. `.idea` śledzone w dwóch miejscach mimo wpisu w ignorowanych `[TEST]` | Średnia | Szum w statusie, ryzyko zatwierdzania śmieci | Nowy `.gitignore`, `git rm --cached` |
-| ENV-06 | Brak lintera, formatera, CI i `pyproject.toml`. Testy obejmują kody wyjścia procesu (`tests/test_shutdown.py`) oraz `GameMap`, kolizje podłoża i lądowanie (`tests/test_game_map.py`), ale nie bieg, skok ani walkę `[KOD]` | Wysoka | Każda zmiana ryzykuje regresję | pytest, ruff, GitHub Actions |
+| ENV-06 | Brak lintera, formatera, CI i `pyproject.toml`. Testy obejmują kody wyjścia procesu (`tests/test_shutdown.py`), `GameMap`, kolizje podłoża i lądowanie (`tests/test_game_map.py`) oraz spadek i odrodzenie (`tests/test_player_respawn.py`), ale parametrów biegu i skoku ani walki już nie `[KOD]` | Wysoka | Każda zmiana ryzykuje regresję | pytest, ruff, GitHub Actions |
 | ENV-07 | README na `dev` linkuje do nieistniejącego GIF-a. `dev` jest 4 commity za `main`, a `working` jest przestarzały `[TEST]` | Niska | Bałagan w gałęziach | Zmergować `main` do `dev`, ocenić `working` |
 | ENV-08 | Licencja: `license.txt` nie określa zakresu. Brak informacji o postaciach, muzyce, czcionce i brak licencji samego kodu `[NIEZWERYFIKOWANE]` | Średnia, wysoka przy publikacji | Ryzyko prawne przy dystrybucji | Spis źródeł, wymiana niepewnych zasobów, plik `LICENSE` |
 | ENV-09 | Zasoby bez rozszerzeń, nieużywane i zduplikowane (§3) | Niska | Większe repozytorium i paczka | Porządki po potwierdzeniu |
@@ -392,11 +403,11 @@ Tabela pokazuje wynik sprawdzenia pierwotnej wersji `CLAUDE.md`. Prawie wszystki
 | `__pycache__` poza `.gitignore`, śledzone stare `.pyc` | ✅ 11 plików `[TEST]` |
 | Polskie komentarze | ✅ `[KOD]` |
 
-`CLAUDE.md` opisuje już także naprawiony wyciek `GRID_position`, brak `convert_alpha`, `venv` z dostępem do pakietów systemowych, dziury bez odrodzenia oraz zmianę grawitacji po pierwszym skoku.
+`CLAUDE.md` opisuje już także naprawiony wyciek `GRID_position`, brak `convert_alpha`, `venv` z dostępem do pakietów systemowych, dziury z odrodzeniem po R-02 oraz zmianę grawitacji po pierwszym skoku.
 
 ## 8. Ocena ogólna
 
-Oceny opisują stan z audytu (commit `2d51b48`) i nie były zmieniane po R-03 ani R-01. Uzasadnienia wspominające o połykaniu wyjątków, wycieku lub braku testów dotyczą tego stanu.
+Oceny opisują stan z audytu (commit `2d51b48`) i nie były zmieniane po R-03, R-01 ani R-02. Uzasadnienia wspominające o połykaniu wyjątków, wycieku, soft-locku lub braku testów dotyczą tego stanu.
 
 | Obszar | Ocena | Uzasadnienie |
 |---|---|---|
@@ -416,7 +427,7 @@ Oceny opisują stan z audytu (commit `2d51b48`) i nie były zmieniane po R-03 an
 | Wąskie gardła | Brak konwersji powierzchni, rysowanie poza ekranem (5 × 1280×720, 28 × 300×720), 800 nieużywanych `Rect` na klatkę |
 | Crash | `IndexError` animacji biegu (BUG-07), kula ognia (BUG-08), martwe funkcje (BUG-19), brak pliku grafiki (ślad stosu, kod 1) `[TEST]` |
 | Zawieszenie | `handle_jump` (BUG-15), nadrabianie (BUG-16) |
-| Soft-lock | Dziura (BUG-02) |
+| Soft-lock | Dziura (BUG-02) naprawiona w R-02, innych nie stwierdzono |
 | Nieoczekiwane zakończenie | Każdy wyjątek w pętli kończy grę, ale od R-03 ze śladem stosu i kodem 1 (BUG-03, naprawione) |
 | Niespójności | Grawitacja, ścieżki, trzy modele świata, dwa loadery, dwa miejsca `WIDTH`/`HEIGHT` |
 
@@ -427,7 +438,7 @@ Każde ustalenie ma zadanie w [ROADMAP.md](ROADMAP.md). Waga opisuje skutek prob
 | Ustalenie | Waga | Zadanie | Priorytet zadania |
 |---|---|---|---|
 | BUG-01 (naprawione) | Krytyczna | R-01 (wykonane) | Krytyczny |
-| BUG-02 | Krytyczna | R-02, później R-20 | Krytyczny, Wysoki |
+| BUG-02 (naprawione) | Krytyczna | R-02 (wykonane), później R-20 | Krytyczny, Wysoki |
 | BUG-03 (naprawione) | Wysoka | R-03 (wykonane) | Krytyczny |
 | BUG-04 | Wysoka | R-09 | Wysoki |
 | BUG-05, BUG-06 | Wysoka | R-13 | Wysoki |

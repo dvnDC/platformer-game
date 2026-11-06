@@ -36,6 +36,11 @@ class PhysicsEngine(object):
 
         self.set_scroll(scroll)
 
+    def snap_scroll(self):
+        self.true_scroll[0] = self.game.player.pos.x - 640
+        self.true_scroll[1] = self.game.player.pos.y - 170
+        self.scroll()
+
     def tick(self):
         self.scroll()
         # self.standing()

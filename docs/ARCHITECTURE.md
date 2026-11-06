@@ -1,6 +1,6 @@
 # Architektura
 
-> Opis stanu faktycznego (commit `2d51b48`, gałąź `dev`, uzupełniony o zmiany R-03 i R-01), a nie stanu docelowego. Docelowe zmiany są w [ROADMAP.md](ROADMAP.md). Ścieżki są podawane względem `platformer_game/`. Znaczniki `[KOD]`, `[TEST]` itd. objaśnia [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).
+> Opis stanu faktycznego (commit `2d51b48`, gałąź `dev`, uzupełniony o zmiany R-03, R-01 i R-02), a nie stanu docelowego. Docelowe zmiany są w [ROADMAP.md](ROADMAP.md). Ścieżki są podawane względem `platformer_game/`. Znaczniki `[KOD]`, `[TEST]` itd. objaśnia [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).
 
 ## 1. Obraz ogólny
 
@@ -55,7 +55,7 @@ Liczba odwołań `self.game.X` w module `[TEST]` (analiza AST):
 
 | Moduł | Komponenty, których używa |
 |---|---|
-| `Player` | `screen` 9, `sprite` 9, `weapon` 7, `collision` 5, `enemy` 2, `map` 2, `fire` 2, `physics` 1, `tps_max` 1 |
+| `Player` | `screen` 9, `sprite` 9, `weapon` 7, `collision` 6, `enemy` 2, `map` 3, `fire` 2, `physics` 2, `tps_max` 1 |
 | `CollisionManager` | `player` 22, `enemy` 15, `fire` 2, `platforms` 2, `screen_width`, `screen_height` |
 | `GameMap` | `sprite` 15, `screen` 15, `player` 4, `screen_height` 2, `platforms` 1 |
 | `Enemy` | `collision` 2, `map` 2, `player` 2, `physics` 1, `screen` 1, `sprite` 1 |
@@ -94,6 +94,7 @@ Komponenty powstają w tej kolejności (`src/game.py:55-67`):
 `Game.run()` (`src/game.py:70-90`):
 
 ```text
+wyzeruj zegar                      # czas ładowania nie jest nadrabiany
 dopóki True:
     obsłuż zdarzenia (QUIT, Esc -> sys.exit(0))
     tps_delta += czas od ostatniego obiegu
@@ -119,7 +120,8 @@ Game.tick()
 │   ├─ position = (x0, x1, y0, y1)
 │   ├─ collision.player_collision()         3 platformy
 │   ├─ collision.player_collision_check()   każdy kafelek stały (80)
-│   └─ collision.player_enemy_collision()
+│   ├─ collision.player_enemy_collision()
+│   └─ respawn_after_fall(), jeśli y > FALL_LIMIT_Y
 ├─ Weapon.tick()             y i box (x pochodzi z poprzedniego draw)
 ├─ Projectile.tick()         ruch pocisku, może też rysować
 ├─ Enemy.tick()
@@ -181,7 +183,7 @@ To najważniejsza sekcja przed wprowadzaniem zmian.
 Skutki:
 
 - Wyłączenie rysowania usuwa kolizje.
-- Przed pierwszym renderem kolizji nie ma (`GRID_boxes_coll_number == 0`, platformy to same zera).
+- Przed pierwszym renderem kolizji nie ma (`GRID_boxes_coll_number == 0`, platformy to same zera). Dlatego `Game.run` zeruje zegar tuż przed pętlą (R-02).
 - `player_checkpoint` też zmienia się tylko w `grid()`, czyli najwyżej raz na klatkę.
 
 ### 6.2. Inne dane logiczne zmieniane w rysowaniu
@@ -287,7 +289,8 @@ Stan jest rozproszony i nie ma jednej struktury opisującej „aktualną grę”
 | Pocisk | `Weapon.fire`, `Projectile.pos`, `vel`, `projectileRight`, `projectileLeft` |
 | Mapa | `GameMap.player_checkpoint`, `GRID_boxes_coll` |
 | Kamera | `PhysicsEngine.true_scroll` i 7 kopii `scroll` |
-| Wynik, życie, tryb gry | brak |
+| Życie i odrodzenie | `Player.lives`, `Player.spawn_pos` |
+| Wynik, tryb gry | brak |
 
 ## 10. Martwy kod
 
@@ -309,6 +312,7 @@ Lista dla pól opiera się na nazwach. Atrybut uznany za czytany w jednym miejsc
 | Chcę... | Na co uważać |
 |---|---|
 | Dodać obiekt świata z `scroll` | Dopisz go w `PhysicsEngine.set_scroll`. |
+| Zmienić punkt odrodzenia | `respawn_after_fall` ustawia `player_checkpoint = 0`, co pasuje tylko do obecnego startu `(640, 170)`. |
 | Wyłączyć rysowanie mapy lub platform | Zniknie kolizja. Najpierw wydziel budowę geometrii. |
 | Zmienić wymiary gracza lub przeciwnika | Margines 12 px i przesunięcia sprite'ów są zakodowane na stałe. |
 | Dodać drugiego przeciwnika | `Game`, `CollisionManager` i `set_scroll` zakładają jednego. |
