@@ -15,7 +15,7 @@ To smoke-test without a window or audio device, set `SDL_VIDEODRIVER=dummy SDL_A
 
 Dependencies are `pygame` and `numpy`. The working `venv/` (gitignored) is Python 3.12 with pygame 2.5.2, while the `Pipfile` still pins Python 3.8 and `platformer_game/requirements.txt` is empty. The venv has `include-system-site-packages = true`, so packages from the base asdf Python (such as `matplotlib` and `PIL`) are importable and a missing dependency can go unnoticed.
 
-There are no tests, linter, or build config. `src/main.spec` (PyInstaller) is stale: it has a hardcoded Linux path and bundles no assets.
+The only automated tests are the process-exit checks in `tests/test_shutdown.py` (standard library `unittest`, because `pytest` isn't installed). Run them from the repo root with `venv/bin/python -B -m unittest discover -s tests -v`; `-B` avoids creating `__pycache__`. There is no linter or build config. `src/main.spec` (PyInstaller) is stale: it has a hardcoded Linux path and bundles no assets.
 
 ## Architecture
 
@@ -46,7 +46,7 @@ Check these before building on them:
 
 ### Error visibility
 
-`Game.run` catches every `Exception` in the loop, prints a single line without a traceback, and exits normally. To debug a crash, temporarily remove that handler or call `traceback.print_exc()` in it.
+`Game.run` catches every `Exception` in the loop, logs the full traceback to stderr with `logging.exception`, and exits with code 1. Esc and closing the window exit with code 0 through `sys.exit(0)`, which that handler doesn't catch. No log file is written yet, so a build without a console would still hide errors (see R-37 in `docs/ROADMAP.md`).
 
 ### Known runtime issues
 

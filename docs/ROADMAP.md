@@ -1,6 +1,6 @@
 # Plan rozwoju
 
-> Oparte na ustaleniach z [TECHNICAL_AUDIT.md](TECHNICAL_AUDIT.md) (identyfikatory `BUG-xx`, `ARCH-xx`, `ENV-xx`). Złożoność i ryzyko to oceny szacunkowe, nie pomiary. Priorytet określa kolejność prac i może różnić się od wagi błędu w audycie, co pokazuje [TECHNICAL_AUDIT.md §10](TECHNICAL_AUDIT.md#10-powiązanie-z-planem-rozwoju). Żadne zadanie nie jest jeszcze wykonane. Ścieżki są względem `platformer_game/`, o ile nie zaznaczono inaczej.
+> Oparte na ustaleniach z [TECHNICAL_AUDIT.md](TECHNICAL_AUDIT.md) (identyfikatory `BUG-xx`, `ARCH-xx`, `ENV-xx`). Złożoność i ryzyko to oceny szacunkowe, nie pomiary. Priorytet określa kolejność prac i może różnić się od wagi błędu w audycie, co pokazuje [TECHNICAL_AUDIT.md §10](TECHNICAL_AUDIT.md#10-powiązanie-z-planem-rozwoju). Wykonane zadania: R-03. Pozostałe są otwarte. Ścieżki są względem `platformer_game/`, o ile nie zaznaczono inaczej.
 
 ## Główna decyzja
 
@@ -70,6 +70,7 @@ R-06 ──┼──────────────────────
 
 ### R-03 — Pokazywać błędy zamiast je ukrywać
 
+- **Status:** ✅ Wykonane i zweryfikowane bez okna. Błąd w pętli drukuje pełny ślad stosu i kończy proces kodem 1, a `Esc` i zamknięcie okna kończą go kodem 0 (`tests/test_shutdown.py`). Nie sprawdzono tego w prawdziwym oknie `[NIEZWERYFIKOWANE]`. Wersji spakowanej jeszcze nie ma, więc zapis do pliku logu pozostaje do wykonania w ramach R-37.
 - **Problem:** `except Exception` drukuje jedną linię i kończy się kodem 0 (BUG-03).
 - **Dlaczego ważne:** To warunek skutecznego usuwania wszystkich pozostałych błędów.
 - **Rozwiązanie:** `logging.exception(...)` z pełnym śladem, następnie `sys.exit(1)`. W wersji spakowanej zapis do pliku logu.
@@ -83,7 +84,7 @@ R-06 ──┼──────────────────────
 
 - **Problem:** `.gitignore` z szablonu JavaScript, 11 śledzonych `.pyc`, dwa katalogi `.idea`, `dev` za `main`, przestarzały `working` (ENV-05, ENV-07).
 - **Dlaczego ważne:** Commity zaczną odzwierciedlać tylko faktyczne zmiany.
-- **Rozwiązanie:** Dopisać `__pycache__/`, `*.pyc`, `venv/`, `dist/`, `build/`. Wykonać `git rm -r --cached` dla `.pyc` i `.idea`. Zmergować `main` do `dev`. Ocenić 2 commity z `working`, zanim gałąź zostanie usunięta. Dodać `CLAUDE.md` i `docs/` do repozytorium, bo `CLAUDE.md` odsyła do tych dokumentów.
+- **Rozwiązanie:** Dopisać `__pycache__/`, `*.pyc`, `venv/`, `dist/`, `build/`. Wykonać `git rm -r --cached` dla `.pyc` i `.idea`. Zmergować `main` do `dev`. Ocenić 2 commity z `working`, zanim gałąź zostanie usunięta.
 - **Pliki:** `.gitignore`, `platformer_game/__pycache__/`, `.idea/`, `platformer_game/.idea/`
 - **Złożoność:** Niska · **Ryzyko regresji:** Niskie · **Priorytet:** Wysoki
 - **Zależności:** Brak.

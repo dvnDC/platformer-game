@@ -1,6 +1,6 @@
 # Architektura
 
-> Opis stanu faktycznego (commit `2d51b48`, gałąź `dev`), a nie stanu docelowego. Docelowe zmiany są w [ROADMAP.md](ROADMAP.md). Ścieżki są podawane względem `platformer_game/`. Znaczniki `[KOD]`, `[TEST]` itd. objaśnia [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).
+> Opis stanu faktycznego (commit `2d51b48`, gałąź `dev`, uzupełniony o zmianę R-03), a nie stanu docelowego. Docelowe zmiany są w [ROADMAP.md](ROADMAP.md). Ścieżki są podawane względem `platformer_game/`. Znaczniki `[KOD]`, `[TEST]` itd. objaśnia [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).
 
 ## 1. Obraz ogólny
 
@@ -32,7 +32,7 @@ Manager    (+grid)                                                  (kamera)
 ## 2. Punkt wejścia i importy
 
 1. `python -m src.main` importuje najpierw `src/__init__.py`, który wykonuje `from .core import *` i podobnie dla `entities`, `ui`, `world`. Oznacza to załadowanie niemal całego kodu.
-2. `src/game.py` przy imporcie woła `pygame.display.set_caption(...)` (linia 18), czyli ma efekt uboczny jeszcze przed `pygame.init()`. W pygame 2.5.2 działa to bez błędu `[TEST]`.
+2. `src/game.py` przy imporcie woła `pygame.display.set_caption(...)` (linia 19), czyli ma efekt uboczny jeszcze przed `pygame.init()`. W pygame 2.5.2 działa to bez błędu `[TEST]`.
 3. `main()` tworzy `Game()` i woła `game.run()`.
 
 `config/` nie ma `__init__.py`. Działa jako *namespace package* tylko dlatego, że bieżący katalog to `platformer_game/` `[KOD]`.
@@ -72,7 +72,7 @@ Występują cykle logiczne: `Player → CollisionManager → Player`, `Player �
 
 `Game.__init__` wykonuje kolejno `initialize_audio()`, `initialize_screen()` i `initialize_game_components()`. Mikser startuje więc przed `pygame.init()`.
 
-Komponenty powstają w tej kolejności (`src/game.py:54-66`):
+Komponenty powstają w tej kolejności (`src/game.py:55-67`):
 
 | # | Pole | Klasa | Dlaczego kolejność ma znaczenie |
 |---|---|---|---|
@@ -91,7 +91,7 @@ Komponenty powstają w tej kolejności (`src/game.py:54-66`):
 
 ## 4. Pętla gry
 
-`Game.run()` (`src/game.py:69-88`):
+`Game.run()` (`src/game.py:70-90`):
 
 ```text
 dopóki True:
@@ -107,7 +107,7 @@ Cechy tej pętli:
 - **Logika** ma stały krok 100 ticków na sekundę (`TPS_MAX`). Bez okna zmierzono 100 TPS przy ~63 FPS `[TEST]`.
 - **Rysowanie** nie ma limitu w kodzie i zajmuje cały dostępny czas `[KOD]`. `clock.tick()` jest wołane bez argumentu, a kod nie włącza vsync. Zachowania w prawdziwym oknie nie sprawdzono `[NIEZWERYFIKOWANE]`.
 - **Nadrabianie** nie ma górnego limitu, więc po długim zatrzymaniu procesu wykona się wiele ticków naraz `[KOD]`.
-- **Wyjątki:** cała pętla jest w `try/except Exception`. Po błędzie drukowana jest jedna linia, a proces kończy się kodem 0 `[TEST]`.
+- **Wyjątki:** cała pętla jest w `try/except Exception`. Po błędzie `logging.exception` drukuje pełny ślad stosu na stderr, a proces kończy się kodem 1 `[TEST]`. `Esc` i zamknięcie okna wołają `sys.exit(0)`, a `SystemExit` nie jest przechwytywany przez ten blok, więc dają kod 0 `[TEST]`.
 
 ### Kolejność w jednym ticku
 
@@ -314,7 +314,7 @@ Lista dla pól opiera się na nazwach. Atrybut uznany za czytany w jednym miejsc
 | Dodać drugiego przeciwnika | `Game`, `CollisionManager` i `set_scroll` zakładają jednego. |
 | Włączyć kulę ognia | Najpierw napraw licznik czasu, inaczej gra się wywróci. |
 | Przyspieszyć rysowanie | Najpierw napraw wyciek i animacje zależne od FPS ([ROADMAP.md](ROADMAP.md)). |
-| Debugować crash | Tymczasowo dodaj `traceback.print_exc()` w `Game.run`, bo domyślnie zostaje tylko jedna linia komunikatu. |
+| Debugować crash | Przeczytaj ślad stosu na stderr. Kod wyjścia 1 oznacza nieoczekiwany błąd, a 0 normalne zamknięcie. |
 | Uruchomić grę w testach | Ustaw katalog roboczy na `platformer_game/` oraz sterowniki `dummy`. Klawisze można podstawić przez `pygame.key.get_pressed`. |
 
 ## 12. Czy architektura wspiera rozbudowę

@@ -119,7 +119,7 @@ Centralny menedżer zasobów z bezwzględnymi ścieżkami, `convert_alpha`, mani
 | ARCH-06 | Dane poziomu w kodzie: siatka jako literał bez stałej pozycji w świecie, platformy jako algorytm, kamienie jako wzór. Trzy osobne modele świata `[KOD]` | Wysoka | `src/world/game_map.py:25-37,46-48`, `src/world/platform_manager.py:34-47` | Projektowanie poziomów oznacza edycję kodu, a platformy się nie powtarzają | R-14 |
 | ARCH-07 | Magiczne liczby: 3840, 2560, 1280, 640, 170, 80, 12, 70, a parametry fizyki poza `settings.py` `[KOD]` | Średnia | Całe `src/`, `config/settings.py` | Trudne strojenie, łatwo o rozjazd wartości | R-11 |
 | ARCH-08 | Kamera rozsyłana do 7 obiektów, `scroll.y` liczony bez użycia `[KOD]` | Średnia | `src/core/physics_engine.py:23-37`, metody `draw` | Łatwo zapomnieć o nowym obiekcie, brak kamery pionowej | R-17 |
-| ARCH-09 | Efekty uboczne importu (`set_caption`), `import *` w `src/__init__.py`, `config` bez `__init__.py`, globalne `time0` w 3 modułach `[KOD]` | Średnia | `src/game.py:18`, `src/__init__.py`, `src/entities/player.py:6`, `enemy.py:7`, `projectile.py:5` | Trudniejsze testy i pakowanie, ukryty stan globalny | R-06, R-10, R-25 |
+| ARCH-09 | Efekty uboczne importu (`set_caption`), `import *` w `src/__init__.py`, `config` bez `__init__.py`, globalne `time0` w 3 modułach `[KOD]` | Średnia | `src/game.py:19`, `src/__init__.py`, `src/entities/player.py:6`, `enemy.py:7`, `projectile.py:5` | Trudniejsze testy i pakowanie, ukryty stan globalny | R-06, R-10, R-25 |
 | ARCH-10 | Mylące nazwy: `PhysicsEngine` (kamera), `GameEngine` (FPS), `game.fire` a `weapon.fire`, `pos` a `position`, `colum`, `position_multiplayer`; mieszane style nazw `[KOD]` | Średnia | `src/core/`, `src/entities/`, `src/ui/menu.py`, `src/world/game_map.py` | Kod wprowadza w błąd przy czytaniu | Zmieniać nazwy przy refaktoryzacji w R-12 do R-17 |
 | ARCH-11 | 205 z ~1430 linii to komentarze, głównie stary kod. `enemy.py` ma ich 55% `[TEST]` | Niska | `src/entities/enemy.py:88-166`, `src/world/game_map.py:87-104`, `src/ui/sprite_manager.py:78-98` | Szum podczas czytania i wyszukiwania | R-10 |
 | ARCH-12 | Zduplikowane fragmenty: `grid()` × 2, `grid_static` × 2, `collision`, `collision_grid`, `collision_enemy`, gałęzie prawo/lewo `[KOD]` | Średnia | `src/world/game_map.py`, `src/ui/menu.py`, `src/core/collision_manager.py`, `src/entities/player.py` | Niepewność, która wersja obowiązuje, poprawki w wielu miejscach | R-10, R-13 |
@@ -148,9 +148,10 @@ Waga: **Krytyczna** blokuje normalne używanie, **Wysoka** wyraźnie psuje grę 
 
 ### BUG-03 — Wyjątki w pętli są połykane
 
+- **Status:** ✅ Naprawione w R-03. Opis poniżej dotyczy stanu z audytu. Teraz `logging.exception` drukuje pełny ślad stosu na stderr, a proces kończy się kodem 1 `[TEST]`. Normalne wyjście (`Esc`, zdarzenie zamknięcia okna) nadal daje kod 0 `[TEST]`.
 - **Opis:** `except Exception` drukuje jedną linię, bez typu i śladu stosu. Proces kończy się kodem 0.
 - **Waga:** Wysoka `[TEST]`
-- **Pliki i metody:** `src/game.py:87-88`, `Game.run`
+- **Pliki i metody:** `src/game.py:88-90`, `Game.run`
 - **Skutki:** Crash wygląda jak normalne zamknięcie. Po spakowaniu z `console=False` nie zostanie żaden ślad.
 - **Rozwiązanie:** `traceback.print_exc()` lub `logging.exception`, potem kod wyjścia różny od 0. Plik logu w wersji spakowanej.
 
@@ -185,7 +186,7 @@ Waga: **Krytyczna** blokuje normalne używanie, **Wysoka** wyraźnie psuje grę 
 
 - **Opis:** `runCount` rośnie w `draw`, a resetuje się w `tick`. `clock.tick()` jest bez limitu.
 - **Waga:** Wysoka `[TEST]`, `[KOD]`
-- **Pliki i metody:** `src/entities/player.py:133-134,154-162`, `src/game.py:80`
+- **Pliki i metody:** `src/entities/player.py:133-134,154-162`, `src/game.py:81`
 - **Skutki:** Tempo animacji zależy od sprzętu. Render zajmuje cały dostępny czas `[KOD]`, co przy prawdziwym oknie powinno oznaczać duże obciążenie rdzenia `[ZAŁOŻENIE]`. Przy ≥ 11 rysowaniach na tick (ok. 1100 FPS) pojawia się `IndexError`, potwierdzony przez 11 kolejnych `render()`. Przy ~63 FPS zmierzonych bez okna to nierealne, ale po optymalizacji ryzyko rośnie.
 - **Rozwiązanie:** Liczniki animacji w `tick()`, `clock.tick(60)` lub vsync.
 
@@ -257,7 +258,7 @@ Waga: **Krytyczna** blokuje normalne używanie, **Wysoka** wyraźnie psuje grę 
 
 - **Opis:** `while tps_delta > 1 / tps_max` nie ma górnej granicy.
 - **Waga:** Niska `[KOD]`
-- **Pliki i metody:** `src/game.py:80-83`
+- **Pliki i metody:** `src/game.py:81-84`
 - **Skutki:** Po 60 s zatrzymania ok. 6000 ticków naraz, czyli ok. 0,5 s zamrożenia przy obecnym koszcie `[WYLICZONE]`. Świat „przeskakuje” o 60 s bez rysowania i odświeżania danych zależnych od renderu.
 - **Rozwiązanie:** Ograniczyć `tps_delta`, np. do 0,25 s.
 
@@ -302,7 +303,7 @@ Waga: **Krytyczna** blokuje normalne używanie, **Wysoka** wyraźnie psuje grę 
 | ENV-03 | numpy tylko do `zeros((10, 4))` w `platform_manager.py`, nadpisanego pola w `menu.py` i nieużywanego importu `[KOD]` | Niska | Większy plik wynikowy | Usunąć zależność |
 | ENV-04 | Spec PyInstallera nieaktualny (szczegóły w §6) | Średnia | Budowa nie zadziała | Nowy spec |
 | ENV-05 | `.gitignore` to szablon JavaScript, bez Pythona. 11 plików `.pyc` z 3.8 śledzonych w git. `.idea` śledzone w dwóch miejscach mimo wpisu w ignorowanych `[TEST]` | Średnia | Szum w statusie, ryzyko zatwierdzania śmieci | Nowy `.gitignore`, `git rm --cached` |
-| ENV-06 | Brak testów, lintera, formatera, CI i `pyproject.toml` `[KOD]` | Wysoka | Każda zmiana ryzykuje regresję | pytest, ruff, GitHub Actions |
+| ENV-06 | Brak lintera, formatera, CI i `pyproject.toml`. Testy obejmują tylko kody wyjścia procesu (`tests/test_shutdown.py`), a nie rozgrywkę `[KOD]` | Wysoka | Każda zmiana ryzykuje regresję | pytest, ruff, GitHub Actions |
 | ENV-07 | README na `dev` linkuje do nieistniejącego GIF-a. `dev` jest 4 commity za `main`, a `working` jest przestarzały `[TEST]` | Niska | Bałagan w gałęziach | Zmergować `main` do `dev`, ocenić `working` |
 | ENV-08 | Licencja: `license.txt` nie określa zakresu. Brak informacji o postaciach, muzyce, czcionce i brak licencji samego kodu `[NIEZWERYFIKOWANE]` | Średnia, wysoka przy publikacji | Ryzyko prawne przy dystrybucji | Spis źródeł, wymiana niepewnych zasobów, plik `LICENSE` |
 | ENV-09 | Zasoby bez rozszerzeń, nieużywane i zduplikowane (§3) | Niska | Większe repozytorium i paczka | Porządki po potwierdzeniu |
@@ -324,7 +325,7 @@ Waga: **Krytyczna** blokuje normalne używanie, **Wysoka** wyraźnie psuje grę 
 | `pathex=['/home/dvn/PycharmProjects/platformer_game']` | Sztywna ścieżka z innego komputera `[KOD]` |
 | `Analysis(['main.py'])` z `src/` | Skrypt importuje `src.game`, więc `platformer_game/` musi być na ścieżce. Bez poprawnego `pathex` analiza nie znajdzie pakietu `[ZAŁOŻENIE]` |
 | `datas=[]` | Brak zasobów w paczce `[KOD]` |
-| `console=False` | W połączeniu z `Game.run` błędy będą całkowicie niewidoczne `[KOD]` |
+| `console=False` | `Game.run` wypisuje błędy na stderr, więc bez konsoli i bez pliku logu pozostaną niewidoczne `[ZAŁOŻENIE]` |
 | `upx=True` | UPX nie jest zainstalowany `[TEST]`; efekt przy budowie nie był sprawdzany |
 | `block_cipher`, `cipher`, `win_*` | Parametry ze starych wersji PyInstallera, nowsze wersje mogą je odrzucać `[ZAŁOŻENIE]` |
 
@@ -368,6 +369,8 @@ Tabela pokazuje wynik sprawdzenia pierwotnej wersji `CLAUDE.md`. Prawie wszystki
 
 ## 8. Ocena ogólna
 
+Oceny opisują stan z audytu (commit `2d51b48`) i nie były zmieniane po R-03. Uzasadnienia wspominające o połykaniu wyjątków lub braku testów dotyczą tego stanu.
+
 | Obszar | Ocena | Uzasadnienie |
 |---|---|---|
 | Architektura | **3/10** | Czytelny podział katalogów i stały krok logiki. Ale service locator, logika zależna od rysowania, brak scen i encji oraz cykle zależności. |
@@ -387,7 +390,7 @@ Tabela pokazuje wynik sprawdzenia pierwotnej wersji `CLAUDE.md`. Prawie wszystki
 | Crash | `IndexError` animacji biegu (BUG-07), kula ognia (BUG-08), martwe funkcje (BUG-19), brak pliku grafiki (ślad stosu, kod 1) `[TEST]` |
 | Zawieszenie | `handle_jump` (BUG-15), nadrabianie (BUG-16) |
 | Soft-lock | Dziura (BUG-02) |
-| Nieoczekiwane zakończenie | Każdy wyjątek w pętli daje cichy kod 0 (BUG-03) |
+| Nieoczekiwane zakończenie | Każdy wyjątek w pętli kończy grę, ale od R-03 ze śladem stosu i kodem 1 (BUG-03, naprawione) |
 | Niespójności | Grawitacja, ścieżki, trzy modele świata, dwa loadery, dwa miejsca `WIDTH`/`HEIGHT` |
 
 ## 10. Powiązanie z planem rozwoju
@@ -398,7 +401,7 @@ Każde ustalenie ma zadanie w [ROADMAP.md](ROADMAP.md). Waga opisuje skutek prob
 |---|---|---|---|
 | BUG-01 | Krytyczna | R-01 | Krytyczny |
 | BUG-02 | Krytyczna | R-02, później R-20 | Krytyczny, Wysoki |
-| BUG-03 | Wysoka | R-03 | Krytyczny |
+| BUG-03 (naprawione) | Wysoka | R-03 (wykonane) | Krytyczny |
 | BUG-04 | Wysoka | R-09 | Wysoki |
 | BUG-05, BUG-06 | Wysoka | R-13 | Wysoki |
 | BUG-07 | Wysoka | R-08 | Wysoki |

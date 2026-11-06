@@ -1,6 +1,6 @@
 # Przegląd projektu
 
-> Stan na: 2026-11-06, gałąź `dev`, commit `2d51b48` („Changing the structure of the application”, 2024-08-28).
+> Stan na: 2026-11-06, gałąź `dev`, HEAD `ec06314` („Add Cloude docs”). Kod i zasoby przeanalizowano w commicie `2d51b48` („Changing the structure of the application”, 2024-08-28), a `ec06314` dodał tylko `CLAUDE.md` i `docs/`.
 > Dokument opisuje to, co faktycznie jest w kodzie. Szczegóły: [ARCHITECTURE.md](ARCHITECTURE.md), [GAMEPLAY.md](GAMEPLAY.md), [TECHNICAL_AUDIT.md](TECHNICAL_AUDIT.md), [ROADMAP.md](ROADMAP.md).
 
 ## Oznaczenia wiarygodności
@@ -19,7 +19,7 @@ We wszystkich dokumentach stosowane są te same znaczniki:
 
 ## Czym jest ta gra
 
-Dwuwymiarowa platformówka z przewijaniem w poziomie, napisana w Pythonie i pygame. Gracz steruje rycerzem, który biega po powtarzającym się w nieskończoność terenie, skacze na platformy i uderza mieczem nadchodzącego przeciwnika. Tytuł okna to „dvn's game” (`src/game.py:18`).
+Dwuwymiarowa platformówka z przewijaniem w poziomie, napisana w Pythonie i pygame. Gracz steruje rycerzem, który biega po powtarzającym się w nieskończoność terenie, skacze na platformy i uderza mieczem nadchodzącego przeciwnika. Tytuł okna to „dvn's game” (`src/game.py:19`).
 
 Grywalny jest na razie tylko **prototyp ruchu i walki**. Gra nie ma celu, punktacji, życia, przegranej, wygranej ani menu `[KOD]`. Jedyny stan porażki to wpadnięcie w dziurę, po którym postać spada bez końca, a gry w praktyce nie da się kontynuować bez ponownego uruchomienia `[TEST]`. Rzadki, przypadkowy wyjątek opisuje [GAMEPLAY.md](GAMEPLAY.md#dziury).
 
@@ -33,7 +33,8 @@ W stanie początkowym ekran wygląda tak: rycerz stoi na trawie, nad nim są cze
 | pygame | 2.5.2 | `*` (`Pipfile`), 2.1.2 (`Pipfile.lock`) | Rozbieżność |
 | numpy | 1.26.2 | `*` (`Pipfile`), 1.22.1 (`Pipfile.lock`) | Realnie potrzebne tylko do jednego `zeros(...)` |
 | `requirements.txt` | — | pusty plik | Nieprzydatny |
-| Testy, linter, CI | brak | brak | |
+| Testy | `unittest` (biblioteka standardowa) | brak | Tylko kody wyjścia procesu, `tests/test_shutdown.py` |
+| Linter, CI | brak | brak | |
 | PyInstaller | niezainstalowany | `src/main.spec` nieaktualny | Patrz [TECHNICAL_AUDIT.md](TECHNICAL_AUDIT.md) |
 
 Kod liczy około 1430 linii Pythona w 21 plikach. Z tego 205 linii (14%) to same komentarze, głównie wyłączony stary kod `[TEST]` (analiza AST).
@@ -93,8 +94,9 @@ platformer-game/
 ├── README.md                 Krótki opis i animowany podgląd
 ├── Pipfile, Pipfile.lock     Nieaktualne deklaracje zależności (Python 3.8)
 ├── preview.gif               Podgląd używany przez README na gałęzi main (3,9 MB)
-├── CLAUDE.md                 Notatki techniczne dla asystenta (nieskomitowany)
+├── CLAUDE.md                 Notatki techniczne dla asystenta
 ├── docs/                     Ta dokumentacja
+├── tests/                    Testy kodów wyjścia procesu (test_shutdown.py)
 ├── venv/                     Działające środowisko (ignorowane przez własny .gitignore)
 ├── .idea/                    Ustawienia PyCharm (śledzone mimo wpisu w .gitignore)
 └── platformer_game/          Katalog roboczy gry
@@ -137,11 +139,11 @@ Licencja: `assets/images/license.txt` mówi o CC0 i autorze Luisie Zuno (ansimuz
 
 ## Stan repozytorium
 
-- `dev` i `main` zawierają ten sam kod. `main` wyprzedza `dev` o 4 commity, w tym merge'e, a jedyna różnica w plikach to link do GIF-a w `README.md`.
+- W commitach `dev` i `main` zawierają ten sam kod. `main` ma 4 commity, których nie ma `dev`, w tym merge'e, a `dev` ma 1 commit, którego nie ma `main` (`ec06314`, jeszcze niewypchnięty na `origin/dev`). Różnice w plikach to link do GIF-a w `README.md` oraz `CLAUDE.md` i `docs/`, obecne tylko na `dev`.
 - README na `dev` wskazuje plik `Screen Recording 2023-06-05...gif`, którego nie ma w repozytorium. Na `main` link prowadzi do `preview.gif`.
-- Gałąź `working` ma 2 commity, których nie ma w `dev`, i jest 17 commitów za `dev`.
-- Niezapisane w commitach: zmiany w `.idea/`, `CLAUDE.md`, `docs/`, katalogi `__pycache__`.
-- Historia sięga 2020-08-17 i liczy 74 commity na gałęzi `dev`. Ostatni commit kodu pochodzi z 2024-08-28.
+- Gałąź `working` ma 2 commity, których nie ma w `dev`, i jest 18 commitów za `dev`.
+- Niezapisane w commitach: zmiany w `.idea/`, katalogi `__pycache__`, implementacja R-03 (`src/game.py`, `tests/`) oraz późniejsze zmiany w `CLAUDE.md` i `docs/`.
+- Historia sięga 2020-08-17 i liczy 75 commitów na gałęzi `dev`. Ostatni commit kodu pochodzi z 2024-08-28.
 
 ## Najważniejsze wnioski
 

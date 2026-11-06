@@ -1,3 +1,4 @@
+import logging
 import sys
 import pygame
 from pygame.math import Vector2
@@ -84,8 +85,9 @@ class Game:
 
                 # Rendering
                 self.render()  # Render the game state
-        except Exception as e:
-            print(f"An error occurred during the game loop: {e}")
+        except Exception:
+            logging.exception("An error occurred during the game loop")
+            sys.exit(1)
 
     def tick(self):
         self.player.tick()
