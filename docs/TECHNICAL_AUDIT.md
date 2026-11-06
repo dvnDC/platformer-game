@@ -16,7 +16,7 @@ W niektórych testach, wyłącznie w pamięci procesu, zmieniano stan gry: telep
 - Jeden komputer (macOS, Python 3.12.0, pygame 2.5.2), sterownik `dummy`. `display.flip()` nie ma tu realnego kosztu, więc FPS z prawdziwym oknem będzie inny `[NIEZWERYFIKOWANE]`.
 - Nie grano ręcznie i nie oceniono „wyczucia” sterowania.
 - Nie sprawdzono Windows, Linuksa ani budowania PyInstallerem.
-- Wyciek pamięci obserwowano przez 30 s. Dłuższe wartości to ekstrapolacja.
+- Wyciek pamięci obserwowano przez 30 s. Dłuższe wartości to ekstrapolacja. Dotyczy to stanu sprzed R-01.
 
 ## 2. Podsumowanie pomiarów
 
@@ -31,6 +31,8 @@ W niektórych testach, wyłącznie w pamięci procesu, zmieniano stan gry: telep
 | Wzrost `GRID_position` | 880 krotek na klatkę, 1 658 800 po 30 s |
 | Maksymalne RSS | 144 MB (5 s) → 399 MB (30 s), ok. 10 MB/s |
 | Czas `render()` po `convert_alpha()` w pamięci | 2,37 ms (6,6× szybciej) |
+
+Wiersze o `GRID_position` i RSS opisują stan sprzed R-01. Pomiary po naprawie są przy [BUG-01](#bug-01--nieograniczony-wyciek-pamięci-w-grid_position).
 
 Szczegółowy czas części renderu:
 
@@ -132,11 +134,36 @@ Waga: **Krytyczna** blokuje normalne używanie, **Wysoka** wyraźnie psuje grę 
 
 ### BUG-01 — Nieograniczony wyciek pamięci w `GRID_position`
 
+- **Status:** ✅ Naprawione w R-01 i zweryfikowane bez okna. Opis i skutki poniżej to historia z audytu, a nie obecny kod. Lista, jej wypełnianie i tworzone tylko dla niej krotki zostały usunięte. W porównaniu skryptowym 1690 kroków zgadzały się sumy kontrolne każdej klatki (bez licznika FPS), pola kolizji oraz stan gracza i przeciwnika `[TEST]`. Przechodzi 26 testów `[TEST]`. Pomiary i ograniczenia są pod opisem błędu.
 - **Opis:** `GameMap.grid()` dopisuje krotki do `GRID_position` w każdej klatce i nigdy nie czyści listy. Nic jej nie czyta. Kafelki `1` są dopisywane podwójnie, więc wychodzi 880 elementów na klatkę.
 - **Waga:** Krytyczna `[TEST]`
 - **Pliki i metody:** `src/world/game_map.py:23,154,161,163`, `GameMap.grid`
 - **Skutki:** ok. 162 KB/klatkę, czyli ~10 MB/s przy 63 FPS. Przy tym tempie 8 GB pamięci wyczerpuje się w ok. 13 minut `[WYLICZONE]`. Co się stanie potem (swap, zabicie procesu), nie sprawdzano. Tempo rośnie z FPS.
 - **Rozwiązanie:** Usunąć listę i wszystkie jej wypełnienia.
+
+**Pomiar przed i po R-01** `[TEST]` (sterownik `dummy`, macOS, ten sam komputer, ok. 60 FPS w obu wersjach). Ponowny pomiar wersji sprzed naprawy potwierdził wynik audytu (146 → 388 MB wobec 144 → 399 MB).
+
+| Pomiar | Przed | Po |
+|---|---|---|
+| Maksymalne RSS, 5 s | 146,2 MB | 94,4 MB |
+| Maksymalne RSS, 30 s | 388,4 MB | 94,0 MB |
+| Maksymalne RSS, 60 s ze sterowaniem | 677,3 MB | 93,2 MB |
+| Maksymalne RSS, 300 s (18 011 klatek) | nie mierzono | 93,4 MB, bez zmian od 5. sekundy |
+| Elementy `GRID_position` po 30 s | 1 589 280 | pole nie istnieje |
+| Pamięć zatrzymana przez `grid()` (`tracemalloc`) | 155 776 B na wywołanie | 577 B łącznie po 6100 wywołaniach |
+
+Stałe RSS nie oznacza, że cała pamięć jest stała. Te trzy kategorie trzeba rozróżniać:
+
+- **Zatrzymana przez aplikację:** w 60-sekundowym przebiegu pełnej pętli przybyło 8,8 KB na 2603 klatki, bez samego skryptu pomiarowego. Większość to kompilacja filtrów `tracemalloc` (`_compiler`, `fnmatch`), a 3,4 KB przypada na `GameEngine.render`. W osobnym teście `display_fps()` wzrost wygasał (2,4 KB po 51 000 wywołań). Nie ma tu wzrostu zbliżonego do wycieku, ale nie wykazano też dokładnie zerowego przyrostu.
+- **Tymczasowa:** `grid()` nadal tworzy w każdej klatce ok. 800 nieużywanych `Rect` (R-33), zwalnianych od razu, oraz 80 krotek kolizji, które zastępują krotki z poprzedniej klatki. Szczyt jednego wywołania to ok. 0,5 KB ponad stan początkowy. Te `Rect` mogą kosztować czas CPU, ale nie mierzono tego osobno.
+- **Zarezerwowana przez Pythona, pygame i system:** z ok. 94 MB RSS areny alokatora Pythona zajmują 10 MiB (9,7 MB w użyciu). Pozostałe ok. 84 MB to pamięć poza tymi arenami, m.in. biblioteki i powierzchnie SDL. Nie rozdzielono jej dokładniej.
+
+**Ograniczenia:**
+
+- Nie sprawdzono prawdziwego okna, dźwięku ani ręcznej gry `[NIEZWERYFIKOWANE]`.
+- Przebiegi 5-minutowe odbyły się bez okna i przy stojącym graczu. Ze sterowaniem skryptowym gra działała tylko 60 s.
+- W tym 60-sekundowym przebiegu RSS spadło po ok. 42 s z 93,2 do 64,2 MB i już tak zostało. Przyczyny nie ustalono, więc nie jest to potwierdzona poprawa `[NIEZWERYFIKOWANE]`.
+- `Menu.GRID_position` to osobna lista, której R-01 nie zmieniło. Jedyne wywołanie `Menu.draw()` w grze jest zakomentowane (`src/game.py:106`) `[KOD]`, a w 100 klatkach metoda nie została wywołana ani razu `[TEST]`, więc podczas gry lista nie rośnie. Wywołanie ręczne dopisuje 43 krotki i kończy się `AttributeError` `[TEST]`. Lista nie jest czyszczona, więc po naprawieniu i włączeniu menu rosłaby z każdą klatką `[KOD]`.
 
 ### BUG-02 — Wpadnięcie w dziurę kończy grę bez wyjścia
 
@@ -303,7 +330,7 @@ Waga: **Krytyczna** blokuje normalne używanie, **Wysoka** wyraźnie psuje grę 
 | ENV-03 | numpy tylko do `zeros((10, 4))` w `platform_manager.py`, nadpisanego pola w `menu.py` i nieużywanego importu `[KOD]` | Niska | Większy plik wynikowy | Usunąć zależność |
 | ENV-04 | Spec PyInstallera nieaktualny (szczegóły w §6) | Średnia | Budowa nie zadziała | Nowy spec |
 | ENV-05 | `.gitignore` to szablon JavaScript, bez Pythona. 11 plików `.pyc` z 3.8 śledzonych w git. `.idea` śledzone w dwóch miejscach mimo wpisu w ignorowanych `[TEST]` | Średnia | Szum w statusie, ryzyko zatwierdzania śmieci | Nowy `.gitignore`, `git rm --cached` |
-| ENV-06 | Brak lintera, formatera, CI i `pyproject.toml`. Testy obejmują tylko kody wyjścia procesu (`tests/test_shutdown.py`), a nie rozgrywkę `[KOD]` | Wysoka | Każda zmiana ryzykuje regresję | pytest, ruff, GitHub Actions |
+| ENV-06 | Brak lintera, formatera, CI i `pyproject.toml`. Testy obejmują kody wyjścia procesu (`tests/test_shutdown.py`) oraz `GameMap`, kolizje podłoża i lądowanie (`tests/test_game_map.py`), ale nie bieg, skok ani walkę `[KOD]` | Wysoka | Każda zmiana ryzykuje regresję | pytest, ruff, GitHub Actions |
 | ENV-07 | README na `dev` linkuje do nieistniejącego GIF-a. `dev` jest 4 commity za `main`, a `working` jest przestarzały `[TEST]` | Niska | Bałagan w gałęziach | Zmergować `main` do `dev`, ocenić `working` |
 | ENV-08 | Licencja: `license.txt` nie określa zakresu. Brak informacji o postaciach, muzyce, czcionce i brak licencji samego kodu `[NIEZWERYFIKOWANE]` | Średnia, wysoka przy publikacji | Ryzyko prawne przy dystrybucji | Spis źródeł, wymiana niepewnych zasobów, plik `LICENSE` |
 | ENV-09 | Zasoby bez rozszerzeń, nieużywane i zduplikowane (§3) | Niska | Większe repozytorium i paczka | Porządki po potwierdzeniu |
@@ -365,11 +392,11 @@ Tabela pokazuje wynik sprawdzenia pierwotnej wersji `CLAUDE.md`. Prawie wszystki
 | `__pycache__` poza `.gitignore`, śledzone stare `.pyc` | ✅ 11 plików `[TEST]` |
 | Polskie komentarze | ✅ `[KOD]` |
 
-`CLAUDE.md` opisuje już także wyciek `GRID_position`, brak `convert_alpha`, `venv` z dostępem do pakietów systemowych, dziury bez odrodzenia oraz zmianę grawitacji po pierwszym skoku.
+`CLAUDE.md` opisuje już także naprawiony wyciek `GRID_position`, brak `convert_alpha`, `venv` z dostępem do pakietów systemowych, dziury bez odrodzenia oraz zmianę grawitacji po pierwszym skoku.
 
 ## 8. Ocena ogólna
 
-Oceny opisują stan z audytu (commit `2d51b48`) i nie były zmieniane po R-03. Uzasadnienia wspominające o połykaniu wyjątków lub braku testów dotyczą tego stanu.
+Oceny opisują stan z audytu (commit `2d51b48`) i nie były zmieniane po R-03 ani R-01. Uzasadnienia wspominające o połykaniu wyjątków, wycieku lub braku testów dotyczą tego stanu.
 
 | Obszar | Ocena | Uzasadnienie |
 |---|---|---|
@@ -385,7 +412,7 @@ Oceny opisują stan z audytu (commit `2d51b48`) i nie były zmieniane po R-03. U
 
 | Kategoria | Elementy |
 |---|---|
-| Wycieki pamięci | BUG-01, jedyny stwierdzony. Tymczasowe powierzchnie w `transform.scale` są zwalniane `[ZAŁOŻENIE]` |
+| Wycieki pamięci | BUG-01, jedyny stwierdzony, naprawiony w R-01. Osobna lista `Menu.GRID_position` nie rośnie podczas gry, bo menu nie jest wywoływane. Tymczasowe powierzchnie w `transform.scale` są zwalniane: pośrednio potwierdza to stałe RSS przez 5 minut bez okna `[TEST]` |
 | Wąskie gardła | Brak konwersji powierzchni, rysowanie poza ekranem (5 × 1280×720, 28 × 300×720), 800 nieużywanych `Rect` na klatkę |
 | Crash | `IndexError` animacji biegu (BUG-07), kula ognia (BUG-08), martwe funkcje (BUG-19), brak pliku grafiki (ślad stosu, kod 1) `[TEST]` |
 | Zawieszenie | `handle_jump` (BUG-15), nadrabianie (BUG-16) |
@@ -399,7 +426,7 @@ Każde ustalenie ma zadanie w [ROADMAP.md](ROADMAP.md). Waga opisuje skutek prob
 
 | Ustalenie | Waga | Zadanie | Priorytet zadania |
 |---|---|---|---|
-| BUG-01 | Krytyczna | R-01 | Krytyczny |
+| BUG-01 (naprawione) | Krytyczna | R-01 (wykonane) | Krytyczny |
 | BUG-02 | Krytyczna | R-02, później R-20 | Krytyczny, Wysoki |
 | BUG-03 (naprawione) | Wysoka | R-03 (wykonane) | Krytyczny |
 | BUG-04 | Wysoka | R-09 | Wysoki |

@@ -1,6 +1,6 @@
 # Plan rozwoju
 
-> Oparte na ustaleniach z [TECHNICAL_AUDIT.md](TECHNICAL_AUDIT.md) (identyfikatory `BUG-xx`, `ARCH-xx`, `ENV-xx`). Złożoność i ryzyko to oceny szacunkowe, nie pomiary. Priorytet określa kolejność prac i może różnić się od wagi błędu w audycie, co pokazuje [TECHNICAL_AUDIT.md §10](TECHNICAL_AUDIT.md#10-powiązanie-z-planem-rozwoju). Wykonane zadania: R-03. Pozostałe są otwarte. Ścieżki są względem `platformer_game/`, o ile nie zaznaczono inaczej.
+> Oparte na ustaleniach z [TECHNICAL_AUDIT.md](TECHNICAL_AUDIT.md) (identyfikatory `BUG-xx`, `ARCH-xx`, `ENV-xx`). Złożoność i ryzyko to oceny szacunkowe, nie pomiary. Priorytet określa kolejność prac i może różnić się od wagi błędu w audycie, co pokazuje [TECHNICAL_AUDIT.md §10](TECHNICAL_AUDIT.md#10-powiązanie-z-planem-rozwoju). Wykonane zadania: R-01, R-03. Pozostałe są otwarte. Ścieżki są względem `platformer_game/`, o ile nie zaznaczono inaczej.
 
 ## Główna decyzja
 
@@ -24,7 +24,7 @@ Etap 6 można w części realizować wcześniej. R-36 warto wyjaśnić, zanim w�
 
 | Zadanie | Wymaga | Powód |
 |---|---|---|
-| R-32 `convert_alpha` | R-01, R-08 | Wyższy FPS bez nich zwiększy wyciek ok. 6,6× i przyspieszy animację biegu, a przy dalszych zyskach zbliży grę do `IndexError` |
+| R-32 `convert_alpha` | R-08 (R-01 już wykonane) | Wyższy FPS bez R-08 przyspieszy animację biegu, a przy dalszych zyskach zbliży grę do `IndexError`. Listy `GRID_position` w `GameMap` już nie ma, więc nie rośnie ona szybciej z FPS |
 | R-13 kolizje | R-07, R-12 | Bez testów trudno sprawdzić, czy ruch nie zmienił się niezamierzenie, a bez R-12 geometria jest zależna od renderu |
 | R-14 model świata | R-12 | Dane mapy muszą być dostępne bez rysowania |
 | R-15 encje | R-13 | Wielu przeciwników wymaga bezstanowych kolizji |
@@ -52,6 +52,7 @@ R-06 ──┼──────────────────────
 
 ### R-01 — Usunąć wyciek pamięci w `GameMap.grid()`
 
+- **Status:** ✅ Wykonane i zweryfikowane bez okna. Pole `GRID_position` i wszystkie dopisywania zniknęły z `src/world/game_map.py`, także z martwej pierwszej definicji `grid()` i z `grid_static()`. Osobnej listy `Menu.GRID_position` to zadanie nie zmieniało. RSS przez 5 minut działania gry bez okna (18 011 klatek, gracz stoi) utrzymało się na ok. 93,4 MB, a ze sterowaniem skryptowym sprawdzono 60 s. W porównaniu skryptowym 1690 kroków zgadzały się sumy kontrolne każdej klatki (bez licznika FPS), pola kolizji oraz stan gracza i przeciwnika. Przechodzi 26 testów (`tests/test_game_map.py`, `tests/test_shutdown.py`), a wyniki pomiarów są przy [BUG-01](TECHNICAL_AUDIT.md#bug-01--nieograniczony-wyciek-pamięci-w-grid_position). Nie sprawdzono tego w prawdziwym oknie ani ręcznie `[NIEZWERYFIKOWANE]`. Nieużywany `box = pygame.Rect(...)` zostaje do R-33.
 - **Problem:** `GRID_position` rośnie o 880 elementów na klatkę, ok. 10 MB/s w pomiarze bez okna (BUG-01).
 - **Dlaczego ważne:** Każda dłuższa sesja wyczerpuje pamięć, a każdy zysk FPS przyspiesza wyciek.
 - **Rozwiązanie:** Usunąć pole i wszystkie dopisywania. Nieużywany `box = pygame.Rect(...)` należy do R-33.
@@ -318,7 +319,7 @@ Wzrost wydajności nie jest teraz najpilniejszy, bo w pomiarze bez okna gra osi�
 - **Rozwiązanie:** Po `set_mode()` `convert_alpha()` przy ładowaniu i `convert()` dla obrazów bez alfa.
 - **Pliki:** `src/ui/sprite_manager.py`
 - **Złożoność:** Niska · **Ryzyko regresji:** Niskie · **Priorytet:** Wysoki
-- **Zależności:** **Koniecznie po R-01 i R-08.**
+- **Zależności:** **Koniecznie po R-08.** R-01 jest już wykonane.
 
 ### R-33 — Pomijanie rysowania poza ekranem i porządki
 

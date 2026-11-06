@@ -20,7 +20,6 @@ class GameMap(object):
         self.GRID = self.initialize_grid()
         self.GRID_boxes_coll = [0] * (self.row * self.column)
         self.GRID_boxes_coll_number = 0
-        self.GRID_position = []
 
     def initialize_grid(self):
         # 0 free space  1 collision invisible 2 dirt box 3 grass box
@@ -130,8 +129,6 @@ class GameMap(object):
                 elif grid_value == 7:
                     self.game.screen.blit(self.game.sprite.backgroundImage3, (grid_x, grid_y))
 
-                self.GRID_position.append(positionbox)
-
     def grid(self):
         if self.game.player.pos.x > (3840 * (self.player_checkpoint+1) - 1280): ## 640 - player starting point
             self.player_checkpoint += 1
@@ -151,16 +148,10 @@ class GameMap(object):
                     self.game.screen.blit(self.game.sprite.imageGrid1, ((posX * column - self.scroll.x) + checkpoint, posY * row))
                     positionbox = (posX * column) + checkpoint, (posX * column + box_size) + checkpoint, posY * row, posY * row + box_size
 
-                    self.GRID_position.append(positionbox)
                     self.GRID_boxes_coll[self.GRID_boxes_coll_number] = positionbox
                     self.GRID_boxes_coll_number += 1
                 if self.GRID[row][column] == 7:
                     self.game.screen.blit(self.game.sprite.backgroundImage3, ((posX * column - self.scroll.x) + checkpoint, posY * row))
-                    positionbox = (posX * column) + checkpoint, (posX * column + box_size) + checkpoint, posY * row, posY * row + box_size
-
-                    self.GRID_position.append(positionbox)
-                else:
-                    self.GRID_position.append((posX * column, posX * column + box_size, posY * row, posY * row + box_size))
 
     def grid_static(self):
         posX = 80
@@ -174,17 +165,10 @@ class GameMap(object):
                 if self.GRID[row][column] == 1:
                     self.game.screen.blit(self.game.sprite.imageGrid1, ((posX * column - self.scroll.x), posY * row))
                     positionbox = (posX * column), (posX * column + box_size), posY * row, posY * row + box_size
-                    self.GRID_position.append(positionbox)
                     self.GRID_boxes_coll[self.GRID_boxes_coll_number] = positionbox
                     self.GRID_boxes_coll_number += 1
                 if self.GRID[row][column] == 7:
                     self.game.screen.blit(self.game.sprite.backgroundImage3, ((posX * column - self.scroll.x), posY * row))
-                    positionbox = (posX * column), (posX * column + box_size), posY * row, posY * row + box_size
-                    # self.game.collision.player_collision_check(positionbox)
-                    # self.game.collision.player_collision_check(self.GRID_position[gridNr])
-                    self.GRID_position.append(positionbox)
-                else:
-                    self.GRID_position.append((posX * column, posX * column + box_size, posY * row, posY * row + box_size))
 
     def draw(self):
         # self.background()

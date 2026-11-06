@@ -1,6 +1,6 @@
 # Architektura
 
-> Opis stanu faktycznego (commit `2d51b48`, gałąź `dev`, uzupełniony o zmianę R-03), a nie stanu docelowego. Docelowe zmiany są w [ROADMAP.md](ROADMAP.md). Ścieżki są podawane względem `platformer_game/`. Znaczniki `[KOD]`, `[TEST]` itd. objaśnia [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).
+> Opis stanu faktycznego (commit `2d51b48`, gałąź `dev`, uzupełniony o zmiany R-03 i R-01), a nie stanu docelowego. Docelowe zmiany są w [ROADMAP.md](ROADMAP.md). Ścieżki są podawane względem `platformer_game/`. Znaczniki `[KOD]`, `[TEST]` itd. objaśnia [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).
 
 ## 1. Obraz ogólny
 
@@ -166,8 +166,8 @@ Warstwa `grid()` rysuje się po platformach. Dlatego dolna część platform na 
 | `GameEngine` | `src/core/game_engine.py` | Czcionki i licznik FPS | Nazwa myląca |
 | `AssetLoader` | `src/core/asset_loader.py` | Nieużywany loader | Cache odtwarzany przy każdym wywołaniu |
 | `SpriteManager` | `src/ui/sprite_manager.py` | Rzeczywiste ładowanie grafik | Dziedziczy po `pygame.sprite.Sprite` bez potrzeby, nie używa `AssetLoader` |
-| `Menu` | `src/ui/menu.py` | Porzucone menu | Crash przy wywołaniu |
-| `GameMap` | `src/world/game_map.py` | Dane siatki, tło, kamienie, kolizje kafelków | Dwie definicje `grid()`, wyciek pamięci |
+| `Menu` | `src/ui/menu.py` | Porzucone menu | Crash przy wywołaniu. Ma własną listę `GRID_position`, której R-01 nie zmieniło. Gra nie wywołuje `draw()`, a wywołanie ręczne dopisuje 43 krotki przed crashem `[TEST]` |
+| `GameMap` | `src/world/game_map.py` | Dane siatki, tło, kamienie, kolizje kafelków | Dwie definicje `grid()`, ok. 800 nieużywanych `Rect` na klatkę (R-33). Zbędne gromadzenie krotek w `GRID_position` usunięto w R-01, a generowanie mapy i kolizje się nie zmieniły (sprawdzone bez okna) `[TEST]` |
 | `PlatformManager` | `src/world/platform_manager.py` | Trzy stałe platformy | Pozycje zapisywane podczas rysowania |
 
 ## 6. Ukryte zależności
@@ -313,7 +313,7 @@ Lista dla pól opiera się na nazwach. Atrybut uznany za czytany w jednym miejsc
 | Zmienić wymiary gracza lub przeciwnika | Margines 12 px i przesunięcia sprite'ów są zakodowane na stałe. |
 | Dodać drugiego przeciwnika | `Game`, `CollisionManager` i `set_scroll` zakładają jednego. |
 | Włączyć kulę ognia | Najpierw napraw licznik czasu, inaczej gra się wywróci. |
-| Przyspieszyć rysowanie | Najpierw napraw wyciek i animacje zależne od FPS ([ROADMAP.md](ROADMAP.md)). |
+| Przyspieszyć rysowanie | Najpierw napraw animacje zależne od FPS ([ROADMAP.md](ROADMAP.md)). Lista w `GameMap.grid()`, która rosła z każdą klatką, została usunięta w R-01. |
 | Debugować crash | Przeczytaj ślad stosu na stderr. Kod wyjścia 1 oznacza nieoczekiwany błąd, a 0 normalne zamknięcie. |
 | Uruchomić grę w testach | Ustaw katalog roboczy na `platformer_game/` oraz sterowniki `dummy`. Klawisze można podstawić przez `pygame.key.get_pressed`. |
 

@@ -1,6 +1,6 @@
 # Przegląd projektu
 
-> Stan na: 2026-11-06, gałąź `dev`, HEAD `ec06314` („Add Cloude docs”). Kod i zasoby przeanalizowano w commicie `2d51b48` („Changing the structure of the application”, 2024-08-28), a `ec06314` dodał tylko `CLAUDE.md` i `docs/`.
+> Stan na: 2026-11-06, gałąź `dev`, HEAD `9fb1337` („Fix R-01”, ale zawiera R-03). Kod i zasoby przeanalizowano w commicie `2d51b48` („Changing the structure of the application”, 2024-08-28), a `ec06314` dodał tylko `CLAUDE.md` i `docs/`. R-01 jest na razie tylko w katalogu roboczym.
 > Dokument opisuje to, co faktycznie jest w kodzie. Szczegóły: [ARCHITECTURE.md](ARCHITECTURE.md), [GAMEPLAY.md](GAMEPLAY.md), [TECHNICAL_AUDIT.md](TECHNICAL_AUDIT.md), [ROADMAP.md](ROADMAP.md).
 
 ## Oznaczenia wiarygodności
@@ -33,7 +33,7 @@ W stanie początkowym ekran wygląda tak: rycerz stoi na trawie, nad nim są cze
 | pygame | 2.5.2 | `*` (`Pipfile`), 2.1.2 (`Pipfile.lock`) | Rozbieżność |
 | numpy | 1.26.2 | `*` (`Pipfile`), 1.22.1 (`Pipfile.lock`) | Realnie potrzebne tylko do jednego `zeros(...)` |
 | `requirements.txt` | — | pusty plik | Nieprzydatny |
-| Testy | `unittest` (biblioteka standardowa) | brak | Tylko kody wyjścia procesu, `tests/test_shutdown.py` |
+| Testy | `unittest` (biblioteka standardowa) | brak | Kody wyjścia procesu (`tests/test_shutdown.py`) oraz `GameMap`, kolizje podłoża i lądowanie (`tests/test_game_map.py`). Większość rozgrywki nie ma testów |
 | Linter, CI | brak | brak | |
 | PyInstaller | niezainstalowany | `src/main.spec` nieaktualny | Patrz [TECHNICAL_AUDIT.md](TECHNICAL_AUDIT.md) |
 
@@ -96,7 +96,7 @@ platformer-game/
 ├── preview.gif               Podgląd używany przez README na gałęzi main (3,9 MB)
 ├── CLAUDE.md                 Notatki techniczne dla asystenta
 ├── docs/                     Ta dokumentacja
-├── tests/                    Testy kodów wyjścia procesu (test_shutdown.py)
+├── tests/                    Testy kodów wyjścia i mapy (test_shutdown.py, test_game_map.py)
 ├── venv/                     Działające środowisko (ignorowane przez własny .gitignore)
 ├── .idea/                    Ustawienia PyCharm (śledzone mimo wpisu w .gitignore)
 └── platformer_game/          Katalog roboczy gry
@@ -142,13 +142,13 @@ Licencja: `assets/images/license.txt` mówi o CC0 i autorze Luisie Zuno (ansimuz
 - W commitach `dev` i `main` zawierają ten sam kod. `main` ma 4 commity, których nie ma `dev`, w tym merge'e, a `dev` ma 1 commit, którego nie ma `main` (`ec06314`, jeszcze niewypchnięty na `origin/dev`). Różnice w plikach to link do GIF-a w `README.md` oraz `CLAUDE.md` i `docs/`, obecne tylko na `dev`.
 - README na `dev` wskazuje plik `Screen Recording 2023-06-05...gif`, którego nie ma w repozytorium. Na `main` link prowadzi do `preview.gif`.
 - Gałąź `working` ma 2 commity, których nie ma w `dev`, i jest 18 commitów za `dev`.
-- Niezapisane w commitach: zmiany w `.idea/`, katalogi `__pycache__`, implementacja R-03 (`src/game.py`, `tests/`) oraz późniejsze zmiany w `CLAUDE.md` i `docs/`.
+- Niezapisane w commitach: implementacja R-01 (`src/world/game_map.py`, `tests/test_game_map.py`), związane z nią zmiany w `CLAUDE.md` i `docs/` oraz katalogi `__pycache__`. R-03 jest już w commicie `9fb1337`, mimo że jego tytuł brzmi „Fix R-01”. Kodu R-01 ten commit nie zawiera.
 - Historia sięga 2020-08-17 i liczy 75 commitów na gałęzi `dev`. Ostatni commit kodu pochodzi z 2024-08-28.
 
 ## Najważniejsze wnioski
 
 1. Podstawowa pętla gry działa i wygląda przyzwoicie, ale jest prototypem.
-2. Dwa problemy trzeba naprawić natychmiast: **wyciek pamięci rzędu 10 MB/s** (pomiar bez okna) w `GameMap.grid()` oraz **brak wyjścia z dziury**, do której można wpaść w niecałą sekundę od wylądowania.
+2. Natychmiastowej naprawy wymaga **brak wyjścia z dziury**, do której można wpaść w niecałą sekundę od wylądowania. Wyciek pamięci rzędu 10 MB/s (pomiar bez okna) w `GameMap.grid()` usunięto w R-01: RSS utrzymało się na ok. 93,4 MB przez 5 minut bez okna, przy stojącym graczu. W prawdziwym oknie jeszcze tego nie sprawdzono.
 3. Logika jest splątana z rysowaniem, a kolizje mają ukryty stan. To największe przeszkody w rozbudowie, więc trzeba je usunąć przed dodawaniem funkcji.
 4. Projekt jest mały, dlatego naprawa etapami jest realna i nie wymaga przepisywania wszystkiego od zera. Kolejność prac jest w [ROADMAP.md](ROADMAP.md).
 
