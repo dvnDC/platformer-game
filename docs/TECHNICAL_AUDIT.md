@@ -167,7 +167,7 @@ Stałe RSS nie oznacza, że cała pamięć jest stała. Te trzy kategorie trzeba
 
 ### BUG-02 — Wpadnięcie w dziurę kończy grę bez wyjścia
 
-- **Status:** ✅ Naprawione w R-02 i zweryfikowane bez okna. Opis i skutki poniżej to historia z audytu. Teraz po przekroczeniu `y > 800` gracz traci życie i wraca na start, a w grze bez spadków nic się nie zmieniło: 1360 kroków porównania z commitem `6bb0e6c` dało identyczne sumy kontrolne klatek (bez licznika FPS), pola kolizji i stan `[TEST]`. Ograniczenia są pod opisem błędu.
+- **Status:** ✅ Naprawione w R-02, zweryfikowane bez okna i ręcznie w prawdziwym oknie. Opis i skutki poniżej to historia z audytu. Teraz po przekroczeniu `y > 800` gracz traci życie i wraca na start, a w grze bez spadków nic się nie zmieniło: 1360 kroków porównania z commitem `6bb0e6c` dało identyczne sumy kontrolne klatek (bez licznika FPS), pola kolizji i stan `[TEST]`. Ograniczenia są pod opisem błędu.
 - **Opis:** Nie ma dolnej granicy świata, odrodzenia ani przegranej. Kamera pionowa nie działa.
 - **Waga:** Krytyczna `[TEST]`
 - **Pliki i metody:** `src/entities/player.py:102-134`, `src/core/physics_engine.py:32-37`
@@ -176,7 +176,7 @@ Stałe RSS nie oznacza, że cała pamięć jest stała. Te trzy kategorie trzeba
 
 **Ograniczenia po R-02:**
 
-- Nie sprawdzono prawdziwego okna ani ręcznej gry `[NIEZWERYFIKOWANE]`.
+- Ręczny test autora w prawdziwym oknie (gra uruchomiona z PyCharm) zakończył się powodzeniem, ale nie ma z niego pomiarów, np. FPS ani pamięci.
 - Odrodzenie jest zawsze na starcie `(640, 170)`, a nie w ostatnim bezpiecznym punkcie, więc spadek daleko od startu cofa cały postęp. `player_checkpoint = 0` pasuje tylko do tej pozycji `[KOD]`.
 - `Player.lives` nie jest wyświetlane. Przy 0 żyć gracz nadal się odradza, bo nie ma przegranej (R-20) `[TEST]`.
 - Pierwszy tick po odrodzeniu ma `vel.y == 0`, więc przytrzymana spacja daje skok w powietrzu (do `y ≈ 13`), tak samo jak na starcie gry. Jeśli był to pierwszy skok, zmienia też grawitację (BUG-14) `[TEST]`.
@@ -340,7 +340,7 @@ Stałe RSS nie oznacza, że cała pamięć jest stała. Te trzy kategorie trzeba
 | ENV-02 | `venv/pyvenv.cfg`: `include-system-site-packages = true`. Widoczne są też matplotlib, pillow itp. z bazowego Pythona `[TEST]` | Średnia | Mogą ukryć się brakujące zależności | Nowe izolowane środowisko |
 | ENV-03 | numpy tylko do `zeros((10, 4))` w `platform_manager.py`, nadpisanego pola w `menu.py` i nieużywanego importu `[KOD]` | Niska | Większy plik wynikowy | Usunąć zależność |
 | ENV-04 | Spec PyInstallera nieaktualny (szczegóły w §6) | Średnia | Budowa nie zadziała | Nowy spec |
-| ENV-05 | `.gitignore` to szablon JavaScript, bez Pythona. 11 plików `.pyc` z 3.8 śledzonych w git. `.idea` śledzone w dwóch miejscach mimo wpisu w ignorowanych `[TEST]` | Średnia | Szum w statusie, ryzyko zatwierdzania śmieci | Nowy `.gitignore`, `git rm --cached` |
+| ENV-05 | `.gitignore` to szablon JavaScript, uzupełniony w ramach R-04 o reguły dla Pythona. 11 plików `.pyc` z 3.8 nadal jest śledzonych w git. `.idea` śledzone w dwóch miejscach mimo wpisu w ignorowanych `[TEST]` | Średnia | Nowe pliki `__pycache__` są już ignorowane, ale śledzone pliki zostają w repozytorium | Reguły dodane. Pozostaje `git rm --cached`, po decyzji autora |
 | ENV-06 | Brak lintera, formatera, CI i `pyproject.toml`. Testy obejmują kody wyjścia procesu (`tests/test_shutdown.py`), `GameMap`, kolizje podłoża i lądowanie (`tests/test_game_map.py`) oraz spadek i odrodzenie (`tests/test_player_respawn.py`), ale parametrów biegu i skoku ani walki już nie `[KOD]` | Wysoka | Każda zmiana ryzykuje regresję | pytest, ruff, GitHub Actions |
 | ENV-07 | README na `dev` linkuje do nieistniejącego GIF-a. `dev` jest 4 commity za `main`, a `working` jest przestarzały `[TEST]` | Niska | Bałagan w gałęziach | Zmergować `main` do `dev`, ocenić `working` |
 | ENV-08 | Licencja: `license.txt` nie określa zakresu. Brak informacji o postaciach, muzyce, czcionce i brak licencji samego kodu `[NIEZWERYFIKOWANE]` | Średnia, wysoka przy publikacji | Ryzyko prawne przy dystrybucji | Spis źródeł, wymiana niepewnych zasobów, plik `LICENSE` |

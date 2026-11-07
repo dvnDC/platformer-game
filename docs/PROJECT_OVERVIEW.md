@@ -97,7 +97,7 @@ platformer-game/
 ├── CLAUDE.md                 Notatki techniczne dla asystenta
 ├── docs/                     Ta dokumentacja
 ├── tests/                    Testy kodów wyjścia, mapy i odrodzenia (test_shutdown.py, test_game_map.py, test_player_respawn.py)
-├── venv/                     Działające środowisko (ignorowane przez własny .gitignore)
+├── venv/                     Działające środowisko (ignorowane przez główny i własny .gitignore)
 ├── .idea/                    Ustawienia PyCharm (śledzone mimo wpisu w .gitignore)
 └── platformer_game/          Katalog roboczy gry
     ├── requirements.txt      Pusty
@@ -144,11 +144,12 @@ Licencja: `assets/images/license.txt` mówi o CC0 i autorze Luisie Zuno (ansimuz
 - Stan na commicie `6bb0e6c`: gałąź `working` ma 2 commity, których nie ma w `dev`, i jest 20 commitów za `dev`.
 - R-01 (`src/world/game_map.py`, `tests/test_game_map.py`) i związane z nim zmiany w `CLAUDE.md` i `docs/` są zapisane w commicie `6bb0e6c`. R-03 jest w commicie `9fb1337`, mimo że jego tytuł brzmi „Fix R-01”. Kodu R-01 ten commit nie zawiera. Katalogi `__pycache__` nie są śledzone.
 - Stan na commicie `6bb0e6c`: historia sięga 2020-08-17 i liczy 77 commitów na gałęzi `dev`. Ostatni commit kodu to `6bb0e6c` z 2026-11-06.
+- `.gitignore` obejmuje teraz także Pythona: `__pycache__/`, `*.py[cod]`, `venv/`, `.venv/`, pamięci podręczne narzędzi, `build/`, `*.egg-info/` oraz `Thumbs.db`. Reguły nie działają na pliki już śledzone, więc 11 plików `.pyc` z Pythona 3.8 i oba katalogi `.idea` nadal są w git. Zmiana śledzenia czeka na decyzję autora, dlatego R-04 nie jest jeszcze zakończone.
 
 ## Najważniejsze wnioski
 
 1. Podstawowa pętla gry działa i wygląda przyzwoicie, ale jest prototypem.
-2. Dwa najpilniejsze problemy są usunięte, ale sprawdzono to tylko bez okna. Wyciek pamięci rzędu 10 MB/s w `GameMap.grid()` zniknął w R-01: RSS utrzymało się na ok. 93,4 MB przez 5 minut, przy stojącym graczu. Dziura, do której można wpaść w niecałą sekundę od wylądowania, po R-02 kosztuje życie i cofa na start, zamiast kończyć rozgrywkę.
+2. Dwa najpilniejsze problemy są usunięte. Wyciek pamięci rzędu 10 MB/s w `GameMap.grid()` zniknął w R-01: RSS utrzymało się na ok. 93,4 MB przez 5 minut, przy stojącym graczu, ale sprawdzono to tylko bez okna. Dziura, do której można wpaść w niecałą sekundę od wylądowania, po R-02 kosztuje życie i cofa na start, zamiast kończyć rozgrywkę. To zachowanie potwierdzono też ręcznie w prawdziwym oknie.
 3. Logika jest splątana z rysowaniem, a kolizje mają ukryty stan. To największe przeszkody w rozbudowie, więc trzeba je usunąć przed dodawaniem funkcji.
 4. Projekt jest mały, dlatego naprawa etapami jest realna i nie wymaga przepisywania wszystkiego od zera. Kolejność prac jest w [ROADMAP.md](ROADMAP.md).
 

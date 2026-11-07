@@ -13,7 +13,7 @@
 | Grawitacja | 🟡 Częściowo | Zmienia wartość po pierwszym skoku |
 | Lądowanie na podłożu i platformach | ✅ Działa | Nieregularna odległość od podłoża, kilka pikseli |
 | Uderzenie głową i boki przeszkód | 🟡 Częściowo | Postać wchodzi w platformę, drży przy ścianie |
-| Dziury | ✅ Działa | Spadek kosztuje życie i cofa na start. Nie sprawdzono w prawdziwym oknie |
+| Dziury | ✅ Działa | Spadek kosztuje życie i cofa na start. Potwierdzone też ręcznie w prawdziwym oknie |
 | Kamera pozioma | ✅ Działa | Tło kończy się po długim biegu |
 | Kamera pionowa | ❌ Brak efektu | Wartość liczona, nieużywana |
 | Atak mieczem: trafienie | ✅ Działa | Sprawdzane tylko w pierwszym ticku |
@@ -145,7 +145,7 @@ Dziury to najważniejsza mechanika wymagająca decyzji projektowej:
 - Pierwsza prawa dziura znajduje się 160 px od startu. **Bieg w prawo od startu kończy się spadkiem już po 0,84 s** `[TEST]`.
 - Nad nią wisi platforma P1. Wyskok z `x` około 700-780 w prawo prowadzi na platformę. Wcześniejszy wyskok (z 560-680) kończy się spadkiem do dziury, bo postać uderza w lewy bok P1 i opada `[TEST]`.
 - Dziury dalej w świecie nie mają platform nad sobą. Startując z bezruchu, da się je przeskoczyć, odbijając się w ostatnich 80 px przed krawędzią `[TEST]`.
-- **Spadek kończy się odrodzeniem (R-02).** Gdy `y` przekroczy 800 (`FALL_LIMIT_Y`), czyli gdy hitbox jest już poniżej wszystkich kafelków, gracz traci jedno życie i wraca na start `(640, 170)`, a kamera od razu wraca do niego. Zerują się prędkość, bieg i atak, a grawitacja zostaje taka, jaka była `[TEST]`. Gracz ma 3 życia (`PLAYER_LIVES`), których nie widać na ekranie. Przy 0 żyć nadal się odradza, bo gra nie ma przegranej `[TEST]`. Spacja przytrzymana w chwili odrodzenia daje skok w powietrzu, tak jak na starcie gry `[TEST]`. Przeciwnik nie jest przenoszony, więc po spadku daleko od startu wraca dopiero po pewnym czasie (54 s przy `x = 4670`) `[TEST]`. Nie sprawdzono tego w prawdziwym oknie `[NIEZWERYFIKOWANE]`.
+- **Spadek kończy się odrodzeniem (R-02).** Gdy `y` przekroczy 800 (`FALL_LIMIT_Y`), czyli gdy hitbox jest już poniżej wszystkich kafelków, gracz traci jedno życie i wraca na start `(640, 170)`, a kamera od razu wraca do niego. Zerują się prędkość, bieg i atak, a grawitacja zostaje taka, jaka była `[TEST]`. Gracz ma 3 życia (`PLAYER_LIVES`), których nie widać na ekranie. Przy 0 żyć nadal się odradza, bo gra nie ma przegranej `[TEST]`. Spacja przytrzymana w chwili odrodzenia daje skok w powietrzu, tak jak na starcie gry `[TEST]`. Przeciwnik nie jest przenoszony, więc po spadku daleko od startu wraca dopiero po pewnym czasie (54 s przy `x = 4670`) `[TEST]`. Autor potwierdził działanie odrodzenia ręcznie w prawdziwym oknie gry uruchomionej z PyCharm.
 - **Rzadki, przypadkowy wyjątek (pomiar sprzed R-02).** Jeśli przeciwnik wpada do tej samej dziury razem z graczem, kontakt z nim może na chwilę wyzerować `vel.y`, a przytrzymana spacja pozwala wtedy wyskoczyć. Przy naturalnym dojściu do dziury wróciło tak 3 z 320 prób ze spacją, wszystkie po pierwszym skoku (grawitacja 0,9). Bez spacji powrotu nie było. Przy sztucznie ustawionym kontakcie od głębokości `y ≥ 760` skok nie wystarczał do powrotu. To skutek uboczny reakcji na kolizję, a nie mechanizm wyjścia. Przegląd czasów nie był wyczerpujący `[TEST]`.
 - Dziura nie wygląda jak dziura. W tym miejscu widać dolną część obrazu terenu, czyli wzór przypominający roślinność `[TEST]` (zrzut ekranu).
 
