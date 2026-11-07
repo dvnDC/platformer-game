@@ -33,7 +33,7 @@ W stanie początkowym ekran wygląda tak: rycerz stoi na trawie, nad nim są cze
 | pygame | 2.5.2 | `*` (`Pipfile`), 2.1.2 (`Pipfile.lock`) | Rozbieżność |
 | numpy | 1.26.2 | `*` (`Pipfile`), 1.22.1 (`Pipfile.lock`) | Realnie potrzebne tylko do jednego `zeros(...)` |
 | `requirements.txt` | — | pusty plik | Nieprzydatny |
-| Testy | `unittest` (biblioteka standardowa) | brak | Kody wyjścia procesu (`tests/test_shutdown.py`) , `GameMap`, kolizje podłoża i lądowanie (`tests/test_game_map.py`) oraz spadek i odrodzenie (`tests/test_player_respawn.py`). Pozostała rozgrywka nie ma własnych testów |
+| Testy | `unittest` (biblioteka standardowa) | brak | Kody wyjścia procesu (`tests/test_shutdown.py`) , `GameMap`, kolizje podłoża i lądowanie (`tests/test_game_map.py`), spadek i odrodzenie (`tests/test_player_respawn.py`), limity pętli gry (`tests/test_game_loop.py`), animację biegu (`tests/test_run_animation.py`), animację ataku (`tests/test_attack_animation.py`) oraz konwersję grafik (`tests/test_surface_conversion.py`). Pozostała rozgrywka nie ma własnych testów |
 | Linter, CI | brak | brak | |
 | PyInstaller | niezainstalowany | `src/main.spec` nieaktualny | Patrz [TECHNICAL_AUDIT.md](TECHNICAL_AUDIT.md) |
 
@@ -76,7 +76,7 @@ Pętla działa do przerwania, więc proces trzeba zakończyć ręcznie.
 | Kolizje z podłożem i platformami | 🟡 Częściowo | Lądowanie działa, reakcja od dołu i z boku ma błędy `[TEST]` |
 | Kamera pozioma i parallaksa | 🟡 Częściowo | Działa, ale tło kończy się po przebyciu dłuższego dystansu `[TEST]` |
 | Nieskończona mapa | 🟡 Częściowo | Podłoże i dziury się powtarzają, platformy występują tylko raz `[TEST]` |
-| Atak mieczem | 🟡 Częściowo | Trafienie działa, animacja zwykle się nie odtwarza `[TEST]` |
+| Atak mieczem | 🟡 Częściowo | Trafienie i animacja działają, ale strefa trafienia ma znane błędy (R-22) `[TEST]` |
 | Przeciwnik | 🟡 Częściowo | Idzie w lewo, grawitacja i odrodzenie działają. Brak AI i animacji, wpada w dziury `[TEST]` |
 | Muzyka | ✅ Działa w kodzie | Zapętlony utwór, realnego dźwięku nie sprawdzono `[NIEZWERYFIKOWANE]` |
 | Licznik FPS | ✅ Działa | Jedyny element interfejsu `[KOD]` |
@@ -96,7 +96,7 @@ platformer-game/
 ├── preview.gif               Podgląd używany przez README na gałęzi main (3,9 MB)
 ├── CLAUDE.md                 Notatki techniczne dla asystenta
 ├── docs/                     Ta dokumentacja
-├── tests/                    Testy kodów wyjścia, mapy i odrodzenia (test_shutdown.py, test_game_map.py, test_player_respawn.py)
+├── tests/                    Testy kodów wyjścia, mapy, odrodzenia, pętli gry, animacji i konwersji grafik (test_shutdown.py, test_game_map.py, test_player_respawn.py, test_game_loop.py, test_run_animation.py, test_attack_animation.py, test_surface_conversion.py)
 ├── venv/                     Działające środowisko (ignorowane przez główny i własny .gitignore)
 ├── .idea/                    Ustawienia PyCharm (śledzone mimo wpisu w .gitignore)
 └── platformer_game/          Katalog roboczy gry

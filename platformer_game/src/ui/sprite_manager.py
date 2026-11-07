@@ -36,10 +36,10 @@ class SpriteManager(pygame.sprite.Sprite):
         self.backgroundImage = self.scale_image("assets/images/layers/country-platform-back.png", (1280, 720))
         self.backgroundImage2 = self.scale_image("assets/images/layers/country-platform-forest.png", (300, 720))
         self.backgroundImage3 = self.scale_image("assets/images/layers/country-platform-tiles-example.png", (1280, 720))
-        self.imageGrid0 = pygame.image.load("assets/images/grid0.png")
-        self.imageGrid1 = pygame.image.load("assets/images/grid1.png")
+        self.imageGrid0 = self.optimize(pygame.image.load("assets/images/grid0.png"))
+        self.imageGrid1 = self.optimize(pygame.image.load("assets/images/grid1.png"))
         self.stone = self.scale_image("assets/images/objects/stone.png", (234, 200))
-        self.enemyImage = pygame.image.load("assets/images/enemy2.png")
+        self.enemyImage = self.optimize(pygame.image.load("assets/images/enemy2.png"))
         self.platformImage = self.scale_image("assets/images/platform.png", (300, 30))
         self.weaponPickupImage = self.scale_image("assets/images/weapon.png", (50, 50))
 
@@ -52,8 +52,17 @@ class SpriteManager(pygame.sprite.Sprite):
         sprite_sheet = self.scale_image("assets/images/effects/attack/2.png", (400, 400))
         self.imageAttackEffect = self.slice_sprite_sheet(sprite_sheet, 3, 4, (100, 100))
 
+    def optimize(self, surface):
+        """
+        Matches the display format so blits are fast. Needs the display mode to be set.
+        Only a surface with no alpha channel and no colorkey is known to be opaque.
+        """
+        if surface.get_masks()[3] == 0 and surface.get_colorkey() is None:
+            return surface.convert()
+        return surface.convert_alpha()
+
     def scale_image(self, path, size):
-        return pygame.transform.scale(pygame.image.load(path), size)
+        return self.optimize(pygame.transform.scale(pygame.image.load(path), size))
 
     def scale_images_folder(self, folder, size, count):
         return [self.scale_image(f'{folder}{i}.png', size) for i in range(count)]
@@ -73,7 +82,7 @@ class SpriteManager(pygame.sprite.Sprite):
     def get_image(self, posx, posy, width, height, sprite_sheet):
         image = pygame.Surface([width, height], pygame.SRCALPHA)
         image.blit(sprite_sheet, (0, 0), (posx, posy, width, height))
-        return image
+        return self.optimize(image)
 
     # def load_attack_effect_images(self):
     #     self.temp = pygame.image.load("images/effects/attack/2.png")

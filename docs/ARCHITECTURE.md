@@ -1,6 +1,6 @@
 # Architektura
 
-> Opis stanu faktycznego (commit `2d51b48`, gałąź `dev`, uzupełniony o zmiany R-03, R-01 i R-02), a nie stanu docelowego. Docelowe zmiany są w [ROADMAP.md](ROADMAP.md). Ścieżki są podawane względem `platformer_game/`. Znaczniki `[KOD]`, `[TEST]` itd. objaśnia [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).
+> Opis stanu faktycznego (commit `2d51b48`, gałąź `dev`, uzupełniony o zmiany R-03, R-01, R-02, R-08, R-09 i R-32), a nie stanu docelowego. Docelowe zmiany są w [ROADMAP.md](ROADMAP.md). Ścieżki są podawane względem `platformer_game/`. Znaczniki `[KOD]`, `[TEST]` itd. objaśnia [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).
 
 ## 1. Obraz ogólny
 
@@ -76,7 +76,7 @@ Komponenty powstają w tej kolejności (`src/game.py:55-67`):
 
 | # | Pole | Klasa | Dlaczego kolejność ma znaczenie |
 |---|---|---|---|
-| 1 | `sprite` | `SpriteManager` | Ładuje grafiki w konstruktorze. Inne komponenty korzystają z nich dopiero przy rysowaniu. |
+| 1 | `sprite` | `SpriteManager` | Ładuje grafiki w konstruktorze i konwertuje je do formatu ekranu, więc wymaga wcześniejszego `set_mode()`. Inne komponenty korzystają z nich dopiero przy rysowaniu. |
 | 2 | `map` | `GameMap` | Bez wymagań w konstruktorze. |
 | 3 | `player` | `Player` | Musi istnieć przed `CollisionManager`. |
 | 4 | `enemy` | `Enemy` | |
@@ -91,23 +91,25 @@ Komponenty powstają w tej kolejności (`src/game.py:55-67`):
 
 ## 4. Pętla gry
 
-`Game.run()` (`src/game.py:70-90`):
+`Game.run()` (`src/game.py:70-96`):
 
 ```text
 wyzeruj zegar                      # czas ładowania nie jest nadrabiany
 dopóki True:
     obsłuż zdarzenia (QUIT, Esc -> sys.exit(0))
-    tps_delta += czas od ostatniego obiegu
-    dopóki tps_delta > 1/100 s:    # stały krok, bez limitu nadrabiania
+    tps_delta = min(tps_delta, 25/100 s)   # starszy czas przepada
+    dopóki tps_delta > 1/100 s:            # stały krok
         tick()
-    render()                       # bez limitu FPS
+    render()
+    tps_delta += clock.tick(60)            # czeka na koniec klatki i mierzy jej czas
 ```
 
 Cechy tej pętli:
 
 - **Logika** ma stały krok 100 ticków na sekundę (`TPS_MAX`). Bez okna zmierzono 100 TPS przy ~63 FPS `[TEST]`.
-- **Rysowanie** nie ma limitu w kodzie i zajmuje cały dostępny czas `[KOD]`. `clock.tick()` jest wołane bez argumentu, a kod nie włącza vsync. Zachowania w prawdziwym oknie nie sprawdzono `[NIEZWERYFIKOWANE]`.
-- **Nadrabianie** nie ma górnego limitu, więc po długim zatrzymaniu procesu wykona się wiele ticków naraz `[KOD]`.
+- **Rysowanie** ma limit `FPS_MAX` (60) przez `clock.tick(FPS_MAX)`, a kod nie włącza vsync `[KOD]`. Od R-32 render zajmuje bez okna ok. 1,7 ms, więc proces przez większość klatki śpi i używa ok. 24% rdzenia `[TEST]`. W prawdziwym oknie pomiar skryptem dał ok. 3,9 ms, 59 FPS i 28% rdzenia przy stojącym graczu.
+- **Nadrabianie** ma limit `MAX_TICKS_PER_FRAME` (25 ticków, czyli 0,25 s) na klatkę, a nadmiar czasu przepada. Po zatrzymaniu procesu gra toczy się dalej bez przeskoku, a poniżej 4 FPS zwalnia `[TEST]`.
+- **Pomiar czasu jest na końcu klatki**, dlatego pierwszy `render()`, który tworzy geometrię kolizji, poprzedza pierwszy `tick()` `[TEST]`.
 - **Wyjątki:** cała pętla jest w `try/except Exception`. Po błędzie `logging.exception` drukuje pełny ślad stosu na stderr, a proces kończy się kodem 1 `[TEST]`. `Esc` i zamknięcie okna wołają `sys.exit(0)`, a `SystemExit` nie jest przechwytywany przez ten blok, więc dają kod 0 `[TEST]`.
 
 ### Kolejność w jednym ticku
@@ -115,13 +117,15 @@ Cechy tej pętli:
 ```text
 Game.tick()
 ├─ Player.tick()
+│   ├─ attack_ticks          przebieg i koniec ataku
 │   ├─ handle_input()        klawisze, skok, atak (test trafienia)
 │   ├─ całkowanie prędkości i pozycji
 │   ├─ position = (x0, x1, y0, y1)
 │   ├─ collision.player_collision()         3 platformy
 │   ├─ collision.player_collision_check()   każdy kafelek stały (80)
 │   ├─ collision.player_enemy_collision()
-│   └─ respawn_after_fall(), jeśli y > FALL_LIMIT_Y
+│   ├─ respawn_after_fall(), jeśli y > FALL_LIMIT_Y
+│   └─ runCount: licznik animacji biegu
 ├─ Weapon.tick()             y i box (x pochodzi z poprzedniego draw)
 ├─ Projectile.tick()         ruch pocisku, może też rysować
 ├─ Enemy.tick()
@@ -143,7 +147,7 @@ Game.render()
 │   ├─ stone()                2 kamienie
 │   ├─ PlatformManager.draw() prostokąt + skalowana grafika; ZAPISUJE pozycje platform
 │   └─ grid()                 5 × obraz terenu 1280×720 + 80 kafelków; ZAPISUJE kolizje
-├─ Player.draw()              ZMIENIA runCount, animation_timer, isAttacking
+├─ Player.draw()
 ├─ Enemy.draw()
 ├─ Weapon.draw()              nic nie rysuje; ZAPISUJE weapon.pos.x
 ├─ Projectile.draw()          ZMIENIA weapon.fire, pos i time0
@@ -191,8 +195,6 @@ Skutki:
 | Pole | Gdzie zmieniane | Kto czyta |
 |---|---|---|
 | `Weapon.pos.x` | `Weapon.draw()` | `Weapon.tick()` przy budowie strefy ataku |
-| `Player.runCount` | `Player.draw()`; zerowane w `tick()` | `Player.draw()` |
-| `Player.isAttacking`, `animation_timer` | `Player.draw()` (koniec ataku) | `handle_input()` |
 | `Projectile.pos`, `Weapon.fire`, `time0` | `Projectile.draw()` | logika pocisku |
 
 W drugą stronę `Projectile.tick()` woła `self.draw()`, czyli rysuje w ticku `[KOD]`.
@@ -283,7 +285,7 @@ Stan jest rozproszony i nie ma jednej struktury opisującej „aktualną grę”
 |---|---|
 | Pozycja i prędkość gracza | `Player.pos`, `Player.vel`, kopia prostokąta w `Player.position` |
 | Flagi akcji | `Player.isRunning`, `isAttacking`, `isJump` |
-| Licznik animacji | `Player.runCount`, `Player.animation_timer` |
+| Liczniki animacji | `Player.runCount`, `Player.attack_ticks` |
 | Czas w module | globalne `time0` w `player.py`, `enemy.py`, `projectile.py` |
 | Przeciwnik | `Enemy.pos`, `vel`, `live`, `counter` |
 | Pocisk | `Weapon.fire`, `Projectile.pos`, `vel`, `projectileRight`, `projectileLeft` |

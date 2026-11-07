@@ -152,7 +152,7 @@ class RespawnStateTests(RespawnTestCase):
         self.player.isRunning = True
         self.player.isAttacking = True
         self.player.runCount = 15
-        self.player.animation_timer = 1.5
+        self.player.attack_ticks = 30
 
         self.player.tick()
 
@@ -164,7 +164,7 @@ class RespawnStateTests(RespawnTestCase):
         self.assertFalse(self.player.isRunning)
         self.assertFalse(self.player.isAttacking)
         self.assertEqual(self.player.runCount, 0)
-        self.assertEqual(self.player.animation_timer, 0)
+        self.assertEqual(self.player.attack_ticks, 0)
 
     def test_collision_flags_are_cleared_after_touching_an_enemy_while_falling(self):
         self.game.render()

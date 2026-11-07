@@ -1,7 +1,7 @@
 import pygame
 from pygame.math import Vector2
 from src.entities.player_state import PlayerState
-from config.settings import FALL_LIMIT_Y, PLAYER_LIVES
+from config.settings import FALL_LIMIT_Y, PLAYER_LIVES, ATTACK_FRAME_TICKS, ATTACK_TICKS, RUN_FRAME_TICKS, RUN_CYCLE_TICKS
 import time
 
 time0 = time.time()
@@ -43,7 +43,7 @@ class Player(object):
 
         self.time1 = 0
         self.dt = 0
-        self.animation_timer = 0
+        self.attack_ticks = 0
 
         self.position = (0, 0, 0, 0)  # x0 x1 y0 y1
 
@@ -98,6 +98,7 @@ class Player(object):
 
     def handle_attack(self):
         self.isAttacking = True
+        self.attack_ticks = 0
         self.game.collision.collision(self.game.weapon.position, self.game.enemy.position)
         if self.game.collision.isCollision:
             self.game.enemy.live = False
@@ -119,15 +120,19 @@ class Player(object):
         self.isRunning = False
         self.isAttacking = False
         self.runCount = 0
-        self.animation_timer = 0
+        self.attack_ticks = 0
 
         self.game.map.player_checkpoint = 0  # grid() would only walk back one step per frame
         self.game.collision.reset_flags()
         self.game.physics.snap_scroll()
 
     def tick(self):
-        # Time for animations
-        self.animation_timer += 1 / self.game.tps_max
+        # Attack animation. Comes before input, so a held key starts the next attack as this one ends
+        if self.isAttacking:
+            self.attack_ticks += 1
+            if self.attack_ticks >= ATTACK_TICKS:
+                self.isAttacking = False
+
         global time0
         self.time1 = time.time()
         self.dt = self.time1 - time0
@@ -160,8 +165,8 @@ class Player(object):
             self.respawn_after_fall()
 
         # Player animation
-        if self.runCount + 1 >= 21:
-            self.runCount = 0
+        if self.isRunning and not self.isAttacking and self.vel.x != 0:
+            self.runCount = (self.runCount + 1) % RUN_CYCLE_TICKS
 
     def draw(self):
         # base model
@@ -183,27 +188,21 @@ class Player(object):
 
         elif self.isRunning == True and self.isAttacking == False:
             if self.vel.x > 0:
-                self.game.screen.blit(self.game.sprite.imagePlayerRun[self.runCount // 3],
+                self.game.screen.blit(self.game.sprite.imagePlayerRun[self.runCount // RUN_FRAME_TICKS],
                                       (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
-                self.runCount += 1
             elif self.vel.x < 0:
-                self.game.screen.blit(self.game.sprite.imagePlayerRunFlip[self.runCount // 3],
+                self.game.screen.blit(self.game.sprite.imagePlayerRunFlip[self.runCount // RUN_FRAME_TICKS],
                                       (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
-                self.runCount += 1
 
         elif self.isAttacking:
-            animate_speed = self.animation_timer * 20
-            if not int(animate_speed) >= 9:
-                if self.vel.x >= 0:
-                    self.game.screen.blit(self.game.sprite.imagePlayerAttack[int(animate_speed)],
-                                          (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
-                    self.game.screen.blit(self.game.sprite.imageAttackEffect[int(animate_speed)],
-                                          (self.game.weapon.pos.x - self.scroll.x, self.game.weapon.pos.y))
-                elif self.vel.x < 0:
-                    self.game.screen.blit(self.game.sprite.imagePlayerAttackFlip[int(animate_speed)],
-                                          (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
-                    self.game.screen.blit(self.game.sprite.imageAttackEffect[int(animate_speed)],
-                                          (self.game.weapon.pos.x - self.scroll.x, self.game.weapon.pos.y))
-            if self.animation_timer >= 2 or int(animate_speed) >= 9:
-                self.animation_timer = 0
-                self.isAttacking = False
+            attack_frame = self.attack_ticks // ATTACK_FRAME_TICKS
+            if self.vel.x >= 0:
+                self.game.screen.blit(self.game.sprite.imagePlayerAttack[attack_frame],
+                                      (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
+                self.game.screen.blit(self.game.sprite.imageAttackEffect[attack_frame],
+                                      (self.game.weapon.pos.x - self.scroll.x, self.game.weapon.pos.y))
+            elif self.vel.x < 0:
+                self.game.screen.blit(self.game.sprite.imagePlayerAttackFlip[attack_frame],
+                                      (self.pos.x - self.scroll.x - 70, self.pos.y - 70))
+                self.game.screen.blit(self.game.sprite.imageAttackEffect[attack_frame],
+                                      (self.game.weapon.pos.x - self.scroll.x, self.game.weapon.pos.y))

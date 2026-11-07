@@ -45,7 +45,45 @@ Szczegółowy czas części renderu:
 | `platforms.draw` | 0,03 | 0,03 |
 | `display_fps` | 0,003 | 0,003 |
 
-**Wniosek:** koszt to prawie wyłącznie rysowanie dużych powierzchni bez konwersji formatu. Wbrew intuicji `transform.scale` w każdej klatce i brak podziału przestrzeni w kolizjach nie są dziś problemem wydajnościowym.
+**Wniosek z audytu:** koszt to prawie wyłącznie rysowanie dużych powierzchni bez konwersji formatu. Wbrew intuicji `transform.scale` w każdej klatce i brak podziału przestrzeni w kolizjach nie są dziś problemem wydajnościowym.
+
+### Pomiary po R-32
+
+Powyższe liczby opisują stan z audytu, a tabele niżej stan przed i po wprowadzeniu konwersji do `SpriteManager`, już z limitem FPS z R-08. Oba zestawy mierzono na tym samym komputerze (macOS), przy stojącym graczu i bez dźwięku.
+
+**Bez okna** (sterownik `dummy`) `[TEST]`:
+
+| Pomiar | Przed | Po |
+|---|---|---|
+| Mediana `render()` | 15,91 ms | 1,71 ms (9,3× szybciej) |
+| Tło (`background_vanilla`) | 7,64 ms | 0,66 ms |
+| `grid` | 7,55 ms | 0,91 ms |
+| `stone` | 0,36 ms | 0,03 ms |
+| `player.draw` | 0,20 ms | 0,02 ms |
+| `tick()` | 0,085 ms | 0,085 ms |
+| Pętla `Game.run`, 10 s | 60,4 FPS, 99,9 TPS, 100% rdzenia | 55,8 FPS, 99,9 TPS, 24% rdzenia |
+| `Game()` przy starcie | 92 ms | 87 ms |
+| Maksymalne RSS | 95,2 MB | 101,6 MB |
+
+Spadek do 55,8 FPS wynika z tego, że proces naprawdę śpi w `clock.tick(60)`, a sen trwa dłużej, niż zamówiono. Tempo logiki się nie zmienia.
+
+**Prawdziwe okno** (sterownik `cocoa`, pętla `Game.run`, 2 przebiegi po 8 s, pomiar skryptem, bez oceny wzrokowej i bez dźwięku):
+
+| Pomiar | Przed | Po |
+|---|---|---|
+| Mediana `render()` z `flip()` | 17,3 ms | 3,9 ms (4,4× szybciej) |
+| FPS | 56,8 i 57,1 | 59,0 i 59,4 |
+| TPS | 100,0 i 100,1 | 100,1 i 100,0 |
+| Użycie rdzenia | ok. 103% | ok. 28% |
+
+**Zgodność obrazu:** 61 klatek ze skryptowego przebiegu (bieg, skok, cios, przeciwnik) było identycznych co do bajta przed i po konwersji, osobno bez okna i w prawdziwym oknie. Identyczne były też pozycje, prędkości i `runCount` w 1500 tickach. Pozostałe grafiki, np. kulę ognia, porównano pojedynczo tylko bez okna: rozmiar i wszystkie piksele RGBA się zgadzają `[TEST]`.
+
+**Ograniczenia po R-32:**
+
+- Bieg, walka i dłuższa gra nie były mierzone w prawdziwym oknie, a wynik pochodzi z jednego komputera. Inne ekrany i systemy mogą dać inne liczby `[NIEZWERYFIKOWANE]`.
+- Format ekranu zależy od sterownika: `dummy` nie ma maski alfa, a `cocoa` ma. Po `convert()` powierzchnie w `cocoa` mają więc maskę alfa, ale pozostają nieprzezroczyste (`SRCALPHA` wyłączone, tryb mieszania 0, alfa 255). Testy automatyczne działają tylko na `dummy`.
+- Plik RGBA bez żadnego przezroczystego piksela dostałby `convert_alpha()`, czyli bezpieczniejszą, ale wolniejszą ścieżkę. Teraz takich grafik nie ma `[TEST]`.
+- Po `pygame.display.set_mode` z innym formatem grafiki trzeba by przekonwertować ponownie. Dziś tryb ustawiany jest raz `[KOD]`.
 
 ## 3. Grafika i zasoby
 
@@ -54,7 +92,7 @@ Szczegółowy czas części renderu:
 - Wszystko ładuje się raz, w `SpriteManager.__init__`, przez bezpośrednie `pygame.image.load` z **względnymi** ścieżkami `[KOD]`.
 - Muzyka korzysta z bezwzględnego `BASE_DIR`. To niespójność, przez którą gra nie startuje poza `platformer_game/` `[TEST]`.
 - `AssetLoader` nie jest używany, a jego cache tworzony jest od nowa w każdym wywołaniu (`asset_loader.py:9`) `[KOD]`.
-- **Brak `.convert()` i `.convert_alpha()` w całym projekcie** `[KOD]`.
+- Od R-32 `SpriteManager.optimize` konwertuje każdą grafikę raz, zaraz po wczytaniu i skalowaniu. W audycie nie było `.convert()` ani `.convert_alpha()` w całym projekcie `[KOD]`.
 - Przy starcie libpng drukuje ostrzeżenia `iCCP: known incorrect sRGB profile`, ok. 10 na uruchomienie. Chunk iCCP ma 17 plików PNG `[TEST]`.
 - Pamięć po wczytaniu to szacunkowo ok. 14 MB `[WYLICZONE]`, więc wielkość zasobów w RAM nie jest problemem.
 
@@ -64,8 +102,8 @@ Animacje to listy `Surface` indeksowane licznikiem. Nie ma klasy animacji ani ws
 
 | Animacja | Zegar | Problem |
 |---|---|---|
-| Bieg gracza | Licznik rysowań `runCount` | Zależność od FPS, używane 7 z 10 klatek |
-| Atak | `animation_timer` w tickach, koniec w `draw` | Timer niezerowany przed atakiem |
+| Bieg gracza | Licznik `runCount` w tickach (od R-08) | Używane 7 z 10 klatek |
+| Atak | `attack_ticks` w tickach, także koniec ataku (od R-09) | Używane 9 z 10 klatek |
 | Efekt ataku | Ten sam timer | Używane 9 z 12 klatek |
 | Kula ognia | `time.time()` i globalne `time0` | Błędny licznik, crash |
 | Bezczynność | Brak | 1 z 10 klatek |
@@ -114,7 +152,7 @@ Centralny menedżer zasobów z bezwzględnymi ścieżkami, `convert_alpha`, mani
 | ID | Problem | Waga | Pliki | Skutki | Rozwiązanie |
 |---|---|---|---|---|---|
 | ARCH-01 | Service locator i wzajemne modyfikowanie pól, cykle `Player ↔ CollisionManager ↔ Enemy` ([zależności](ARCHITECTURE.md#rzeczywiste-zależności-w-czasie-działania)) `[TEST]` | Wysoka | Całe `src/`, zwłaszcza `src/game.py`, `src/entities/player.py` | Zmiana jednej klasy wpływa na inne, testy jednostkowe są trudne | R-18, stopniowo przekazywać jawne zależności |
-| ARCH-02 | Logika w rysowaniu, a rysowanie w logice: geometria kolizji, `Weapon.pos.x`, koniec ataku, `runCount`, `player_checkpoint`, `Projectile.tick → draw` `[KOD]` | Krytyczna dla rozwoju | `src/world/game_map.py`, `src/world/platform_manager.py`, `src/entities/weapon.py`, `src/entities/player.py`, `src/entities/projectile.py` | Wyłączenie rysowania zmienia fizykę, a menu lub pauza są utrudnione | R-12 |
+| ARCH-02 | Logika w rysowaniu, a rysowanie w logice: geometria kolizji, `Weapon.pos.x`, `player_checkpoint`, `Projectile.tick → draw` `[KOD]` | Krytyczna dla rozwoju | `src/world/game_map.py`, `src/world/platform_manager.py`, `src/entities/weapon.py`, `src/entities/player.py`, `src/entities/projectile.py` | Wyłączenie rysowania zmienia fizykę, a menu lub pauza są utrudnione | R-12 |
 | ARCH-03 | `CollisionManager` z ukrytym stanem, 4 kopiami reakcji i niestandardowym układem prostokątów `(x0, x1, y0, y1)` `[KOD]`, `[TEST]` | Wysoka | `src/core/collision_manager.py:81-100,126-145,172-191,216-237` | Błędy BUG-05, BUG-06, poprawki trzeba powielać | R-13 |
 | ARCH-04 | Brak stanów gry i scen, `Game.run` zna tylko jeden tryb `[KOD]` | Wysoka | `src/game.py` | Brak miejsca na menu, pauzę i ekran końca | R-16 |
 | ARCH-05 | Założenie jednej encji każdego typu, brak klasy bazowej `[KOD]` | Wysoka | `src/game.py`, `src/core/collision_manager.py`, `src/core/physics_engine.py`, `src/entities/` | Drugi przeciwnik wymaga zmian w wielu klasach | R-15 |
@@ -181,7 +219,7 @@ Stałe RSS nie oznacza, że cała pamięć jest stała. Te trzy kategorie trzeba
 - `Player.lives` nie jest wyświetlane. Przy 0 żyć gracz nadal się odradza, bo nie ma przegranej (R-20) `[TEST]`.
 - Pierwszy tick po odrodzeniu ma `vel.y == 0`, więc przytrzymana spacja daje skok w powietrzu (do `y ≈ 13`), tak samo jak na starcie gry. Jeśli był to pierwszy skok, zmienia też grawitację (BUG-14) `[TEST]`.
 - Przeciwnik nie jest przenoszony. Po spadku daleko od startu wraca sam dopiero wtedy, gdy znajdzie się ponad 1000 px za graczem: po 54 s przy spadku na `x = 4670`, po 206 s na `x = 19870` `[TEST]`.
-- Pola kolizji odświeża dopiero render. Gdyby po odrodzeniu z innego powtórzenia mapy gra stanęła na ponad ok. sekundę bez rysowania, gracz mógłby spaść drugi raz (BUG-16) `[WYLICZONE]`.
+- Pola kolizji odświeża dopiero render. Przed R-08 długi przestój po odrodzeniu z innego powtórzenia mapy kosztował kolejne życia. Od R-08 między rysowaniami jest najwyżej 25 ticków, więc w teście z przestojami po 60 s gracz traci tylko jedno życie `[TEST]`.
 
 ### BUG-03 — Wyjątki w pętli są połykane
 
@@ -194,11 +232,39 @@ Stałe RSS nie oznacza, że cała pamięć jest stała. Te trzy kategorie trzeba
 
 ### BUG-04 — Animacja ataku zwykle się nie odtwarza
 
+- **Status:** ✅ Naprawione w R-09, zweryfikowane bez okna. Opis i skutki poniżej to stan z audytu. Licznik `attack_ticks` zeruje się przy starcie ataku, a przebieg i koniec ataku należą do `tick()`. Każda klatka trwa 5 ticków, a cały atak 45 ticków `[TEST]`.
 - **Opis:** `animation_timer` rośnie stale i zeruje się dopiero na końcu ataku. Gdy minęło ≥ 0,45 s, atak trwa 1 tick i nic nie rysuje.
 - **Waga:** Wysoka `[TEST]`
 - **Pliki i metody:** `src/entities/player.py:104,165-179`
 - **Skutki:** Przeciwnik ginie bez widocznego ciosu. Przy E po 0,2 s animacja zaczyna się od środka.
 - **Rozwiązanie:** Zerować licznik przy starcie ataku, koniec ataku obsługiwać w `tick()`.
+
+**Weryfikacja kodu przed R-09** `[TEST]` (1 rysowanie na tick, chyba że podano inaczej). Sprostowanie do audytu: brak animacji dotyczył tylko naciśnięcia kończącego się przed następnym tickiem po rysowaniu. Przy dłuższym naciśnięciu, czyli prawdopodobnie przy większości zwykłych `[ZAŁOŻENIE]`, animacja startowała od razu po pustym ataku. Pomiar dodał też brak postaci w ostatnim rysowaniu i zawieszenie ataku bez rysowania:
+
+| Sytuacja | Przed R-09 | Po R-09 |
+|---|---|---|
+| E na 1 tick po dłuższej przerwie | Atak 1 tick, jedno rysowanie bez postaci, brak animacji | 45 ticków, klatki 0-8 po 5 ticków |
+| E przez 2 ticki po dłuższej przerwie | Atak 1 tick i rysowanie bez postaci, a od razu po nim pełna animacja: razem 46 ticków | 45 ticków, klatki 0-8 po 5 ticków |
+| Drugie E po 0,2 s | Atak od klatki 4 | Zignorowane, bo pierwszy atak trwa |
+| E przytrzymane | Atak 1 tick, potem cykle 45 ticków z 1 rysowaniem bez postaci, czas klatek 4, 6, 4, 5... | Cykle 45 ticków bez przerwy, po 5 ticków na klatkę |
+| Brak rysowania | Atak nie kończy się nigdy (sprawdzone na 1000 ticków) | Kończy się po 45 tickach |
+| Rysowanie co 4 ticki | Koniec zależy od rysowania | Ten sam przebieg stanu w każdym ticku |
+
+**Celowe zmiany zachowania:**
+
+- Każdy atak trwa pełne 0,45 s, także pierwszy po przerwie, nawet przy bardzo krótkim naciśnięciu. Przez ten czas kolejne E jest ignorowane. Dawniej pierwszy atak kończył się po 1 ticku, więc można było znów sprawdzić trafienie zaraz po nim.
+- Bardzo krótkie naciśnięcie pokazuje teraz atak zamiast biegu, a licznik biegu czeka przez cały atak.
+- E przytrzymane sprawdza trafienie co 45 ticków. Dawniej robiło to też w drugim ticku.
+- Postać nie znika w ostatnim rysowaniu ataku.
+- Klatki trwają równo po 5 ticków. Nierówny czas wynikał z błędów zaokrąglenia licznika zmiennoprzecinkowego.
+
+**Bez zmian:** kolejność klatek, obraz efektu, sterowanie, sprawdzanie trafienia tylko przy starcie ataku, brak wpływu ataku na ruch i skok, wstrzymanie licznika biegu. Pozycje i prędkości gracza oraz przeciwnika przez 1500 ticków są identyczne, a z 61 porównanych klatek różni się tylko ta, na której dawniej brakowało postaci `[TEST]`.
+
+**Ograniczenia po R-09:**
+
+- `Weapon.pos.x` nadal powstaje w `Weapon.draw()`, więc strefa trafienia zależy od ostatniego rysowania (BUG-20, R-22) `[KOD]`.
+- Kierunek ataku nadal wynika ze znaku `vel.x` (BUG-17, R-22) `[KOD]`.
+- Stara wartość `isCollision` może nadal dawać fałszywe trafienie (BUG-05, R-13) `[KOD]`.
 
 ### BUG-05 — Przestarzałe flagi kolizji powodują fałszywe reakcje
 
@@ -221,11 +287,31 @@ Stałe RSS nie oznacza, że cała pamięć jest stała. Te trzy kategorie trzeba
 
 ### BUG-07 — Brak limitu FPS i animacja biegu zależna od FPS
 
+- **Status:** ✅ Naprawione w R-08, zweryfikowane tylko bez okna. Opis i skutki poniżej to stan z audytu. Rysowanie ma limit `FPS_MAX = 60`. `runCount` rośnie w `Player.tick()`, a `draw()` tylko go odczytuje, więc tempo biegu nie zależy od FPS `[TEST]`. Indeks klatki to `runCount // 5` przy `runCount` od 0 do 32, czyli zawsze 0-6, i wielokrotne rysowanie go nie zmienia, więc `IndexError` nie ma już przyczyny `[TEST]`.
+- **Sprostowanie do skutków:** tick zostawiał licznik najwyżej na 19, a wyjątek powstawał przy `runCount = 30`, czyli przy 12. rysowaniu bez ticku. 11 rysowań wystarczało tylko przy sztucznym starcie z `runCount = 20` `[TEST]`.
 - **Opis:** `runCount` rośnie w `draw`, a resetuje się w `tick`. `clock.tick()` jest bez limitu.
 - **Waga:** Wysoka `[TEST]`, `[KOD]`
 - **Pliki i metody:** `src/entities/player.py:133-134,154-162`, `src/game.py:81`
 - **Skutki:** Tempo animacji zależy od sprzętu. Render zajmuje cały dostępny czas `[KOD]`, co przy prawdziwym oknie powinno oznaczać duże obciążenie rdzenia `[ZAŁOŻENIE]`. Przy ≥ 11 rysowaniach na tick (ok. 1100 FPS) pojawia się `IndexError`, potwierdzony przez 11 kolejnych `render()`. Przy ~63 FPS zmierzonych bez okna to nierealne, ale po optymalizacji ryzyko rośnie.
 - **Rozwiązanie:** Liczniki animacji w `tick()`, `clock.tick(60)` lub vsync.
+
+**Pomiar przed i po R-08** `[TEST]` (sterownik `dummy`, macOS, ten sam komputer, pętla `Game.run`). Wiersze o cyklu biegu porównują stan tuż przed przeniesieniem `runCount`, czyli już z limitem FPS:
+
+| Scenariusz | Przed | Po |
+|---|---|---|
+| Pełny render, 10 s | 60,4 FPS, 100,0 TPS, 100% rdzenia | 60,6 FPS, 100,0 TPS, 100% rdzenia |
+| Render bez rysowania, 5 s | ok. 818 000 FPS, 100,2 TPS, 100% rdzenia | 54,7 FPS, 100,1 TPS, 4,7% rdzenia |
+| Przestój 3 s | 302 ticki przed następnym rysowaniem | 24 ticki przed następnym rysowaniem |
+| 900 ticków ze skryptowym sterowaniem (bieg, skok, cios) | punkt odniesienia | Identyczne pozycje i prędkości gracza oraz przeciwnika w każdym ticku |
+| Cykl biegu w pętli, ok. 61 FPS | 20 rysowań, 327 ms | 33 ticki, ok. 332 ms |
+| Czas klatek biegu 0-6 | 3, 3, 3, 3, 3, 3, 2 rysowania | 5, 5, 5, 5, 5, 5, 3 ticki |
+
+**Ograniczenia po R-08:**
+
+- Pełny render zajmował wtedy ok. 16 ms, czyli prawie cały budżet klatki, więc sam limit nie obniżył użycia procesora bez okna. Spadek przyniosło dopiero R-32, opisane w [§2](#2-podsumowanie-pomiarów).
+- Limit nie jest dokładny: przy pustym renderze zmierzono 54,7 FPS, a przy pełnym 60,6 FPS. Prędkość gry od tego nie zależy, bo logika ma stały krok `[TEST]`.
+- Tempo biegu jest teraz stałe, więc wygląda jak dawniej tylko przy ok. 60 FPS. Przy 30 FPS dawny cykl trwałby ok. 0,67 s, a teraz trwa 0,33 s `[WYLICZONE]`.
+- `RUN_FRAME_TICKS` i `RUN_CYCLE_TICKS` są w tickach, więc zmiana `TPS_MAX` zmieni tempo biegu `[KOD]`.
 
 ### BUG-08 — Kula ognia wywraca grę po włączeniu
 
@@ -293,12 +379,13 @@ Stałe RSS nie oznacza, że cała pamięć jest stała. Te trzy kategorie trzeba
 
 ### BUG-16 — Brak limitu nadrabiania ticków
 
+- **Status:** ✅ Naprawione w R-08, zweryfikowane tylko bez okna. Opis i skutki poniżej to historia z audytu. `tps_delta` jest teraz ograniczane do `MAX_TICKS_PER_FRAME / TPS_MAX`, czyli 0,25 s, więc między dwoma rysowaniami wykona się najwyżej 25 ticków, a starszy czas przepada. Gra działa więc w czasie rzeczywistym przy co najmniej 4 FPS, a poniżej tej wartości zwalnia zamiast przeskakiwać. Ponieważ pomiar czasu jest teraz na końcu klatki, przed pierwszym rysowaniem nie ma żadnego ticku `[TEST]`. Czas w `Projectile` nadal pochodzi z `time.time()` i nie podlega temu limitowi, ale kula ognia jest nieosiągalna `[KOD]`.
 - **Opis:** `while tps_delta > 1 / tps_max` nie ma górnej granicy.
 - **Waga:** Niska `[KOD]`
 - **Pliki i metody:** `src/game.py:81-84`
 - **Skutki:** Po 60 s zatrzymania ok. 6000 ticków naraz, czyli ok. 0,5 s zamrożenia przy obecnym koszcie `[WYLICZONE]`. Świat „przeskakuje” o 60 s bez rysowania i odświeżania danych zależnych od renderu.
 - **Rozwiązanie:** Ograniczyć `tps_delta`, np. do 0,25 s.
-- **Uzupełnienie z R-02:** zegar startował przed wczytaniem zasobów, więc czas ładowania był nadrabiany przed pierwszym renderem, gdy nie ma jeszcze kolizji. Zwykle były to tylko 6 ticków, ale przy ładowaniu trwającym ok. 1 s lub dłużej gracz przelatywał przez podłoże `[TEST]`. Naprawiono to, wywołując `tps_clock.tick()` tuż przed pętlą: nawet przy 4 s opóźnienia przed pierwszym renderem nie ma już ticków `[TEST]`. Sam brak limitu nadrabiania w trakcie gry pozostaje otwarty.
+- **Uzupełnienie z R-02:** zegar startował przed wczytaniem zasobów, więc czas ładowania był nadrabiany przed pierwszym renderem, gdy nie ma jeszcze kolizji. Zwykle były to tylko 6 ticków, ale przy ładowaniu trwającym ok. 1 s lub dłużej gracz przelatywał przez podłoże `[TEST]`. Naprawiono to, wywołując `tps_clock.tick()` tuż przed pętlą: nawet przy 4 s opóźnienia przed pierwszym renderem nie ma już ticków `[TEST]`. Brak limitu nadrabiania w trakcie gry usunęło dopiero R-08.
 
 ### BUG-17 — Kierunek postaci wynika ze znaku prędkości
 
@@ -341,7 +428,7 @@ Stałe RSS nie oznacza, że cała pamięć jest stała. Te trzy kategorie trzeba
 | ENV-03 | numpy tylko do `zeros((10, 4))` w `platform_manager.py`, nadpisanego pola w `menu.py` i nieużywanego importu `[KOD]` | Niska | Większy plik wynikowy | Usunąć zależność |
 | ENV-04 | Spec PyInstallera nieaktualny (szczegóły w §6) | Średnia | Budowa nie zadziała | Nowy spec |
 | ENV-05 | `.gitignore` to szablon JavaScript, uzupełniony w ramach R-04 o reguły dla Pythona. 11 plików `.pyc` z 3.8 nadal jest śledzonych w git. `.idea` śledzone w dwóch miejscach mimo wpisu w ignorowanych `[TEST]` | Średnia | Nowe pliki `__pycache__` są już ignorowane, ale śledzone pliki zostają w repozytorium | Reguły dodane. Pozostaje `git rm --cached`, po decyzji autora |
-| ENV-06 | Brak lintera, formatera, CI i `pyproject.toml`. Testy obejmują kody wyjścia procesu (`tests/test_shutdown.py`), `GameMap`, kolizje podłoża i lądowanie (`tests/test_game_map.py`) oraz spadek i odrodzenie (`tests/test_player_respawn.py`), ale parametrów biegu i skoku ani walki już nie `[KOD]` | Wysoka | Każda zmiana ryzykuje regresję | pytest, ruff, GitHub Actions |
+| ENV-06 | Brak lintera, formatera, CI i `pyproject.toml`. Testy obejmują kody wyjścia procesu (`tests/test_shutdown.py`), `GameMap`, kolizje podłoża i lądowanie (`tests/test_game_map.py`) spadek i odrodzenie (`tests/test_player_respawn.py`) limity pętli gry (`tests/test_game_loop.py`), animację biegu (`tests/test_run_animation.py`), animację ataku (`tests/test_attack_animation.py`) oraz konwersję grafik (`tests/test_surface_conversion.py`), ale parametrów biegu i skoku ani samej walki już nie `[KOD]` | Wysoka | Każda zmiana ryzykuje regresję | pytest, ruff, GitHub Actions |
 | ENV-07 | README na `dev` linkuje do nieistniejącego GIF-a. `dev` jest 4 commity za `main`, a `working` jest przestarzały `[TEST]` | Niska | Bałagan w gałęziach | Zmergować `main` do `dev`, ocenić `working` |
 | ENV-08 | Licencja: `license.txt` nie określa zakresu. Brak informacji o postaciach, muzyce, czcionce i brak licencji samego kodu `[NIEZWERYFIKOWANE]` | Średnia, wysoka przy publikacji | Ryzyko prawne przy dystrybucji | Spis źródeł, wymiana niepewnych zasobów, plik `LICENSE` |
 | ENV-09 | Zasoby bez rozszerzeń, nieużywane i zduplikowane (§3) | Niska | Większe repozytorium i paczka | Porządki po potwierdzeniu |
@@ -403,7 +490,7 @@ Tabela pokazuje wynik sprawdzenia pierwotnej wersji `CLAUDE.md`. Prawie wszystki
 | `__pycache__` poza `.gitignore`, śledzone stare `.pyc` | ✅ 11 plików `[TEST]` |
 | Polskie komentarze | ✅ `[KOD]` |
 
-`CLAUDE.md` opisuje już także naprawiony wyciek `GRID_position`, brak `convert_alpha`, `venv` z dostępem do pakietów systemowych, dziury z odrodzeniem po R-02 oraz zmianę grawitacji po pierwszym skoku.
+`CLAUDE.md` opisuje już także naprawiony wyciek `GRID_position`, konwersję powierzchni z R-32, `venv` z dostępem do pakietów systemowych, dziury z odrodzeniem po R-02 oraz zmianę grawitacji po pierwszym skoku.
 
 ## 8. Ocena ogólna
 
@@ -424,9 +511,9 @@ Oceny opisują stan z audytu (commit `2d51b48`) i nie były zmieniane po R-03, R
 | Kategoria | Elementy |
 |---|---|
 | Wycieki pamięci | BUG-01, jedyny stwierdzony, naprawiony w R-01. Osobna lista `Menu.GRID_position` nie rośnie podczas gry, bo menu nie jest wywoływane. Tymczasowe powierzchnie w `transform.scale` są zwalniane: pośrednio potwierdza to stałe RSS przez 5 minut bez okna `[TEST]` |
-| Wąskie gardła | Brak konwersji powierzchni, rysowanie poza ekranem (5 × 1280×720, 28 × 300×720), 800 nieużywanych `Rect` na klatkę |
-| Crash | `IndexError` animacji biegu (BUG-07), kula ognia (BUG-08), martwe funkcje (BUG-19), brak pliku grafiki (ślad stosu, kod 1) `[TEST]` |
-| Zawieszenie | `handle_jump` (BUG-15), nadrabianie (BUG-16) |
+| Wąskie gardła | Rysowanie poza ekranem (5 × 1280×720, 28 × 300×720), 800 nieużywanych `Rect` na klatkę |
+| Crash | kula ognia (BUG-08), martwe funkcje (BUG-19), brak pliku grafiki (ślad stosu, kod 1) `[TEST]` |
+| Zawieszenie | `handle_jump` (BUG-15). Nadrabianie (BUG-16) ma limit od R-08 |
 | Soft-lock | Dziura (BUG-02) naprawiona w R-02, innych nie stwierdzono |
 | Nieoczekiwane zakończenie | Każdy wyjątek w pętli kończy grę, ale od R-03 ze śladem stosu i kodem 1 (BUG-03, naprawione) |
 | Niespójności | Grawitacja, ścieżki, trzy modele świata, dwa loadery, dwa miejsca `WIDTH`/`HEIGHT` |
@@ -440,9 +527,9 @@ Każde ustalenie ma zadanie w [ROADMAP.md](ROADMAP.md). Waga opisuje skutek prob
 | BUG-01 (naprawione) | Krytyczna | R-01 (wykonane) | Krytyczny |
 | BUG-02 (naprawione) | Krytyczna | R-02 (wykonane), później R-20 | Krytyczny, Wysoki |
 | BUG-03 (naprawione) | Wysoka | R-03 (wykonane) | Krytyczny |
-| BUG-04 | Wysoka | R-09 | Wysoki |
+| BUG-04 (naprawione) | Wysoka | R-09 (wykonane) | Wysoki |
 | BUG-05, BUG-06 | Wysoka | R-13 | Wysoki |
-| BUG-07 | Wysoka | R-08 | Wysoki |
+| BUG-07 (naprawione) | Wysoka | R-08 (wykonane) | Wysoki |
 | BUG-08 | Średnia | R-25 | Średni |
 | BUG-09 | Średnia | R-21 | Wysoki |
 | BUG-10 | Średnia | R-20 | Wysoki |
@@ -450,7 +537,7 @@ Każde ustalenie ma zadanie w [ROADMAP.md](ROADMAP.md). Waga opisuje skutek prob
 | BUG-12 | Średnia | R-14, R-24 | Wysoki, Średni |
 | BUG-13 | Średnia | R-06 | Wysoki |
 | BUG-14, BUG-15 | Niska | R-11 | Średni |
-| BUG-16 | Niska | R-08 | Wysoki |
+| BUG-16 (naprawione) | Niska | R-08 (wykonane) | Wysoki |
 | BUG-17, BUG-20 | Niska | R-22 | Średni |
 | BUG-18 | Niska | R-13, R-22 | Wysoki, Średni |
 | BUG-19 | Niska | R-10, R-29 | Średni |
@@ -462,7 +549,7 @@ Każde ustalenie ma zadanie w [ROADMAP.md](ROADMAP.md). Waga opisuje skutek prob
 | ENV-07 | Niska | R-04, R-39 | Wysoki, Niski |
 | ENV-08 | Średnia, wysoka przy publikacji | R-36 | Wysoki przed publikacją |
 | ENV-09 | Niska | R-35 | Średni |
-| Brak konwersji powierzchni (§2) | Wysoka dla wydajności | R-32 | Wysoki |
+| Brak konwersji powierzchni (§2, naprawione) | Wysoka dla wydajności | R-32 (wykonane) | Wysoki |
 | Rysowanie poza ekranem, nieużywane `Rect` (§9) | Niska | R-33 | Średni |
 | Duże pliki, ostrzeżenia iCCP (§3) | Niska | R-34 | Niski |
 | Rozproszone ładowanie i animacje (§3) | Średnia | R-19 | Średni |

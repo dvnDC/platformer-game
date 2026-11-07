@@ -17,7 +17,7 @@
 | Kamera pozioma | ✅ Działa | Tło kończy się po długim biegu |
 | Kamera pionowa | ❌ Brak efektu | Wartość liczona, nieużywana |
 | Atak mieczem: trafienie | ✅ Działa | Sprawdzane tylko w pierwszym ticku |
-| Atak mieczem: animacja | 🟡 Częściowo | Pojedyncze wciśnięcia zwykle nie mają animacji |
+| Atak mieczem: animacja | ✅ Działa | Pełna animacja przy każdym ataku (R-09). Nie sprawdzono w prawdziwym oknie |
 | Przeciwnik | 🟡 Częściowo | Brak AI i animacji, wpada w dziury |
 | Odepchnięcie przez przeciwnika | 🟡 Częściowo | Brak obrażeń, na platformie P3 działa też bez dotyku |
 | Kula ognia | ❌ Nieosiągalna | Crash po włączeniu |
@@ -172,11 +172,11 @@ Sprite gracza ma 160 × 160 px i jest rysowany z przesunięciem `(-70, -70)` wzg
 | Stan | Klatki w plikach | Realnie używane | Zachowanie |
 |---|---|---|---|
 | Bezczynność | 10 (`Stand/`) | 1 | Brak animacji, tylko klatka 0 |
-| Bieg | 10 (`Run/`) | 7 (indeksy 0-6) `[TEST]` | Licznik rośnie na klatkę **rysowania**, więc tempo zależy od FPS |
-| Atak | 10 (`Attack1H/`) | 9 (indeksy 0-8) | 20 klatek/s na podstawie `animation_timer` |
+| Bieg | 10 (`Run/`) | 7 (indeksy 0-6) `[TEST]` | Licznik rośnie co tick: 5 ticków na klatkę, ostatnia 3, więc tempo nie zależy od FPS |
+| Atak | 10 (`Attack1H/`) | 9 (indeksy 0-8) | 5 ticków na klatkę, czyli 20 klatek/s, na podstawie `attack_ticks` |
 | Skok lub spadanie | Brak | Brak | Pokazuje bieg albo bezczynność |
 
-Przy 63 FPS cykl biegu trwa ok. 0,33 s, ale przy wyższym FPS będzie krótszy `[WYLICZONE]`. Jeśli między dwoma tickami przypadnie 11 lub więcej rysowań, indeks wyjdzie poza listę i gra się zakończy `[TEST]`. Wymagałoby to ok. 1100 FPS `[WYLICZONE]`. Przy ~63 FPS zmierzonych bez okna jest to nierealne, ale ryzyko rośnie wraz z optymalizacją renderu.
+Cykl biegu trwa 33 ticki, czyli 0,33 s, niezależnie od FPS `[TEST]`. Do R-08 licznik rósł co rysowanie, a podobne tempo dawało ok. 60 FPS `[TEST]`. Licznik rośnie tylko podczas biegu bez ataku i zeruje się po puszczeniu klawisza `[KOD]`. Indeks klatki nie wychodzi poza 0-6 `[TEST]`. Prędkość ruchu nie zależy od FPS, bo logika ma stały krok `[TEST]`.
 
 ## Atak mieczem
 
@@ -185,16 +185,16 @@ Przy 63 FPS cykl biegu trwa ok. 0,33 s, ale przy wyższym FPS będzie krótszy `
 - Atak do przodu zabija, atak za plecami nie `[TEST]`.
 - Trafienie to natychmiastowe odrodzenie przeciwnika 1280 px w prawo od gracza, na `y = 100`. Nie ma punktów ani animacji śmierci `[TEST]`.
 
-**Błąd animacji.** `animation_timer` rośnie cały czas i zeruje się tylko po zakończeniu ataku. Animacja wymaga, by licznik był poniżej 0,45 s od poprzedniego zerowania `[TEST]`:
+**Czas ataku (od R-09).** Atak trwa 45 ticków, czyli 0,45 s. Klatki 0-8 postaci i efektu zmieniają się co 5 ticków `[TEST]`. Przebieg i koniec ataku należą do `tick()`, więc nie zależą od rysowania, a atak kończy się także wtedy, gdy nic nie jest rysowane `[TEST]`.
 
-| Sytuacja | Czas trwania ataku |
+| Sytuacja | Zachowanie |
 |---|---|
-| E tuż po zakończeniu poprzedniego ataku | 45 ticków, pełna animacja |
-| E po 0,20 s | 25 ticków, animacja od środka |
-| E po 0,44 s lub później | 1 tick, **brak widocznej animacji** |
-| E przytrzymane | Cykle: 1 tick bez animacji, potem 44 ticki z animacją |
+| Pojedyncze E, także po długiej przerwie | Pełna animacja, 45 ticków |
+| E podczas ataku | Zignorowane, bez kolejkowania |
+| E w ticku, w którym atak się kończy | Nowy atak od klatki 0 |
+| E przytrzymane | Kolejne ataki co 45 ticków, bez przerwy |
 
-Trafienie działa niezależnie od animacji. Pojedyncze naciśnięcie E zwykle zabije przeciwnika bez widocznego ciosu.
+Atak nie zmienia ruchu ani skoku i działa też w powietrzu. Podczas ataku licznik biegu czeka, a po ataku wraca `[TEST]`.
 
 Ponieważ `collision()` zachowuje poprzednią wartość przy pudle w osi Y, atak wykonany z platformy P3 może zabić przeciwnika stojącego niżej. W teście strefa ataku miała `y` 439-539, a przeciwnik 591-641, więc nie pokrywały się w pionie, a przeciwnik zginął `[TEST]`.
 

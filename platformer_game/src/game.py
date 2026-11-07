@@ -14,7 +14,7 @@ from src.world.platform_manager import PlatformManager
 from src.entities.player import Player
 from src.ui.sprite_manager import SpriteManager
 from src.entities.weapon import Weapon
-from config.settings import SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_MUSIC_PATH, MUSIC_VOLUME, TPS_MAX
+from config.settings import SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_MUSIC_PATH, MUSIC_VOLUME, TPS_MAX, FPS_MAX, MAX_TICKS_PER_FRAME
 
 pygame.display.set_caption("dvn's game")
 
@@ -80,13 +80,17 @@ class Game:
                         sys.exit(0)
 
                 # Fixed time step for game logic updates
-                self.tps_delta += self.tps_clock.tick() / 1000.0
+                # After a stall the extra time is dropped: collision data only refreshes when rendering
+                self.tps_delta = min(self.tps_delta, MAX_TICKS_PER_FRAME / self.tps_max)
                 while self.tps_delta > 1 / self.tps_max:
                     self.tick()  # Update game logic
                     self.tps_delta -= 1 / self.tps_max
 
                 # Rendering
                 self.render()  # Render the game state
+
+                # Wait out the rest of the frame. Measured here so no tick runs before the first render
+                self.tps_delta += self.tps_clock.tick(FPS_MAX) / 1000.0
         except Exception:
             logging.exception("An error occurred during the game loop")
             sys.exit(1)

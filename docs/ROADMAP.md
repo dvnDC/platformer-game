@@ -1,6 +1,6 @@
 # Plan rozwoju
 
-> Oparte na ustaleniach z [TECHNICAL_AUDIT.md](TECHNICAL_AUDIT.md) (identyfikatory `BUG-xx`, `ARCH-xx`, `ENV-xx`). Złożoność i ryzyko to oceny szacunkowe, nie pomiary. Priorytet określa kolejność prac i może różnić się od wagi błędu w audycie, co pokazuje [TECHNICAL_AUDIT.md §10](TECHNICAL_AUDIT.md#10-powiązanie-z-planem-rozwoju). Wykonane zadania: R-01, R-02, R-03. Pozostałe są otwarte. Ścieżki są względem `platformer_game/`, o ile nie zaznaczono inaczej.
+> Oparte na ustaleniach z [TECHNICAL_AUDIT.md](TECHNICAL_AUDIT.md) (identyfikatory `BUG-xx`, `ARCH-xx`, `ENV-xx`). Złożoność i ryzyko to oceny szacunkowe, nie pomiary. Priorytet określa kolejność prac i może różnić się od wagi błędu w audycie, co pokazuje [TECHNICAL_AUDIT.md §10](TECHNICAL_AUDIT.md#10-powiązanie-z-planem-rozwoju). Wykonane zadania: R-01, R-02, R-03, R-08, R-09, R-32. Pozostałe są otwarte. Ścieżki są względem `platformer_game/`, o ile nie zaznaczono inaczej.
 
 ## Główna decyzja
 
@@ -12,7 +12,7 @@
 |---|---|---|---|
 | **0. Bezpieczeństwo prac** | Widzieć błędy, mieć czyste repozytorium | R-03, R-04, R-05 | Crash pokazuje ślad stosu, status git jest czysty, środowisko odtwarzalne |
 | **1. Pilne naprawy** | Grę da się używać | R-01, R-02, R-06, R-07 | Pamięć stabilna, dziura nie kończy gry, testy dymne przechodzą |
-| **2. Czas i animacje** | Zachowanie niezależne od FPS | R-08, R-09, R-32, R-10, R-11 | Tempo animacji i FPS są pod kontrolą, render szybszy (ok. 6× w pomiarze bez okna; sprawdzić także w prawdziwym oknie) |
+| **2. Czas i animacje** | Zachowanie niezależne od FPS | R-08, R-09, R-32, R-10, R-11 | Tempo animacji i FPS są pod kontrolą, render szybszy (po R-32 ok. 9× bez okna i ok. 4× w prawdziwym oknie, razem z `flip()`) |
 | **3. Fundamenty** | Rozdzielone update i render, poprawne kolizje | R-12, R-13, R-17, R-14, R-15, R-16, R-19, a R-18 stopniowo przy okazji | `tick()` działa bez rysowania, możliwe wielu przeciwników i osobne sceny |
 | **4. Rozgrywka** | Prawdziwa gra | R-20, R-21, R-22, R-23, R-24, R-25, R-26 | Da się przegrać, a walka ma sens |
 | **5. Treść i funkcje** | Pełna pętla | R-27, R-28, R-29, R-30, R-31 | Menu → poziom → wynik → koniec |
@@ -24,7 +24,7 @@ Etap 6 można w części realizować wcześniej. R-36 warto wyjaśnić, zanim w�
 
 | Zadanie | Wymaga | Powód |
 |---|---|---|
-| R-32 `convert_alpha` | R-08 (R-01 już wykonane) | Wyższy FPS bez R-08 przyspieszy animację biegu, a przy dalszych zyskach zbliży grę do `IndexError`. Listy `GRID_position` w `GameMap` już nie ma, więc nie rośnie ona szybciej z FPS |
+| R-32 `convert_alpha` | R-08 i R-01 (oba wykonane) | Dzięki R-08 wyższy FPS nie zmieni tempa biegu, a FPS nie przekroczy limitu. Listy `GRID_position` w `GameMap` już nie ma, więc nie rośnie ona szybciej z FPS |
 | R-13 kolizje | R-07, R-12 | Bez testów trudno sprawdzić, czy ruch nie zmienił się niezamierzenie, a bez R-12 geometria jest zależna od renderu |
 | R-14 model świata | R-12 | Dane mapy muszą być dostępne bez rysowania |
 | R-15 encje | R-13 | Wielu przeciwników wymaga bezstanowych kolizji |
@@ -126,6 +126,7 @@ R-06 ──┼──────────────────────
 
 ### R-08 — Limit FPS i animacje w tickach
 
+- **Status:** ✅ Wykonane i zweryfikowane bez okna. Rysowanie ma limit `FPS_MAX = 60` przez `clock.tick(FPS_MAX)` na końcu klatki. Nadrabianie ma limit `MAX_TICKS_PER_FRAME = 25`, czyli 0,25 s, a nadmiar czasu przepada (BUG-16, `tests/test_game_loop.py`). `runCount` rośnie teraz w `Player.tick()`, a `draw()` tylko go odczytuje: klatka trwa 5 ticków, ostatnia 3, a cały cykl 33 ticki, czyli 0,33 s (BUG-07, `tests/test_run_animation.py`). Zgodnie z decyzją autora bieg nadal używa 7 klatek, a nie 10 z pierwotnego planu poniżej. Koniec ataku w `draw()` należy do R-09. `TPS_MAX`, ruch i fizyka się nie zmieniły. Sam limit FPS prawie nie obniżał użycia procesora, bo render zajmował prawie cały budżet klatki. Ten zysk przyniosło dopiero R-32. Pomiary są przy [BUG-07](TECHNICAL_AUDIT.md#bug-07--brak-limitu-fps-i-animacja-biegu-zależna-od-fps). Nie sprawdzono tego w prawdziwym oknie `[NIEZWERYFIKOWANE]`.
 - **Problem:** Render bez limitu, a `runCount` liczy rysowania (BUG-07). Bez limitu nadrabiania (BUG-16).
 - **Dlaczego ważne:** Różny sprzęt daje różne tempo animacji, a skrajny FPS kończy się `IndexError`.
 - **Rozwiązanie:** `clock.tick(60)` lub vsync. Liczniki przenieść do `tick()`, użyć 10 klatek z indeksem modulo. Ograniczyć `tps_delta` do np. 0,25 s.
@@ -135,6 +136,7 @@ R-06 ──┼──────────────────────
 
 ### R-09 — Naprawić atak
 
+- **Status:** ✅ Wykonane i zweryfikowane bez okna. `Player.attack_ticks` zeruje się przy starcie ataku i rośnie w `tick()`, który też kończy atak po `ATTACK_TICKS = 45` tickach. `draw()` tylko odczytuje klatkę `attack_ticks // 5`, więc rysowanie nie zmienia stanu ataku, a atak kończy się także bez rysowania (`tests/test_attack_animation.py`). Celowe zmiany zachowania są przy [BUG-04](TECHNICAL_AUDIT.md#bug-04--animacja-ataku-zwykle-się-nie-odtwarza). Strefa trafienia nadal bierze `Weapon.pos.x` z rysowania, co należy do R-22 (BUG-20). Nie sprawdzono tego w prawdziwym oknie ani ręcznie `[NIEZWERYFIKOWANE]`.
 - **Problem:** Animacja rzadko się odtwarza (BUG-04), a stan ataku kończy się w `draw`.
 - **Dlaczego ważne:** To główna akcja walki w grze i obecnie wygląda jak błąd.
 - **Rozwiązanie:** Pole `attack_ticks` zerowane przy naciśnięciu i zwiększane w `tick()`. Koniec ataku w `tick()`, `draw()` tylko odczytuje indeks klatki.
@@ -311,16 +313,17 @@ R-06 ──┼──────────────────────
 
 ## F. Optymalizacja wydajności
 
-Wzrost wydajności nie jest teraz najpilniejszy, bo w pomiarze bez okna gra osiąga ~63 FPS, ale R-32 jest wyjątkowo tani. Płynności w prawdziwym oknie nie sprawdzono `[NIEZWERYFIKOWANE]`.
+Po R-32 render zajmuje w prawdziwym oknie ok. 3,9 ms przy stojącym graczu, więc dalsza optymalizacja nie jest pilna. Płynności nie oceniał jeszcze człowiek `[NIEZWERYFIKOWANE]`.
 
 ### R-32 — `convert_alpha()` dla wszystkich grafik
 
+- **Status:** ✅ Wykonane. Zweryfikowane bez okna (`tests/test_surface_conversion.py`) i skryptem w prawdziwym oknie, ale bez oceny wzrokowej i ręcznej gry `[NIEZWERYFIKOWANE]`. `SpriteManager.optimize` wywołuje `convert()` dla powierzchni bez kanału alfa i bez colorkey, a `convert_alpha()` dla pozostałych. `convert()` dostają 4 grafiki z plików PNG bez alfa: `backgroundImage`, `imageGrid0`, `imageGrid1`, `platformImage`. Wszystkie pozostałe mają prawdziwą przezroczystość. W obu sterownikach 61 klatek przed i po zmianie było identycznych co do bajta. Pomiary są w [TECHNICAL_AUDIT.md §2](TECHNICAL_AUDIT.md#2-podsumowanie-pomiarów). Sam `AssetLoader` zostaje nieużywany i bez poprawnego cache, bo należy do R-10 i R-19.
 - **Problem:** Brak konwersji formatu. Render zajmuje 15,8 ms w pomiarze bez okna.
 - **Dlaczego ważne:** Test w pamięci dał 2,37 ms, czyli 6,6× szybciej, co zapewnia zapas na treść. Wynik pochodzi ze sterownika `dummy` i w prawdziwym oknie może być inny.
 - **Rozwiązanie:** Po `set_mode()` `convert_alpha()` przy ładowaniu i `convert()` dla obrazów bez alfa.
 - **Pliki:** `src/ui/sprite_manager.py`
 - **Złożoność:** Niska · **Ryzyko regresji:** Niskie · **Priorytet:** Wysoki
-- **Zależności:** **Koniecznie po R-08.** R-01 jest już wykonane.
+- **Zależności:** R-08 i R-01 są już wykonane.
 
 ### R-33 — Pomijanie rysowania poza ekranem i porządki
 
